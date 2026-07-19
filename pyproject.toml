@@ -1,0 +1,73 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rockmoc"
+version = "0.6.0"
+description = "Industry-oriented MOC rocket nozzle design: NASA planar MLN, axisymmetric bells, aerospike, pluggable thermo"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "rockmoc contributors" }]
+keywords = [
+  "rocket",
+  "nozzle",
+  "method-of-characteristics",
+  "MOC",
+  "propulsion",
+  "aerospace",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+  "numpy>=1.24",
+  "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+plot = ["matplotlib>=3.7"]
+cli = ["typer>=0.12"]
+cea = ["RocketCEA>=1.2"]
+cantera = ["cantera>=3.0"]
+coolprop = ["CoolProp>=6.4"]
+dev = [
+  "pytest>=7.4",
+  "pytest-cov>=4.1",
+  "ruff>=0.4",
+]
+all = ["rockmoc[plot,cli,dev,cea,cantera,coolprop]"]
+
+[project.scripts]
+rockmoc = "rockmoc.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/example/rockmoc"
+Documentation = "https://github.com/example/rockmoc#readme"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/rockmoc", "tests", "examples", "docs", "README.md", "LICENSE", "pyproject.toml"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rockmoc"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests", "examples"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

@@ -1,0 +1,38 @@
+{
+  "source": "NACA RM E8J12 (Shames & Seashore, 1948) + NASA TM-X-1502 lineage",
+  "note": "NACA RM E8J12 provides graphical construction data for 2D sharp-edge-throat nozzles. Numerical gold values below are analytical design rules from that family (θ_max=ν_e/2, y_e/y_t=A/A*) verified by fine-mesh rockmoc planar NASA solver (same MOC method as TM-X-1502 / Edelman).",
+  "gamma": 1.4,
+  "cases": [
+    {
+      "Me": 2.0,
+      "theta_max_deg": 13.18988,
+      "area_ratio": 1.6875,
+      "nu_e_deg": 26.37976,
+      "L_over_ht_range": [4.0, 14.0],
+      "comment": "γ=1.4 Me=2 planar MLN"
+    },
+    {
+      "Me": 2.4,
+      "theta_max_deg": 18.37327,
+      "area_ratio": 2.4031,
+      "nu_e_deg": 36.74653,
+      "L_over_ht_range": [6.0, 14.0],
+      "comment": "γ=1.4 Me=2.4 planar MLN"
+    },
+    {
+      "Me": 3.0,
+      "theta_max_deg": 24.87868,
+      "area_ratio": 4.23457,
+      "nu_e_deg": 49.75735,
+      "L_over_ht_range": [8.0, 25.0],
+      "comment": "γ=1.4 Me=3 planar MLN"
+    }
+  ],
+  "nasa_tm_x_1502_sample": {
+    "Me": 4.05,
+    "gamma": 1.36,
+    "dnu_deg_recommended": 0.1,
+    "theta_max_equals": "nu_e/2",
+    "area_ratio": 12.98157
+  }
+}

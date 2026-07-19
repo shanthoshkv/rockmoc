@@ -1,0 +1,2328 @@
+{
+  "title": "rockmoc deep multi-regime validation",
+  "generated_utc": "2026-07-19T07:53:00.747160+00:00",
+  "catalog_title": "rockmoc deep validation catalog",
+  "sources": {
+    "anderson_naca_isentropic": {
+      "citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "type": "analytical_table",
+      "notes": "Closed-form perfect-gas relations; reference digits fixed to commonly published table values"
+    },
+    "nasa_tm_x_1502": {
+      "citation": "Vanco & Goldman, NASA TM-X-1502 (1968), Computer program for design of two-dimensional supersonic nozzle with sharp-edged throat",
+      "type": "nasa_report",
+      "local_pdf": "refs/NASA-TM-X-1502.pdf",
+      "notes": "Sample Me=4.05, \u03b3=1.36; \u03b8_max=\u03bd_e/2; y_e=A/A*; \u0394\u03bd accuracy discussion Fig. 3"
+    },
+    "naca_rm_e8j12": {
+      "citation": "Shames & Seashore, NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
+      "type": "naca_report",
+      "local_pdf": "refs/NACA-RM-E8J12.pdf",
+      "notes": "Graphical construction data M=1.2\u201310; design rules \u03b8_max=\u03bd_e/2 and y_e/y_t=A/A*"
+    },
+    "nasa_tm_x_2343": {
+      "citation": "Goldman & Vanco, NASA TM-X-2343 (1971), Computer program for design of two-dimensional supersonic nozzle with boundary-layer correction",
+      "type": "nasa_report",
+      "local_pdf": "refs/NASA-TM-X-2343.pdf",
+      "notes": "BL displacement geometry: r_corr = r_inviscid + \u03b4*"
+    },
+    "rao_1958": {
+      "citation": "G.V.R. Rao, Exhaust Nozzle Contour for Optimum Thrust, Jet Propulsion / ARS (1958)",
+      "type": "journal",
+      "local_pdf": "refs/Rao_1958_Exhaust_Nozzle_Optimum_Thrust.pdf",
+      "notes": "TOP length often ~60\u201390% of 15\u00b0 conical; \u03b8_n > \u03b8_e engineering correlations"
+    },
+    "lee_vernacchia_spike": {
+      "citation": "C.C. Lee (1963) annular aerospike; Vernacchia Spike Contour Algorithm notes",
+      "type": "technical_note",
+      "local_pdf": "refs/Spike_Contour_Algorithm.pdf",
+      "notes": "\u03b4 = \u03c0/2 \u2212 \u03bd_e; isentropic Prandtl\u2013Meyer plug geometry"
+    },
+    "sutton_1d_cf": {
+      "citation": "Sutton & Biblarz, Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
+      "type": "textbook",
+      "notes": "Cf formula with pe/pc, pa/pc, \u03b5, Me perfect gas"
+    },
+    "zucrow_hoffman": {
+      "citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "type": "textbook",
+      "notes": "C\u00b1 slopes tan(\u03b8\u00b1\u03bc); axisym source \u2212sin\u03b8 sin\u03bc /(r cos(\u03b8\u00b1\u03bc))"
+    }
+  },
+  "summary": {
+    "n_cases": 34,
+    "n_passed": 34,
+    "n_failed": 0,
+    "n_metrics": 151,
+    "max_error_percent": 4.000000000000014,
+    "mean_error_percent": 0.20368908248201845,
+    "median_error_percent": 0.0
+  },
+  "cases": [
+    {
+      "case_id": "thermo_g1.4_M1.5",
+      "regime": "thermo_isentropic",
+      "source_id": "anderson_naca_isentropic",
+      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "description": "Isentropic/PM table \u03b3=1.4 M=1.5",
+      "inputs": {
+        "gamma": 1.4,
+        "Mach": 1.5
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "nu_deg",
+          "reference": 11.905,
+          "solver": 11.905208826739662,
+          "error_percent": 0.0017541095309724585,
+          "abs_error": 0.00020882673966227117,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "area_ratio",
+          "reference": 1.1762,
+          "solver": 1.1761670524691357,
+          "error_percent": 0.0028011843958720326,
+          "abs_error": 3.2947530864246843e-05,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "pe_pc",
+          "reference": 0.2724,
+          "solver": 0.2724030664766574,
+          "error_percent": 0.0011257256451658445,
+          "abs_error": 3.0664766574317603e-06,
+          "tol_percent": 0.1,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "Cf_vac_1d",
+          "reference": null,
+          "solver": 1.3296247738928275,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "solver 1-D Cf (no external table digit)"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "thermo_g1.4_M2.0",
+      "regime": "thermo_isentropic",
+      "source_id": "anderson_naca_isentropic",
+      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "description": "Isentropic/PM table \u03b3=1.4 M=2.0",
+      "inputs": {
+        "gamma": 1.4,
+        "Mach": 2.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "nu_deg",
+          "reference": 26.38,
+          "solver": 26.379760813416457,
+          "error_percent": 0.0009066966775665291,
+          "abs_error": 0.00023918658354205036,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "area_ratio",
+          "reference": 1.6875,
+          "solver": 1.6875000000000002,
+          "error_percent": 1.3158198810372226e-14,
+          "abs_error": 2.220446049250313e-16,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "pe_pc",
+          "reference": 0.1278,
+          "solver": 0.12780452546295096,
+          "error_percent": 0.0035410508223478626,
+          "abs_error": 4.525462950960568e-06,
+          "tol_percent": 0.1,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "Cf_vac_1d",
+          "reference": null,
+          "solver": 1.423422902343616,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "solver 1-D Cf (no external table digit)"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "thermo_g1.4_M2.5",
+      "regime": "thermo_isentropic",
+      "source_id": "anderson_naca_isentropic",
+      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "description": "Isentropic/PM table \u03b3=1.4 M=2.5",
+      "inputs": {
+        "gamma": 1.4,
+        "Mach": 2.5
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "nu_deg",
+          "reference": 39.124,
+          "solver": 39.1235638278973,
+          "error_percent": 0.0011148453703670753,
+          "abs_error": 0.0004361721027024146,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "area_ratio",
+          "reference": 2.6367,
+          "solver": 2.636718750000001,
+          "error_percent": 0.0007111161679776435,
+          "abs_error": 1.8750000001066525e-05,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "pe_pc",
+          "reference": 0.05853,
+          "solver": 0.05852766346593505,
+          "error_percent": 0.0039920281307886584,
+          "abs_error": 2.3365340649506017e-06,
+          "tol_percent": 0.1,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "Cf_vac_1d",
+          "reference": null,
+          "solver": 1.5046296296296298,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "solver 1-D Cf (no external table digit)"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "thermo_g1.4_M3.0",
+      "regime": "thermo_isentropic",
+      "source_id": "anderson_naca_isentropic",
+      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "description": "Isentropic/PM table \u03b3=1.4 M=3.0",
+      "inputs": {
+        "gamma": 1.4,
+        "Mach": 3.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "nu_deg",
+          "reference": 49.757,
+          "solver": 49.75734674434607,
+          "error_percent": 0.0006968755071144893,
+          "abs_error": 0.0003467443460749564,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "area_ratio",
+          "reference": 4.2346,
+          "solver": 4.23456790123457,
+          "error_percent": 0.0007580117468127495,
+          "abs_error": 3.2098765430532694e-05,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "pe_pc",
+          "reference": 0.02722,
+          "solver": 0.02722368370386282,
+          "error_percent": 0.013533078114693519,
+          "abs_error": 3.683703862819576e-06,
+          "tol_percent": 0.1,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "Cf_vac_1d",
+          "reference": null,
+          "solver": 1.5678153054540658,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "solver 1-D Cf (no external table digit)"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "thermo_g1.4_M4.0",
+      "regime": "thermo_isentropic",
+      "source_id": "anderson_naca_isentropic",
+      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "description": "Isentropic/PM table \u03b3=1.4 M=4.0",
+      "inputs": {
+        "gamma": 1.4,
+        "Mach": 4.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "nu_deg",
+          "reference": 65.785,
+          "solver": 65.78481979774853,
+          "error_percent": 0.0002739260492072256,
+          "abs_error": 0.00018020225147097335,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "area_ratio",
+          "reference": 10.7188,
+          "solver": 10.718750000000002,
+          "error_percent": 0.00046647012723539125,
+          "abs_error": 4.9999999998107114e-05,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "pe_pc",
+          "reference": 0.006586,
+          "solver": 0.006586087307988697,
+          "error_percent": 0.001325660320334392,
+          "abs_error": 8.730798869722306e-08,
+          "tol_percent": 0.1,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "Cf_vac_1d",
+          "reference": null,
+          "solver": 1.6519141859805901,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "solver 1-D Cf (no external table digit)"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "thermo_g1.4_M5.0",
+      "regime": "thermo_isentropic",
+      "source_id": "anderson_naca_isentropic",
+      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "description": "Isentropic/PM table \u03b3=1.4 M=5.0",
+      "inputs": {
+        "gamma": 1.4,
+        "Mach": 5.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "nu_deg",
+          "reference": 76.92,
+          "solver": 76.92021550853879,
+          "error_percent": 0.00028017230731530794,
+          "abs_error": 0.00021550853878693488,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "area_ratio",
+          "reference": 25.0,
+          "solver": 25.000000000000007,
+          "error_percent": 2.842170943040401e-14,
+          "abs_error": 7.105427357601002e-15,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "pe_pc",
+          "reference": 0.00189,
+          "solver": 0.0018900383817771428,
+          "error_percent": 0.002030781859409167,
+          "abs_error": 3.838177714283325e-08,
+          "tol_percent": 0.1,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "Cf_vac_1d",
+          "reference": null,
+          "solver": 1.7010345435994292,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "solver 1-D Cf (no external table digit)"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "thermo_multi_g1.2_M3.0",
+      "regime": "thermo_multi_gamma",
+      "source_id": "anderson_naca_isentropic",
+      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "description": "PM & A/A* round-trip \u03b3=1.2 Me=3.0",
+      "inputs": {
+        "gamma": 1.2,
+        "Me": 3.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "pm_roundtrip_M",
+          "reference": 3.0,
+          "solver": 3.0000000000001137,
+          "error_percent": 3.789561257387201e-12,
+          "abs_error": 1.1368683772161603e-13,
+          "tol_percent": 0.0001,
+          "passed": true,
+          "unit": "-",
+          "note": "M \u2192 \u03bd \u2192 M"
+        },
+        {
+          "name": "area_roundtrip_M",
+          "reference": 3.0,
+          "solver": 3.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.001,
+          "passed": true,
+          "unit": "-",
+          "note": "M \u2192 A/A* \u2192 M"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "thermo_multi_g1.25_M3.0",
+      "regime": "thermo_multi_gamma",
+      "source_id": "anderson_naca_isentropic",
+      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "description": "PM & A/A* round-trip \u03b3=1.25 Me=3.0",
+      "inputs": {
+        "gamma": 1.25,
+        "Me": 3.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "pm_roundtrip_M",
+          "reference": 3.0,
+          "solver": 3.0000000000001137,
+          "error_percent": 3.789561257387201e-12,
+          "abs_error": 1.1368683772161603e-13,
+          "tol_percent": 0.0001,
+          "passed": true,
+          "unit": "-",
+          "note": "M \u2192 \u03bd \u2192 M"
+        },
+        {
+          "name": "area_roundtrip_M",
+          "reference": 3.0,
+          "solver": 3.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.001,
+          "passed": true,
+          "unit": "-",
+          "note": "M \u2192 A/A* \u2192 M"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "thermo_multi_g1.3_M2.5",
+      "regime": "thermo_multi_gamma",
+      "source_id": "anderson_naca_isentropic",
+      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "description": "PM & A/A* round-trip \u03b3=1.3 Me=2.5",
+      "inputs": {
+        "gamma": 1.3,
+        "Me": 2.5
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "pm_roundtrip_M",
+          "reference": 2.5,
+          "solver": 2.4999999999998863,
+          "error_percent": 4.547473508864641e-12,
+          "abs_error": 1.1368683772161603e-13,
+          "tol_percent": 0.0001,
+          "passed": true,
+          "unit": "-",
+          "note": "M \u2192 \u03bd \u2192 M"
+        },
+        {
+          "name": "area_roundtrip_M",
+          "reference": 2.5,
+          "solver": 2.5000000000001137,
+          "error_percent": 4.547473508864641e-12,
+          "abs_error": 1.1368683772161603e-13,
+          "tol_percent": 0.001,
+          "passed": true,
+          "unit": "-",
+          "note": "M \u2192 A/A* \u2192 M"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "thermo_multi_g1.36_M4.05",
+      "regime": "thermo_multi_gamma",
+      "source_id": "anderson_naca_isentropic",
+      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "description": "PM & A/A* round-trip \u03b3=1.36 Me=4.05",
+      "inputs": {
+        "gamma": 1.36,
+        "Me": 4.05
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "pm_roundtrip_M",
+          "reference": 4.05,
+          "solver": 4.049999999999841,
+          "error_percent": 3.9255293117610476e-12,
+          "abs_error": 1.5898393712632242e-13,
+          "tol_percent": 0.0001,
+          "passed": true,
+          "unit": "-",
+          "note": "M \u2192 \u03bd \u2192 M"
+        },
+        {
+          "name": "area_roundtrip_M",
+          "reference": 4.05,
+          "solver": 4.050000000000068,
+          "error_percent": 1.688635513997769e-12,
+          "abs_error": 6.838973831690964e-14,
+          "tol_percent": 0.001,
+          "passed": true,
+          "unit": "-",
+          "note": "M \u2192 A/A* \u2192 M"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "thermo_multi_g1.4_M2.0",
+      "regime": "thermo_multi_gamma",
+      "source_id": "anderson_naca_isentropic",
+      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "description": "PM & A/A* round-trip \u03b3=1.4 Me=2.0",
+      "inputs": {
+        "gamma": 1.4,
+        "Me": 2.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "pm_roundtrip_M",
+          "reference": 2.0,
+          "solver": 2.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.0001,
+          "passed": true,
+          "unit": "-",
+          "note": "M \u2192 \u03bd \u2192 M"
+        },
+        {
+          "name": "area_roundtrip_M",
+          "reference": 2.0,
+          "solver": 2.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.001,
+          "passed": true,
+          "unit": "-",
+          "note": "M \u2192 A/A* \u2192 M"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "nasa_tm_x_1502_sample",
+      "regime": "planar_mln_nasa",
+      "source_id": "nasa_tm_x_1502",
+      "source_citation": "Vanco & Goldman, NASA TM-X-1502 (1968), Computer program for design of two-dimensional supersonic nozzle with sharp-edged throat",
+      "description": "NASA TM-X-1502 sample Me=4.05 \u03b3=1.36",
+      "inputs": {
+        "Me": 4.05,
+        "gamma": 1.36,
+        "dnu_deg": 0.5,
+        "ht": 1.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "theta_max_deg",
+          "reference": 34.9645581561647,
+          "solver": 34.9645581561647,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "deg",
+          "note": "\u03b8_max = \u03bd_e/2 (TM-X-1502)"
+        },
+        {
+          "name": "area_ratio_1d",
+          "reference": 12.981566502841387,
+          "solver": 12.981566502841387,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.0001,
+          "passed": true,
+          "unit": "-",
+          "note": "y_e/ht = A/A* for planar"
+        },
+        {
+          "name": "ye_over_ht",
+          "reference": 12.981566502841387,
+          "solver": 12.981566502841387,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.0001,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "throat_x",
+          "reference": 0.0,
+          "solver": 0.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "m",
+          "note": ""
+        },
+        {
+          "name": "throat_y",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "m",
+          "note": ""
+        },
+        {
+          "name": "xe_over_ht",
+          "reference": null,
+          "solver": 38.43090571501838,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "physical length (mesh-dependent); TM-X-1502 discusses \u0394\u03bd sensitivity"
+        }
+      ],
+      "meta": {
+        "mesh_note": "TM-X-1502 Fig.3: \u0394\u03bd\u22480.1\u00b0 \u2192 ~0.5% x-error, ~0.62% y-error vs zero-\u0394\u03bd limit; \u0394\u03bd\u22480.5\u00b0 \u2192 ~2.5% x, ~0.08% y"
+      }
+    },
+    {
+      "case_id": "naca_planar_M2.0_dnu1.0",
+      "regime": "planar_mln_naca",
+      "source_id": "naca_rm_e8j12",
+      "source_citation": "Shames & Seashore, NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
+      "description": "NACA E8J12-rule planar MLN Me=2.0 \u03b3=1.4",
+      "inputs": {
+        "Me": 2.0,
+        "gamma": 1.4,
+        "dnu_deg": 1.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "theta_max_deg",
+          "reference": 13.189880406708228,
+          "solver": 13.189880406708228,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "ye_over_ht",
+          "reference": 1.6875000000000002,
+          "solver": 1.6875000000000002,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": "planar exit half-height = A/A*"
+        },
+        {
+          "name": "area_ratio",
+          "reference": 1.6875000000000002,
+          "solver": 1.6875000000000002,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.0001,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "L_over_ht",
+          "reference": null,
+          "solver": 6.208728897247724,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "solver length"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "naca_planar_M2.4_dnu1.0",
+      "regime": "planar_mln_naca",
+      "source_id": "naca_rm_e8j12",
+      "source_citation": "Shames & Seashore, NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
+      "description": "NACA E8J12-rule planar MLN Me=2.4 \u03b3=1.4",
+      "inputs": {
+        "Me": 2.4,
+        "gamma": 1.4,
+        "dnu_deg": 1.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "theta_max_deg",
+          "reference": 18.37326557335319,
+          "solver": 18.37326557335319,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "ye_over_ht",
+          "reference": 2.40309987654321,
+          "solver": 2.40309987654321,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": "planar exit half-height = A/A*"
+        },
+        {
+          "name": "area_ratio",
+          "reference": 2.40309987654321,
+          "solver": 2.40309987654321,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.0001,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "L_over_ht",
+          "reference": null,
+          "solver": 8.953531384477278,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "solver length"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "naca_planar_M3.0_dnu0.5",
+      "regime": "planar_mln_naca",
+      "source_id": "naca_rm_e8j12",
+      "source_citation": "Shames & Seashore, NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
+      "description": "NACA E8J12-rule planar MLN Me=3.0 \u03b3=1.4",
+      "inputs": {
+        "Me": 3.0,
+        "gamma": 1.4,
+        "dnu_deg": 0.5
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "theta_max_deg",
+          "reference": 24.878673372173036,
+          "solver": 24.878673372173036,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "ye_over_ht",
+          "reference": 4.23456790123457,
+          "solver": 4.23456790123457,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": "planar exit half-height = A/A*"
+        },
+        {
+          "name": "area_ratio",
+          "reference": 4.23456790123457,
+          "solver": 4.23456790123457,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.0001,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "L_over_ht",
+          "reference": null,
+          "solver": 14.867142240919238,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "solver length"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "naca_planar_M3.5_dnu0.5",
+      "regime": "planar_mln_naca",
+      "source_id": "naca_rm_e8j12",
+      "source_citation": "Shames & Seashore, NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
+      "description": "NACA E8J12-rule planar MLN Me=3.5 \u03b3=1.4",
+      "inputs": {
+        "Me": 3.5,
+        "gamma": 1.4,
+        "dnu_deg": 0.5
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "theta_max_deg",
+          "reference": 29.26487948137777,
+          "solver": 29.26487948137777,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "ye_over_ht",
+          "reference": 6.789620535714286,
+          "solver": 6.789620535714286,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": "planar exit half-height = A/A*"
+        },
+        {
+          "name": "area_ratio",
+          "reference": 6.789620535714286,
+          "solver": 6.789620535714286,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.0001,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "L_over_ht",
+          "reference": null,
+          "solver": 22.439110703486342,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "solver length"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "naca_planar_M4.0_dnu0.5",
+      "regime": "planar_mln_naca",
+      "source_id": "naca_rm_e8j12",
+      "source_citation": "Shames & Seashore, NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
+      "description": "NACA E8J12-rule planar MLN Me=4.0 \u03b3=1.4",
+      "inputs": {
+        "Me": 4.0,
+        "gamma": 1.4,
+        "dnu_deg": 0.5
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "theta_max_deg",
+          "reference": 32.89240989887426,
+          "solver": 32.89240989887426,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "ye_over_ht",
+          "reference": 10.718750000000002,
+          "solver": 10.718750000000002,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": "planar exit half-height = A/A*"
+        },
+        {
+          "name": "area_ratio",
+          "reference": 10.718750000000002,
+          "solver": 10.718750000000002,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.0001,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "L_over_ht",
+          "reference": null,
+          "solver": 33.277263875169915,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "solver length"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "axisym_mln_g1.2_M2.5",
+      "regime": "axisym_mln",
+      "source_id": "zucrow_hoffman",
+      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "description": "Axisym MLN \u03b3=1.2 Me=2.5 n=40",
+      "inputs": {
+        "gamma": 1.2,
+        "Me": 2.5,
+        "Rt": 0.05,
+        "n_chars": 40
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "area_ratio",
+          "reference": 3.420532586514756,
+          "solver": 3.4205325865142524,
+          "error_percent": 1.472277054033552e-11,
+          "abs_error": 5.03597163969971e-13,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": "\u03b5_geom vs A/A*(Me)"
+        },
+        {
+          "name": "theta_max_vs_half_nu_e_deg",
+          "reference": 24.230755087052504,
+          "solver": 25.199985290534602,
+          "error_percent": 3.9999999999999925,
+          "abs_error": 0.9692302034820983,
+          "tol_percent": 8.0,
+          "passed": true,
+          "unit": "deg",
+          "note": "corner \u2248 \u03bd_e/2 (axisym mild offset allowed)"
+        },
+        {
+          "name": "theta_exit_deg",
+          "reference": 0.0,
+          "solver": 0.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "deg",
+          "note": "axial exit design"
+        },
+        {
+          "name": "L_over_Rt",
+          "reference": null,
+          "solver": 3.2518890282796535,
+          "error_percent": 0.0,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "band [1.5, 25.0]"
+        },
+        {
+          "name": "exit_radius_m",
+          "reference": 0.09247340950936594,
+          "solver": 0.09247340950935913,
+          "error_percent": 7.368598010811703e-12,
+          "abs_error": 6.813993813636898e-15,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "m",
+          "note": ""
+        },
+        {
+          "name": "Cf_vac_1d",
+          "reference": null,
+          "solver": 1.579037579911307,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "diverging",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "",
+          "note": "Re > Rt"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "axisym_mln_g1.25_M3.0",
+      "regime": "axisym_mln",
+      "source_id": "zucrow_hoffman",
+      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "description": "Axisym MLN \u03b3=1.25 Me=3.0 n=40",
+      "inputs": {
+        "gamma": 1.25,
+        "Me": 3.0,
+        "Rt": 0.05,
+        "n_chars": 40
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "area_ratio",
+          "reference": 5.831866838679954,
+          "solver": 5.831866838680783,
+          "error_percent": 1.422458137243216e-11,
+          "abs_error": 8.29558643999917e-13,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": "\u03b5_geom vs A/A*(Me)"
+        },
+        {
+          "name": "theta_max_vs_half_nu_e_deg",
+          "reference": 29.70639530466993,
+          "solver": 30.89465111685673,
+          "error_percent": 4.000000000000008,
+          "abs_error": 1.1882558121867994,
+          "tol_percent": 8.0,
+          "passed": true,
+          "unit": "deg",
+          "note": "corner \u2248 \u03bd_e/2 (axisym mild offset allowed)"
+        },
+        {
+          "name": "theta_exit_deg",
+          "reference": 0.0,
+          "solver": 0.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "deg",
+          "note": "axial exit design"
+        },
+        {
+          "name": "L_over_Rt",
+          "reference": null,
+          "solver": 4.344173273373076,
+          "error_percent": 0.0,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "band [1.5, 25.0]"
+        },
+        {
+          "name": "exit_radius_m",
+          "reference": 0.12074629226895493,
+          "solver": 0.12074629226896352,
+          "error_percent": 7.114380484580571e-12,
+          "abs_error": 8.590350653037149e-15,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "m",
+          "note": ""
+        },
+        {
+          "name": "Cf_vac_1d",
+          "reference": null,
+          "solver": 1.6487280085113287,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "diverging",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "",
+          "note": "Re > Rt"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "axisym_mln_g1.3_M3.5",
+      "regime": "axisym_mln",
+      "source_id": "zucrow_hoffman",
+      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "description": "Axisym MLN \u03b3=1.3 Me=3.5 n=40",
+      "inputs": {
+        "gamma": 1.3,
+        "Me": 3.5,
+        "Rt": 0.05,
+        "n_chars": 40
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "area_ratio",
+          "reference": 9.109846727575363,
+          "solver": 9.109846727575363,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": "\u03b5_geom vs A/A*(Me)"
+        },
+        {
+          "name": "theta_max_vs_half_nu_e_deg",
+          "reference": 33.159041735177695,
+          "solver": 34.4854034045848,
+          "error_percent": 3.9999999999999947,
+          "abs_error": 1.326361669407106,
+          "tol_percent": 8.0,
+          "passed": true,
+          "unit": "deg",
+          "note": "corner \u2248 \u03bd_e/2 (axisym mild offset allowed)"
+        },
+        {
+          "name": "theta_exit_deg",
+          "reference": 0.0,
+          "solver": 0.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "deg",
+          "note": "axial exit design"
+        },
+        {
+          "name": "L_over_Rt",
+          "reference": null,
+          "solver": 5.485957058630545,
+          "error_percent": 0.0,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "band [1.5, 25.0]"
+        },
+        {
+          "name": "exit_radius_m",
+          "reference": 0.1509126131870309,
+          "solver": 0.1509126131870309,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "m",
+          "note": ""
+        },
+        {
+          "name": "Cf_vac_1d",
+          "reference": null,
+          "solver": 1.6800323454285433,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "diverging",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "",
+          "note": "Re > Rt"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "axisym_mln_g1.4_M2.0",
+      "regime": "axisym_mln",
+      "source_id": "zucrow_hoffman",
+      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "description": "Axisym MLN \u03b3=1.4 Me=2.0 n=40",
+      "inputs": {
+        "gamma": 1.4,
+        "Me": 2.0,
+        "Rt": 0.05,
+        "n_chars": 40
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "area_ratio",
+          "reference": 1.6875000000000002,
+          "solver": 1.6875,
+          "error_percent": 1.3158198810372224e-14,
+          "abs_error": 2.220446049250313e-16,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": "\u03b5_geom vs A/A*(Me)"
+        },
+        {
+          "name": "theta_max_vs_half_nu_e_deg",
+          "reference": 13.189880406708228,
+          "solver": 13.71747562297656,
+          "error_percent": 4.000000000000014,
+          "abs_error": 0.5275952162683311,
+          "tol_percent": 8.0,
+          "passed": true,
+          "unit": "deg",
+          "note": "corner \u2248 \u03bd_e/2 (axisym mild offset allowed)"
+        },
+        {
+          "name": "theta_exit_deg",
+          "reference": 0.0,
+          "solver": 0.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "deg",
+          "note": "axial exit design"
+        },
+        {
+          "name": "L_over_Rt",
+          "reference": null,
+          "solver": 2.161682071640002,
+          "error_percent": 0.0,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "band [1.5, 25.0]"
+        },
+        {
+          "name": "exit_radius_m",
+          "reference": 0.0649519052838329,
+          "solver": 0.0649519052838329,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "m",
+          "note": ""
+        },
+        {
+          "name": "Cf_vac_1d",
+          "reference": null,
+          "solver": 1.423422902343616,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "diverging",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "",
+          "note": "Re > Rt"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "axisym_mln_g1.4_M3.0",
+      "regime": "axisym_mln",
+      "source_id": "zucrow_hoffman",
+      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "description": "Axisym MLN \u03b3=1.4 Me=3.0 n=40",
+      "inputs": {
+        "gamma": 1.4,
+        "Me": 3.0,
+        "Rt": 0.05,
+        "n_chars": 40
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "area_ratio",
+          "reference": 4.23456790123457,
+          "solver": 4.234567901235026,
+          "error_percent": 1.0780880561456267e-11,
+          "abs_error": 4.565237077258644e-13,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": "\u03b5_geom vs A/A*(Me)"
+        },
+        {
+          "name": "theta_max_vs_half_nu_e_deg",
+          "reference": 24.878673372173036,
+          "solver": 25.873820307059958,
+          "error_percent": 4.000000000000001,
+          "abs_error": 0.9951469348869217,
+          "tol_percent": 8.0,
+          "passed": true,
+          "unit": "deg",
+          "note": "corner \u2248 \u03bd_e/2 (axisym mild offset allowed)"
+        },
+        {
+          "name": "theta_exit_deg",
+          "reference": 0.0,
+          "solver": 0.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "deg",
+          "note": "axial exit design"
+        },
+        {
+          "name": "L_over_Rt",
+          "reference": null,
+          "solver": 3.936569762567637,
+          "error_percent": 0.0,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "band [1.5, 25.0]"
+        },
+        {
+          "name": "exit_radius_m",
+          "reference": 0.10289032876362299,
+          "solver": 0.10289032876362854,
+          "error_percent": 5.395176776894882e-12,
+          "abs_error": 5.551115123125783e-15,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "m",
+          "note": ""
+        },
+        {
+          "name": "Cf_vac_1d",
+          "reference": null,
+          "solver": 1.5678153054540782,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "diverging",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "",
+          "note": "Re > Rt"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "axisym_mln_g1.4_M4.0",
+      "regime": "axisym_mln",
+      "source_id": "zucrow_hoffman",
+      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "description": "Axisym MLN \u03b3=1.4 Me=4.0 n=40",
+      "inputs": {
+        "gamma": 1.4,
+        "Me": 4.0,
+        "Rt": 0.05,
+        "n_chars": 40
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "area_ratio",
+          "reference": 10.718750000000002,
+          "solver": 10.718749999998913,
+          "error_percent": 1.0158896723520498e-11,
+          "abs_error": 1.0889067425523535e-12,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": "\u03b5_geom vs A/A*(Me)"
+        },
+        {
+          "name": "theta_max_vs_half_nu_e_deg",
+          "reference": 32.89240989887426,
+          "solver": 34.208106294829236,
+          "error_percent": 4.000000000000007,
+          "abs_error": 1.3156963959549728,
+          "tol_percent": 8.0,
+          "passed": true,
+          "unit": "deg",
+          "note": "corner \u2248 \u03bd_e/2 (axisym mild offset allowed)"
+        },
+        {
+          "name": "theta_exit_deg",
+          "reference": 0.0,
+          "solver": 0.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "deg",
+          "note": "axial exit design"
+        },
+        {
+          "name": "L_over_Rt",
+          "reference": null,
+          "solver": 6.237009671607613,
+          "error_percent": 0.0,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "band [1.5, 25.0]"
+        },
+        {
+          "name": "exit_radius_m",
+          "reference": 0.16369751067135996,
+          "solver": 0.16369751067135163,
+          "error_percent": 5.08662144619007e-12,
+          "abs_error": 8.326672684688674e-15,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "m",
+          "note": ""
+        },
+        {
+          "name": "Cf_vac_1d",
+          "reference": null,
+          "solver": 1.651914185980583,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "diverging",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "",
+          "note": "Re > Rt"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "rao_top_g1.25_M3.0_lf0.8",
+      "regime": "rao_top",
+      "source_id": "rao_1958",
+      "source_citation": "G.V.R. Rao, Exhaust Nozzle Contour for Optimum Thrust, Jet Propulsion / ARS (1958)",
+      "description": "Rao TOP \u03b3=1.25 Me=3.0 L/L_15\u00b0=0.8",
+      "inputs": {
+        "gamma": 1.25,
+        "Me": 3.0,
+        "length_fraction": 0.8,
+        "Rt": 0.05
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "L_over_L15cone",
+          "reference": 0.8,
+          "solver": 0.8,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 5.0,
+          "passed": true,
+          "unit": "-",
+          "note": "Rao length fraction of 15\u00b0 cone"
+        },
+        {
+          "name": "area_ratio",
+          "reference": 5.831866838679954,
+          "solver": 5.831866838679954,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.5,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "theta_n_deg",
+          "reference": null,
+          "solver": 25.814349964178767,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "theta_e_deg",
+          "reference": null,
+          "solver": 11.42552473066339,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "theta_n_gt_theta_e",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "",
+          "note": "Rao attachment angle > exit angle"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "rao_top_g1.4_M3.5_lf0.8",
+      "regime": "rao_top",
+      "source_id": "rao_1958",
+      "source_citation": "G.V.R. Rao, Exhaust Nozzle Contour for Optimum Thrust, Jet Propulsion / ARS (1958)",
+      "description": "Rao TOP \u03b3=1.4 Me=3.5 L/L_15\u00b0=0.8",
+      "inputs": {
+        "gamma": 1.4,
+        "Me": 3.5,
+        "length_fraction": 0.8,
+        "Rt": 0.05
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "L_over_L15cone",
+          "reference": 0.8,
+          "solver": 0.8,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 5.0,
+          "passed": true,
+          "unit": "-",
+          "note": "Rao length fraction of 15\u00b0 cone"
+        },
+        {
+          "name": "area_ratio",
+          "reference": 6.789620535714286,
+          "solver": 6.789620535714286,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.5,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "theta_n_deg",
+          "reference": null,
+          "solver": 26.182857147388425,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "theta_e_deg",
+          "reference": null,
+          "solver": 11.154253913571953,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "theta_n_gt_theta_e",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "",
+          "note": "Rao attachment angle > exit angle"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "rao_top_g1.25_M4.0_lf0.7",
+      "regime": "rao_top",
+      "source_id": "rao_1958",
+      "source_citation": "G.V.R. Rao, Exhaust Nozzle Contour for Optimum Thrust, Jet Propulsion / ARS (1958)",
+      "description": "Rao TOP \u03b3=1.25 Me=4.0 L/L_15\u00b0=0.7",
+      "inputs": {
+        "gamma": 1.25,
+        "Me": 4.0,
+        "length_fraction": 0.7,
+        "Rt": 0.05
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "L_over_L15cone",
+          "reference": 0.7,
+          "solver": 0.7,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 5.0,
+          "passed": true,
+          "unit": "-",
+          "note": "Rao length fraction of 15\u00b0 cone"
+        },
+        {
+          "name": "area_ratio",
+          "reference": 20.644259231357807,
+          "solver": 20.644259231357804,
+          "error_percent": 1.7209208811930004e-14,
+          "abs_error": 3.552713678800501e-15,
+          "tol_percent": 0.5,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "theta_n_deg",
+          "reference": null,
+          "solver": 30.11041503168653,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "theta_e_deg",
+          "reference": null,
+          "solver": 8.544182889289724,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "deg",
+          "note": ""
+        },
+        {
+          "name": "theta_n_gt_theta_e",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "",
+          "note": "Rao attachment angle > exit angle"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "aerospike_lee_0",
+      "regime": "aerospike",
+      "source_id": "lee_vernacchia_spike",
+      "source_citation": "C.C. Lee (1963) annular aerospike; Vernacchia Spike Contour Algorithm notes",
+      "description": "Lee spike \u03b5=25.0 \u03b3=1.25",
+      "inputs": {
+        "Pc": 5000000.0,
+        "Tc": 3200.0,
+        "gamma": 1.25,
+        "molar_mass": 22.0,
+        "Re": 0.15,
+        "expansion_ratio": 25.0,
+        "Pa": 0.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "delta_rad",
+          "reference": 0.10525274483440872,
+          "solver": 0.10525274483440872,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "rad",
+          "note": "\u03b4 = \u03c0/2 \u2212 \u03bd_e"
+        },
+        {
+          "name": "exit_mach",
+          "reference": 4.153775624532614,
+          "solver": 4.153775624532664,
+          "error_percent": 1.2187988591368278e-12,
+          "abs_error": 5.062616992290714e-14,
+          "tol_percent": 1.0,
+          "passed": true,
+          "unit": "-",
+          "note": "Me from \u03b5 (Majdalani / area\u2013Mach)"
+        },
+        {
+          "name": "expansion_ratio",
+          "reference": 25.0,
+          "solver": 25.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "R_tip_near_zero",
+          "reference": 0.0,
+          "solver": 6.121276589168229e-09,
+          "error_percent": Infinity,
+          "abs_error": 6.121276589168229e-09,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "m",
+          "note": "full spike tip \u2192 axis"
+        },
+        {
+          "name": "Isp_s",
+          "reference": null,
+          "solver": 306.70487897177287,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "s",
+          "note": "solver performance"
+        },
+        {
+          "name": "Cf",
+          "reference": null,
+          "solver": 1.7998208328904932,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "aerospike_lee_1",
+      "regime": "aerospike",
+      "source_id": "lee_vernacchia_spike",
+      "source_citation": "C.C. Lee (1963) annular aerospike; Vernacchia Spike Contour Algorithm notes",
+      "description": "Lee spike \u03b5=12.0 \u03b3=1.3",
+      "inputs": {
+        "Pc": 3000000.0,
+        "Tc": 3000.0,
+        "gamma": 1.3,
+        "molar_mass": 20.0,
+        "Re": 0.1,
+        "expansion_ratio": 12.0,
+        "Pa": 101325.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "delta_rad",
+          "reference": 0.33413759746265925,
+          "solver": 0.33413759746265925,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "rad",
+          "note": "\u03b4 = \u03c0/2 \u2212 \u03bd_e"
+        },
+        {
+          "name": "exit_mach",
+          "reference": 3.7444663744980744,
+          "solver": 3.7444663744978293,
+          "error_percent": 6.546653630187663e-12,
+          "abs_error": 2.4513724383723456e-13,
+          "tol_percent": 1.0,
+          "passed": true,
+          "unit": "-",
+          "note": "Me from \u03b5 (Majdalani / area\u2013Mach)"
+        },
+        {
+          "name": "expansion_ratio",
+          "reference": 12.0,
+          "solver": 12.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "R_tip_near_zero",
+          "reference": 0.0,
+          "solver": 0.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "m",
+          "note": "full spike tip \u2192 axis"
+        },
+        {
+          "name": "Isp_s",
+          "reference": null,
+          "solver": 221.96528007929774,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "s",
+          "note": "solver performance"
+        },
+        {
+          "name": "Cf",
+          "reference": null,
+          "solver": 1.3005876393094098,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "cf_1d_g1.4_M2.0_pa0.0",
+      "regime": "performance_1d",
+      "source_id": "sutton_1d_cf",
+      "source_citation": "Sutton & Biblarz, Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
+      "description": "1-D Cf \u03b3=1.4 Me=2.0 pa/pc=0.0",
+      "inputs": {
+        "gamma": 1.4,
+        "Me": 2.0,
+        "pa_pc": 0.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "Cf",
+          "reference": 1.423422902343616,
+          "solver": 1.423422902343616,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": "Sutton ideal Cf"
+        },
+        {
+          "name": "pe_pc",
+          "reference": 0.12780452546295096,
+          "solver": 0.12780452546295096,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 1e-09,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "area_ratio",
+          "reference": 1.6875000000000002,
+          "solver": 1.6875000000000002,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 1e-09,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "cf_1d_g1.4_M3.0_pa0.0",
+      "regime": "performance_1d",
+      "source_id": "sutton_1d_cf",
+      "source_citation": "Sutton & Biblarz, Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
+      "description": "1-D Cf \u03b3=1.4 Me=3.0 pa/pc=0.0",
+      "inputs": {
+        "gamma": 1.4,
+        "Me": 3.0,
+        "pa_pc": 0.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "Cf",
+          "reference": 1.5678153054540658,
+          "solver": 1.5678153054540658,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": "Sutton ideal Cf"
+        },
+        {
+          "name": "pe_pc",
+          "reference": 0.02722368370386282,
+          "solver": 0.02722368370386282,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 1e-09,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "area_ratio",
+          "reference": 4.23456790123457,
+          "solver": 4.23456790123457,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 1e-09,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "cf_1d_g1.25_M3.0_pa0.0",
+      "regime": "performance_1d",
+      "source_id": "sutton_1d_cf",
+      "source_citation": "Sutton & Biblarz, Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
+      "description": "1-D Cf \u03b3=1.25 Me=3.0 pa/pc=0.0",
+      "inputs": {
+        "gamma": 1.25,
+        "Me": 3.0,
+        "pa_pc": 0.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "Cf",
+          "reference": 1.6487280085113096,
+          "solver": 1.6487280085113096,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": "Sutton ideal Cf"
+        },
+        {
+          "name": "pe_pc",
+          "reference": 0.023078380428451596,
+          "solver": 0.023078380428451596,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 1e-09,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "area_ratio",
+          "reference": 5.831866838679954,
+          "solver": 5.831866838679954,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 1e-09,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "cf_1d_g1.25_M3.0_pa0.01",
+      "regime": "performance_1d",
+      "source_id": "sutton_1d_cf",
+      "source_citation": "Sutton & Biblarz, Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
+      "description": "1-D Cf \u03b3=1.25 Me=3.0 pa/pc=0.01",
+      "inputs": {
+        "gamma": 1.25,
+        "Me": 3.0,
+        "pa_pc": 0.01
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "Cf",
+          "reference": 1.59040934012451,
+          "solver": 1.59040934012451,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": "Sutton ideal Cf"
+        },
+        {
+          "name": "pe_pc",
+          "reference": 0.023078380428451596,
+          "solver": 0.023078380428451596,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 1e-09,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "area_ratio",
+          "reference": 5.831866838679954,
+          "solver": 5.831866838679954,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 1e-09,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "cf_1d_g1.2_M4.0_pa0.0",
+      "regime": "performance_1d",
+      "source_id": "sutton_1d_cf",
+      "source_citation": "Sutton & Biblarz, Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
+      "description": "1-D Cf \u03b3=1.2 Me=4.0 pa/pc=0.0",
+      "inputs": {
+        "gamma": 1.2,
+        "Me": 4.0,
+        "pa_pc": 0.0
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "Cf",
+          "reference": 1.8541503000570418,
+          "solver": 1.8541503000570418,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "-",
+          "note": "Sutton ideal Cf"
+        },
+        {
+          "name": "pe_pc",
+          "reference": 0.0032371282973906778,
+          "solver": 0.0032371282973906778,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 1e-09,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "area_ratio",
+          "reference": 28.355261324888836,
+          "solver": 28.355261324888836,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 1e-09,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "family_ordering_mln_tic_ideal_rao",
+      "regime": "family_ordering",
+      "source_id": "zucrow_hoffman",
+      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "description": "Length ordering \u03b3=1.25 Me=3.0",
+      "inputs": {
+        "gamma": 1.25,
+        "Me": 3.0,
+        "Rt": 0.05
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "L_mln_m",
+          "reference": null,
+          "solver": 0.21195871355791718,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "m",
+          "note": ""
+        },
+        {
+          "name": "L_tic_m",
+          "reference": null,
+          "solver": 0.25036081157935647,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "m",
+          "note": ""
+        },
+        {
+          "name": "L_ideal_m",
+          "reference": null,
+          "solver": 0.3129510144741956,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "m",
+          "note": ""
+        },
+        {
+          "name": "L_rao_m",
+          "reference": null,
+          "solver": 0.21122300575588568,
+          "error_percent": null,
+          "abs_error": null,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "m",
+          "note": ""
+        },
+        {
+          "name": "ideal_gt_mln",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "",
+          "note": "ideal longer than MLN"
+        },
+        {
+          "name": "tic_lt_ideal",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "",
+          "note": "TIC shorter than ideal"
+        },
+        {
+          "name": "rao_lt_ideal",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "",
+          "note": "Rao TOP typically shorter than full ideal"
+        }
+      ],
+      "meta": {
+        "comparison": [
+          {
+            "kind": "mln",
+            "L_m": 0.21195871355791718,
+            "L_over_Rt": 4.239174271158343,
+            "area_ratio": 5.831866838680783,
+            "Cf_vac": 1.6487280085113287,
+            "Isp_vac_s": 237.08346276396264,
+            "eta_n": 1.0,
+            "eta_div": 1.0,
+            "theta_max_deg": 30.89465111685673,
+            "exit_radius_m": 0.12074629226896352
+          },
+          {
+            "kind": "ideal",
+            "L_m": 0.3129510144741956,
+            "L_over_Rt": 6.259020289483912,
+            "area_ratio": 6.7532380457413765,
+            "Cf_vac": 1.6699917637436947,
+            "Isp_vac_s": 240.1411440163158,
+            "eta_n": 1.0,
+            "eta_div": 1.0,
+            "theta_max_deg": 30.778788681231187,
+            "exit_radius_m": 0.12993496494151774
+          },
+          {
+            "kind": "tic",
+            "L_m": 0.25036081157935647,
+            "L_over_Rt": 5.007216231587129,
+            "area_ratio": 6.451547564438088,
+            "Cf_vac": 1.640657022959241,
+            "Isp_vac_s": 235.92287278627757,
+            "eta_n": 0.9865473122177303,
+            "eta_div": 0.9954978637555758,
+            "theta_max_deg": 30.778788681231187,
+            "exit_radius_m": 0.12699948390090104
+          },
+          {
+            "kind": "rao",
+            "L_m": 0.21122300575588568,
+            "L_over_Rt": 4.224460115117713,
+            "area_ratio": 5.831866838679954,
+            "Cf_vac": 1.6001877670258366,
+            "Isp_vac_s": 230.1034827579395,
+            "eta_n": 0.9705589756255179,
+            "eta_div": 0.9900915114330394,
+            "theta_max_deg": 25.814349964178767,
+            "exit_radius_m": 0.12074629226895493
+          }
+        ]
+      }
+    }
+  ]
+}

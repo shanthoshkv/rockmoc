@@ -1,0 +1,207 @@
+{
+  "title": "rockmoc deep validation catalog",
+  "description": "Literature-anchored reference targets for multi-regime solver validation. Each case cites a primary source. Analytical thermo digits match Anderson / NACA isentropic–PM tables (γ=1.4) to published precision.",
+  "sources": {
+    "anderson_naca_isentropic": {
+      "citation": "Standard isentropic & Prandtl–Meyer tables (γ=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "type": "analytical_table",
+      "notes": "Closed-form perfect-gas relations; reference digits fixed to commonly published table values"
+    },
+    "nasa_tm_x_1502": {
+      "citation": "Vanco & Goldman, NASA TM-X-1502 (1968), Computer program for design of two-dimensional supersonic nozzle with sharp-edged throat",
+      "type": "nasa_report",
+      "local_pdf": "refs/NASA-TM-X-1502.pdf",
+      "notes": "Sample Me=4.05, γ=1.36; θ_max=ν_e/2; y_e=A/A*; Δν accuracy discussion Fig. 3"
+    },
+    "naca_rm_e8j12": {
+      "citation": "Shames & Seashore, NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
+      "type": "naca_report",
+      "local_pdf": "refs/NACA-RM-E8J12.pdf",
+      "notes": "Graphical construction data M=1.2–10; design rules θ_max=ν_e/2 and y_e/y_t=A/A*"
+    },
+    "nasa_tm_x_2343": {
+      "citation": "Goldman & Vanco, NASA TM-X-2343 (1971), Computer program for design of two-dimensional supersonic nozzle with boundary-layer correction",
+      "type": "nasa_report",
+      "local_pdf": "refs/NASA-TM-X-2343.pdf",
+      "notes": "BL displacement geometry: r_corr = r_inviscid + δ*"
+    },
+    "rao_1958": {
+      "citation": "G.V.R. Rao, Exhaust Nozzle Contour for Optimum Thrust, Jet Propulsion / ARS (1958)",
+      "type": "journal",
+      "local_pdf": "refs/Rao_1958_Exhaust_Nozzle_Optimum_Thrust.pdf",
+      "notes": "TOP length often ~60–90% of 15° conical; θ_n > θ_e engineering correlations"
+    },
+    "lee_vernacchia_spike": {
+      "citation": "C.C. Lee (1963) annular aerospike; Vernacchia Spike Contour Algorithm notes",
+      "type": "technical_note",
+      "local_pdf": "refs/Spike_Contour_Algorithm.pdf",
+      "notes": "δ = π/2 − ν_e; isentropic Prandtl–Meyer plug geometry"
+    },
+    "sutton_1d_cf": {
+      "citation": "Sutton & Biblarz, Rocket Propulsion Elements — ideal 1-D thrust coefficient",
+      "type": "textbook",
+      "notes": "Cf formula with pe/pc, pa/pc, ε, Me perfect gas"
+    },
+    "zucrow_hoffman": {
+      "citation": "Zucrow & Hoffman, Gas Dynamics — axisymmetric MOC unit processes",
+      "type": "textbook",
+      "notes": "C± slopes tan(θ±μ); axisym source −sinθ sinμ /(r cos(θ±μ))"
+    }
+  },
+  "regimes": {
+    "thermo_isentropic_g14": {
+      "name": "Isentropic / Prandtl–Meyer tables γ=1.4",
+      "source_id": "anderson_naca_isentropic",
+      "mach_list": [1.5, 2.0, 2.5, 3.0, 4.0, 5.0],
+      "gamma": 1.4,
+      "reference_table": {
+        "1.5": {"nu_deg": 11.905, "area_ratio": 1.1762, "pe_pc": 0.2724},
+        "2.0": {"nu_deg": 26.380, "area_ratio": 1.6875, "pe_pc": 0.1278},
+        "2.5": {"nu_deg": 39.124, "area_ratio": 2.6367, "pe_pc": 0.05853},
+        "3.0": {"nu_deg": 49.757, "area_ratio": 4.2346, "pe_pc": 0.02722},
+        "4.0": {"nu_deg": 65.785, "area_ratio": 10.7188, "pe_pc": 0.006586},
+        "5.0": {"nu_deg": 76.920, "area_ratio": 25.0000, "pe_pc": 0.001890}
+      },
+      "tol_percent": {"nu_deg": 0.05, "area_ratio": 0.05, "pe_pc": 0.1}
+    },
+    "thermo_multi_gamma": {
+      "name": "Prandtl–Meyer / A/A* multi-γ (analytical self-consistency)",
+      "source_id": "anderson_naca_isentropic",
+      "cases": [
+        {"gamma": 1.20, "Me": 3.0},
+        {"gamma": 1.25, "Me": 3.0},
+        {"gamma": 1.30, "Me": 2.5},
+        {"gamma": 1.36, "Me": 4.05},
+        {"gamma": 1.40, "Me": 2.0}
+      ],
+      "tol_percent": {"pm_roundtrip_M": 1e-4, "area_roundtrip_M": 1e-3}
+    },
+    "nasa_tm_x_1502_sample": {
+      "name": "NASA TM-X-1502 sample planar MLN",
+      "source_id": "nasa_tm_x_1502",
+      "Me": 4.05,
+      "gamma": 1.36,
+      "dnu_deg": 0.5,
+      "throat_half_height": 1.0,
+      "rules": {
+        "theta_max_equals": "nu_e/2",
+        "ye_over_ht_equals": "area_ratio(Me)",
+        "throat": [0.0, 1.0]
+      },
+      "mesh_note": "TM-X-1502 Fig.3: Δν≈0.1° → ~0.5% x-error, ~0.62% y-error vs zero-Δν limit; Δν≈0.5° → ~2.5% x, ~0.08% y",
+      "tol_percent": {
+        "theta_max_deg": 0.01,
+        "area_ratio": 1e-6,
+        "ye_over_ht": 1e-4,
+        "xe_finite": null
+      }
+    },
+    "naca_planar_mln_suite": {
+      "name": "NACA RM E8J12 / planar MLN design-rule suite",
+      "source_id": "naca_rm_e8j12",
+      "gamma": 1.4,
+      "cases": [
+        {"Me": 2.0, "dnu_deg": 1.0},
+        {"Me": 2.4, "dnu_deg": 1.0},
+        {"Me": 3.0, "dnu_deg": 0.5},
+        {"Me": 3.5, "dnu_deg": 0.5},
+        {"Me": 4.0, "dnu_deg": 0.5}
+      ],
+      "tol_percent": {
+        "theta_max_deg": 0.05,
+        "area_ratio": 1e-4,
+        "ye_over_ht": 0.01
+      }
+    },
+    "axisym_mln_regimes": {
+      "name": "Axisymmetric MLN multi-regime (design contracts)",
+      "source_id": "zucrow_hoffman",
+      "Rt": 0.05,
+      "n_chars": 40,
+      "cases": [
+        {"gamma": 1.20, "Me": 2.5},
+        {"gamma": 1.25, "Me": 3.0},
+        {"gamma": 1.30, "Me": 3.5},
+        {"gamma": 1.40, "Me": 2.0},
+        {"gamma": 1.40, "Me": 3.0},
+        {"gamma": 1.40, "Me": 4.0}
+      ],
+      "contracts": {
+        "eps_matches_1d": true,
+        "theta_exit_near_zero_deg": 1.0,
+        "theta_max_near_half_nu_e_percent": 8.0,
+        "L_over_Rt_min": 1.5,
+        "L_over_Rt_max": 25.0,
+        "diverging": true
+      },
+      "tol_percent": {
+        "area_ratio": 0.05,
+        "theta_max_vs_half_nu": 8.0
+      }
+    },
+    "rao_top_engineering": {
+      "name": "Rao TOP engineering correlations",
+      "source_id": "rao_1958",
+      "cases": [
+        {"gamma": 1.25, "Me": 3.0, "length_fraction": 0.80, "Rt": 0.05},
+        {"gamma": 1.40, "Me": 3.5, "length_fraction": 0.80, "Rt": 0.05},
+        {"gamma": 1.25, "Me": 4.0, "length_fraction": 0.70, "Rt": 0.05}
+      ],
+      "contracts": {
+        "L_over_L15cone_tol_percent": 5.0,
+        "theta_n_gt_theta_e": true,
+        "eps_matches_1d_percent": 0.5
+      }
+    },
+    "aerospike_lee": {
+      "name": "Lee / Vernacchia annular aerospike identities",
+      "source_id": "lee_vernacchia_spike",
+      "cases": [
+        {
+          "Pc": 5.0e6,
+          "Tc": 3200.0,
+          "gamma": 1.25,
+          "molar_mass": 22.0,
+          "Re": 0.15,
+          "expansion_ratio": 25.0,
+          "Pa": 0.0
+        },
+        {
+          "Pc": 3.0e6,
+          "Tc": 3000.0,
+          "gamma": 1.30,
+          "molar_mass": 20.0,
+          "Re": 0.10,
+          "expansion_ratio": 12.0,
+          "Pa": 101325.0
+        }
+      ],
+      "tol_percent": {
+        "delta_vs_pi2_minus_nu": 0.01,
+        "exit_mach_vs_area_mach": 1.0
+      }
+    },
+    "performance_1d_cf": {
+      "name": "Ideal 1-D thrust coefficient (Sutton)",
+      "source_id": "sutton_1d_cf",
+      "cases": [
+        {"gamma": 1.4, "Me": 2.0, "pa_pc": 0.0},
+        {"gamma": 1.4, "Me": 3.0, "pa_pc": 0.0},
+        {"gamma": 1.25, "Me": 3.0, "pa_pc": 0.0},
+        {"gamma": 1.25, "Me": 3.0, "pa_pc": 0.01},
+        {"gamma": 1.20, "Me": 4.0, "pa_pc": 0.0}
+      ],
+      "tol_percent": {"Cf": 0.05}
+    },
+    "family_ordering": {
+      "name": "Design family length ordering (MLN < TIC < ideal typical)",
+      "source_id": "zucrow_hoffman",
+      "gamma": 1.25,
+      "Me": 3.0,
+      "Rt": 0.05,
+      "n_chars": 32,
+      "tic_fraction": 0.80,
+      "rao_fraction": 0.80
+    }
+  }
+}
