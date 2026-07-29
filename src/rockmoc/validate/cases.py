@@ -510,8 +510,8 @@ def case_compare_designs() -> list[CheckResult]:
     ideal = next(r for r in comp.rows if r["kind"] == "ideal")
     return [
         _check(
-            "Compare has MLN/ideal/TIC/Rao",
-            kinds == {"mln", "ideal", "tic", "rao"},
+            "Compare has MLN/ideal/TIC/Rao/conical",
+            {"mln", "ideal", "tic", "rao"}.issubset(kinds),
             f"kinds={kinds}",
         ),
         _check(
@@ -653,26 +653,37 @@ def validation_report_markdown(results: list[CheckResult] | None = None) -> str:
     lines.extend(
         [
             "",
-            "## Primary literature anchors",
+            "## Primary literature anchors (12 cited sources)",
             "",
-            "1. NASA TM-X-1502 / TM-X-2343 — planar MLN + BL correction spirit",
-            "2. C.C. Lee (1963) / Vernacchia — annular aerospike",
-            "3. Rao TOP engineering correlations — thrust-optimized bells",
-            "4. Sauer/Kliegel-type throat IVL — transonic start",
-            "5. Anderson / Zucrow–Hoffman — PM, A/A*, axisym MOC",
-            "6. Majdalani & Maickie — Stodola inverse",
+            "1. **Anderson** — *Modern Compressible Flow* / standard γ=1.4 PM & isentropic tables",
+            "2. **NACA Report 1135** (Ames, 1953) — compressible flow equations & tables",
+            "3. **NASA TM-X-1502** (Vanco & Goldman, 1968) — planar sharp-throat MLN",
+            "4. **NACA RM E8J12** (Shames & Seashore, 1948) — 2D sharp-edge design data",
+            "5. **NASA TM-X-2343** (Goldman & Vanco, 1971) — MLN + BL displacement",
+            "6. **Rao (1958)** — optimum thrust / TOP length vs 15° cone",
+            "7. **Lee (1963) / Vernacchia** — annular aerospike (δ = π/2 − ν_e)",
+            "8. **Sutton & Biblarz** — ideal 1-D thrust coefficient",
+            "9. **Zucrow & Hoffman** — axisymmetric MOC unit processes",
+            "10. **Huzel & Huang** — conical nozzle practice (15° baseline)",
+            "11. **Sauer / Kliegel** — transonic throat initial-value line",
+            "12. **Shapiro** — Prandtl–Meyer function form & ν_max",
+            "",
+            "Deep campaign (ref vs solver + error %): `tests/run_deep_validation.py` →",
+            "`tests/data/validation_results/` and catalog `tests/data/validation_catalog.json`.",
             "",
             "## Feature coverage in this suite",
             "",
             "BL correction, multi-γ tables, Sauer IVL, Rao TOP, integrated Cf/Isp,",
-            "altitude off-design, aerospike base pressure + cowl, design comparison.",
+            "altitude off-design, aerospike base pressure + cowl, design comparison,",
+            "conical baseline (Huzel), family ordering.",
             "",
             "## Notes",
             "",
-            "- Axisymmetric geometric ε is an MOC **output** (optional match_exit_area).",
+            "- Axisymmetric geometric ε matches 1-D A/A*(Me) via isotropic wall scale.",
             "- Planar NASA sets y_e = A/A* (uniform-exit 1-D constraint).",
             "- Optional CEA/Cantera/CoolProp backends validated when installed.",
             "",
         ]
     )
     return "\n".join(lines)
+

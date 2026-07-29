@@ -18,16 +18,19 @@ If you want validation methodology, see [validation_deep.md](validation_deep.md)
 6. [Which nozzle type should I use?](#6-which-nozzle-type-should-i-use)
 7. [Recipe book (copy-paste)](#7-recipe-book-copy-paste)
 8. [Reading the results](#8-reading-the-results)
-9. [Plots and figures](#9-plots-and-figures)
-10. [Export for CAD / CFD](#10-export-for-cad--cfd)
-11. [Performance, altitude, and sweeps](#11-performance-altitude-and-sweeps)
-12. [Production pipeline (recommended for “final” contours)](#12-production-pipeline-recommended-for-final-contours)
-13. [Thermochemistry (CEA / Cantera / CoolProp)](#13-thermochemistry-cea--cantera--coolprop)
-14. [Command-line usage](#14-command-line-usage)
-15. [Mesh density: speed vs accuracy](#15-mesh-density-speed-vs-accuracy)
-16. [Validation: prove the install](#16-validation-prove-the-install)
-17. [Common mistakes & FAQ](#17-common-mistakes--faq)
-18. [Where to go next](#18-where-to-go-next)
+9. [Student helpers (reports, gases, tables, cone)](#9-student-helpers-reports-gases-tables-cone)
+10. [Plots and figures](#10-plots-and-figures)
+11. [Export for CAD / CFD](#11-export-for-cad--cfd)
+12. [Performance, altitude, and sweeps](#12-performance-altitude-and-sweeps)
+13. [Production pipeline (recommended for “final” contours)](#13-production-pipeline-recommended-for-final-contours)
+14. [Thermochemistry (CEA / Cantera / CoolProp)](#14-thermochemistry-cea--cantera--coolprop)
+15. [Command-line usage](#15-command-line-usage)
+16. [Mesh density: speed vs accuracy](#16-mesh-density-speed-vs-accuracy)
+17. [Validation: prove the install](#17-validation-prove-the-install)
+18. [Common mistakes & FAQ](#18-common-mistakes--faq)
+19. [Where to go next](#19-where-to-go-next)
+
+**Also for students:** [glossary.md](glossary.md) · [student_problems.md](student_problems.md) · [nozzle_explainers.md](nozzle_explainers.md) · [notebooks](../examples/notebooks/)
 
 ---
 
@@ -374,7 +377,62 @@ print("θ_max deg =", result.summary()["max_wall_angle_deg"])
 
 ---
 
-## 9. Plots and figures
+## 9. Student helpers (reports, gases, tables, cone)
+
+### Fast homework path
+
+```python
+from rockmoc import DesignSpec, design_mln, design_conical, compare_nozzle_designs, example_gas
+
+# Throat in millimeters, n=40 by default
+spec = DesignSpec.student(Me=3.0, gas_name="lox_rp1", Rt_mm=50)
+# or: DesignSpec.student(Me=3.0, gamma=1.25, Rt_mm=50)
+
+mln = design_mln(spec)
+print(mln.report(length_unit="mm", angle_unit="deg"))  # unit-aware summary
+print(mln.explain())                                     # why this shape?
+mln.lab_report("my_lab.md", student_name="Alex", course="AE-4XX")
+
+cone = design_conical(spec, half_angle_deg=15.0)
+cmp = compare_nozzle_designs(spec, include_conical=True)
+print(cmp.to_markdown())          # paste into report
+cmp.to_csv("compare.csv")
+cmp.to_latex()                    # optional LaTeX tabular
+```
+
+### Example gases
+
+```python
+from rockmoc import example_gas, describe_example_gases, list_example_gases
+
+print(describe_example_gases())
+gas = example_gas("air")          # also: lox_rp1, lox_lh2, lox_ch4, …
+```
+
+These are **frozen teaching estimates**, not flight thermo.
+
+### Known limits (always quote in labs)
+
+```python
+from rockmoc import KNOWN_LIMITS
+for line in KNOWN_LIMITS:
+    print("-", line)
+```
+
+Every `result.summary()` also includes a short `limitations` string.
+
+### Notebooks & homework set
+
+| Resource | Path |
+|----------|------|
+| Tutorials | `examples/notebooks/01_…` … `04_…` |
+| Worked problems | [student_problems.md](student_problems.md) |
+| Symbols | [glossary.md](glossary.md) |
+| Mini explainers | [nozzle_explainers.md](nozzle_explainers.md) |
+
+---
+
+## 10. Plots and figures
 
 ### One-liner after design
 
@@ -430,7 +488,7 @@ py -3.12 tests/generate_all_graphs.py
 
 ---
 
-## 10. Export for CAD / CFD
+## 11. Export for CAD / CFD
 
 ```python
 # Wall only
@@ -451,7 +509,7 @@ result.contour.export_csv("wall_only.csv")
 
 ---
 
-## 11. Performance, altitude, and sweeps
+## 12. Performance, altitude, and sweeps
 
 ### Integrated Cf / Isp (contour + 1-D edge)
 
@@ -513,7 +571,7 @@ plot_of_ratio_sweep(of_rows, show=True, save_path="of_sweep.png")
 
 ---
 
-## 12. Production pipeline (recommended for “final” contours)
+## 13. Production pipeline (recommended for “final” contours)
 
 One call stacks fine mesh, optional multi-γ, BL, field Cf, altitude, and certificates:
 
@@ -551,7 +609,7 @@ More detail: [production_pipeline.md](production_pipeline.md).
 
 ---
 
-## 13. Thermochemistry (CEA / Cantera / CoolProp)
+## 14. Thermochemistry (CEA / Cantera / CoolProp)
 
 rockmoc MOC is still **perfect-gas / tabulated-γ** along the nozzle. Chemistry backends supply **better γ, R, Tc** at the design point (frozen surrogate — industry standard for preliminary MOC).
 
@@ -573,7 +631,7 @@ If a backend is not installed, imports fail clearly — core designs never requi
 
 ---
 
-## 14. Command-line usage
+## 15. Command-line usage
 
 ```bash
 pip install -e ".[cli]"
@@ -607,7 +665,7 @@ rockmoc --version
 
 ---
 
-## 15. Mesh density: speed vs accuracy
+## 16. Mesh density: speed vs accuracy
 
 | `n_characteristics` | Feel | Use when |
 |--------------------:|------|----------|
@@ -641,7 +699,7 @@ for row in rows:
 
 ---
 
-## 16. Validation: prove the install
+## 17. Validation: prove the install
 
 ### Fast unit tests
 
@@ -672,7 +730,7 @@ See [validation_deep.md](validation_deep.md) for sources and interpretation.
 
 ---
 
-## 17. Common mistakes & FAQ
+## 18. Common mistakes & FAQ
 
 ### “DesignError: Provide exactly one of exit_mach, area_ratio, or pressure_ratio”
 
@@ -731,11 +789,15 @@ py -3.12 examples/quickstart.py
 
 ---
 
-## 18. Where to go next
+## 19. Where to go next
 
 | Goal | Document / command |
 |------|--------------------|
 | Package overview | [README.md](../README.md) |
+| Glossary & symbols | [glossary.md](glossary.md) |
+| Homework problems | [student_problems.md](student_problems.md) |
+| Nozzle explainers | [nozzle_explainers.md](nozzle_explainers.md) |
+| Jupyter tutorials | `examples/notebooks/` |
 | Production accuracy stack | [production_pipeline.md](production_pipeline.md) |
 | First-principles / MOC equations | [first_principles.md](first_principles.md), [theory.md](theory.md) |
 | NASA planar theory | [theory_nasa_tm_x_1502.md](theory_nasa_tm_x_1502.md) |

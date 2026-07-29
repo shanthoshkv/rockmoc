@@ -143,3 +143,6 @@ tests/graphs/
 *.orig
 *.tmp
 *.temp
+
+# ----- Portfolio site (local / deploy separately) -----
+website/

@@ -31,8 +31,11 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 - [Contributing / push checklist](#contributing--push-checklist)
 - [License](#license)
 
-> **New to rockmoc?** Read the friendly walkthrough:  
-> **[docs/how_to_use.md](docs/how_to_use.md)** — install, first design, which nozzle type, plots, export, production pipeline, CLI, FAQ.
+> **New to rockmoc?** Start here:  
+> - **[docs/how_to_use.md](docs/how_to_use.md)** — install, first design, student helpers, FAQ  
+> - **[examples/notebooks/](examples/notebooks/)** — Jupyter tutorials (MLN, compare, altitude, NASA planar)  
+> - **[docs/student_problems.md](docs/student_problems.md)** — worked homework  
+> - **[docs/glossary.md](docs/glossary.md)** — symbols & units
 
 ---
 
@@ -60,6 +63,7 @@ It is built for:
 | **TIC** | `design_tic` | Truncated ideal contour (`truncate_fraction`) | Flight trade: length vs performance |
 | **Rao TOP** | `design_rao` | Thrust-optimized parabolic / engineering TOP | Industry-standard compact high-thrust bells |
 | **Rao TOC** | `design_rao_toc`, `design_rao_control` | Length-referenced / control-surface TOC variants | Advanced TOP–TOC studies |
+| **Conical** | `design_conical` | Constant half-angle wall (default **15°**) | Textbook baseline vs MOC / TOP |
 | **Aerospike (full)** | `design_spike` | Annular plug (Lee / Vernacchia) | Altitude-compensating engines |
 | **Aerospike (truncated)** | `design_spike_truncated`, `truncated_spike_with_base` | Truncated spike + base pressure models | Practical plug nozzles |
 | **Spike + cowl** | `design_spike_with_cowl`, `design_primary_cowl` | Primary cowl + spike stack | Integrated aerospike packages |
@@ -71,9 +75,18 @@ Typical length ordering at fixed design point:
 
 ```text
 MLN  <  Rao TOP (~0.8 × 15° cone)  ≲  TIC (e.g. 80% ideal)  <  Ideal
+(+ conical 15° as length/angle baseline)
 ```
 
-Use `compare_nozzle_designs(spec)` for a side-by-side table of \(L/R_t\), ε, \(C_{F,\mathrm{vac}}\), η.
+Use `compare_nozzle_designs(spec)` (includes cone by default) then:
+
+```python
+cmp = compare_nozzle_designs(spec)
+print(cmp.to_markdown())   # lab report
+cmp.to_csv("compare.csv")
+```
+
+**Student helpers:** `DesignSpec.student`, `example_gas`, `result.report()`, `result.lab_report()`, `explainer("mln")`, `KNOWN_LIMITS` — see [docs/how_to_use.md](docs/how_to_use.md#9-student-helpers-reports-gases-tables-cone).
 
 ---
 
@@ -332,20 +345,25 @@ py -3.12 tests/run_deep_validation.py
 | 1-D C_F (Sutton) | 5 | Closed-form C_F | ~0 |
 | Family ordering | 1 | ideal > MLN; TIC < ideal; Rao compact | structural |
 
-**Latest deep run (see CSV for exact digits):** 34/34 cases, 151 metrics, median error ~0%, thermo table errors typically &lt; 0.02%.
+**Latest deep run:** **43/43 cases**, **170 metrics**, **12 cited sources**, median error ~0%, thermo table errors typically &lt; 0.02% (max ~4% only on documented axisym θ_max vs planar ν_e/2).
 
-### Primary literature anchors
+### Primary literature anchors (12)
 
-1. **NASA TM-X-1502** — Vanco & Goldman (1968), planar sharp-edged MLN  
-2. **NACA RM E8J12** — Shames & Seashore (1948), 2D sharp-edge design data  
-3. **NASA TM-X-2343** — Goldman & Vanco (1971), MLN + BL displacement  
-4. **Rao (1958)** — optimum thrust contour / TOP practice  
-5. **Lee / Vernacchia** — annular aerospike contour algorithm  
-6. **Anderson / NACA** isentropic–Prandtl–Meyer tables  
-7. **Sutton & Biblarz** — ideal 1-D thrust coefficient  
-8. **Zucrow & Hoffman** — axisymmetric MOC unit processes  
+1. **Anderson** — *Modern Compressible Flow* / γ=1.4 PM & isentropic tables  
+2. **NACA Report 1135** (Ames, 1953) — compressible flow equations & tables  
+3. **NASA TM-X-1502** — Vanco & Goldman (1968), planar sharp-edged MLN  
+4. **NACA RM E8J12** — Shames & Seashore (1948), 2D sharp-edge design data  
+5. **NASA TM-X-2343** — Goldman & Vanco (1971), MLN + BL displacement  
+6. **Rao (1958)** — optimum thrust contour / TOP vs 15° cone  
+7. **Lee / Vernacchia** — annular aerospike (δ = π/2 − ν_e)  
+8. **Sutton & Biblarz** — ideal 1-D thrust coefficient  
+9. **Zucrow & Hoffman** — axisymmetric MOC unit processes  
+10. **Huzel & Huang** — conical nozzle practice (15° baseline)  
+11. **Sauer / Kliegel** — transonic throat IVL  
+12. **Shapiro** — Prandtl–Meyer function form & ν_max  
 
-Local copies (when present): `refs/*.pdf`.
+Catalog + CSV: `tests/data/validation_catalog.json`, `tests/data/validation_results/`.  
+Local PDFs: `refs/*.pdf`.
 
 ### Also covered by pytest
 

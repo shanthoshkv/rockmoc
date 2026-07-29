@@ -110,7 +110,9 @@ def test_compare_designs():
     c = compare_nozzle_designs(
         DesignSpec(gas=gas, throat_radius=0.05, exit_mach=2.5, n_characteristics=18)
     )
-    assert len(c.rows) == 4
+    assert len(c.rows) >= 4  # mln, ideal, tic, rao (+ conical by default)
+    kinds = {r["kind"] for r in c.rows}
+    assert {"mln", "ideal", "tic", "rao"}.issubset(kinds)
     assert "rao" in c.summary_table()
 
 

@@ -11,7 +11,9 @@ from rockmoc.geometry.contour import Contour
 from rockmoc.moc.types import CharNet, FlowPoint
 from rockmoc.plot.theme import (
     COLORS,
+    annotation_box,
     apply_dark_theme,
+    finalize_figure,
     maybe_save,
     maybe_show,
     require_matplotlib,
@@ -284,21 +286,10 @@ def plot_moc_field(
 
     if annotate:
         lines = [f"{k}: {v}" for k, v in annotate.items()]
-        ax.text(
-            0.02,
-            0.98,
-            "\n".join(lines),
-            transform=ax.transAxes,
-            va="top",
-            ha="left",
-            fontsize=9,
-            color=COLORS["text"],
-            bbox=dict(boxstyle="round,pad=0.4", facecolor=COLORS["bg"], edgecolor=COLORS["grid"], alpha=0.9),
-            zorder=10,
-        )
+        annotation_box(ax, "\n".join(lines), fontsize=8.5)
 
-    ax.legend(loc="upper right", fontsize=8, ncol=2, frameon=True)
-    fig.tight_layout()
+    ax.legend(loc="upper right", fontsize=8, ncol=2, frameon=True, fancybox=True)
+    finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)
     return fig

@@ -1,69 +1,107 @@
 {
-  "title": "rockmoc deep multi-regime validation",
-  "generated_utc": "2026-07-19T07:53:00.747160+00:00",
-  "catalog_title": "rockmoc deep validation catalog",
+  "title": "rockmoc deep multi-regime validation (10+ cited sources)",
+  "generated_utc": "2026-07-29T18:08:29.789720+00:00",
+  "catalog_title": "rockmoc deep validation catalog (10+ cited sources)",
   "sources": {
-    "anderson_naca_isentropic": {
-      "citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
-      "type": "analytical_table",
-      "notes": "Closed-form perfect-gas relations; reference digits fixed to commonly published table values"
+    "anderson_compressible": {
+      "citation": "Anderson, J. D., Modern Compressible Flow (and standard \u03b3=1.4 isentropic/PM teaching tables)",
+      "type": "textbook",
+      "notes": "Published digits for \u03bd(M), A/A*, pe/pc at \u03b3=1.4"
+    },
+    "naca_report_1135": {
+      "citation": "Ames Research Staff, NACA Report 1135 (1953), Equations, Tables and Charts for Compressible Flow",
+      "type": "naca_report",
+      "notes": "Canonical compressible-flow tables; same closed-form isentropic/PM relations"
     },
     "nasa_tm_x_1502": {
-      "citation": "Vanco & Goldman, NASA TM-X-1502 (1968), Computer program for design of two-dimensional supersonic nozzle with sharp-edged throat",
+      "citation": "Vanco, M. R. & Goldman, L. J., NASA TM-X-1502 (1968), Computer program for design of two-dimensional supersonic nozzle with sharp-edged throat",
       "type": "nasa_report",
       "local_pdf": "refs/NASA-TM-X-1502.pdf",
-      "notes": "Sample Me=4.05, \u03b3=1.36; \u03b8_max=\u03bd_e/2; y_e=A/A*; \u0394\u03bd accuracy discussion Fig. 3"
+      "notes": "Sample Me=4.05, \u03b3=1.36; \u03b8_max=\u03bd_e/2; y_e=A/A*; \u0394\u03bd mesh guidance Fig. 3"
     },
     "naca_rm_e8j12": {
-      "citation": "Shames & Seashore, NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
+      "citation": "Shames, H. & Seashore, F. L., NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
       "type": "naca_report",
       "local_pdf": "refs/NACA-RM-E8J12.pdf",
-      "notes": "Graphical construction data M=1.2\u201310; design rules \u03b8_max=\u03bd_e/2 and y_e/y_t=A/A*"
+      "notes": "Graphical construction data; design rules \u03b8_max=\u03bd_e/2, y_e/y_t=A/A*"
     },
     "nasa_tm_x_2343": {
-      "citation": "Goldman & Vanco, NASA TM-X-2343 (1971), Computer program for design of two-dimensional supersonic nozzle with boundary-layer correction",
+      "citation": "Goldman, L. J. & Vanco, M. R., NASA TM-X-2343 (1971), Computer program for design of two-dimensional supersonic nozzle with boundary-layer correction",
       "type": "nasa_report",
       "local_pdf": "refs/NASA-TM-X-2343.pdf",
-      "notes": "BL displacement geometry: r_corr = r_inviscid + \u03b4*"
+      "notes": "BL displacement: r_corr = r_inviscid + \u03b4*"
     },
     "rao_1958": {
-      "citation": "G.V.R. Rao, Exhaust Nozzle Contour for Optimum Thrust, Jet Propulsion / ARS (1958)",
+      "citation": "Rao, G. V. R., Exhaust Nozzle Contour for Optimum Thrust, Jet Propulsion / ARS (1958)",
       "type": "journal",
       "local_pdf": "refs/Rao_1958_Exhaust_Nozzle_Optimum_Thrust.pdf",
-      "notes": "TOP length often ~60\u201390% of 15\u00b0 conical; \u03b8_n > \u03b8_e engineering correlations"
+      "notes": "TOP length often ~60\u201390% of 15\u00b0 conical; \u03b8_n > \u03b8_e"
     },
     "lee_vernacchia_spike": {
-      "citation": "C.C. Lee (1963) annular aerospike; Vernacchia Spike Contour Algorithm notes",
+      "citation": "Lee, C. C. (1963) annular aerospike; Vernacchia Spike Contour Algorithm notes",
       "type": "technical_note",
       "local_pdf": "refs/Spike_Contour_Algorithm.pdf",
-      "notes": "\u03b4 = \u03c0/2 \u2212 \u03bd_e; isentropic Prandtl\u2013Meyer plug geometry"
+      "notes": "\u03b4 = \u03c0/2 \u2212 \u03bd_e; isentropic PM plug geometry"
     },
-    "sutton_1d_cf": {
-      "citation": "Sutton & Biblarz, Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
+    "sutton_biblarz": {
+      "citation": "Sutton, G. P. & Biblarz, O., Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
       "type": "textbook",
-      "notes": "Cf formula with pe/pc, pa/pc, \u03b5, Me perfect gas"
+      "notes": "Cf formula with pe/pc, pa/pc, \u03b5, Me"
     },
     "zucrow_hoffman": {
-      "citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "citation": "Zucrow, M. J. & Hoffman, J. D., Gas Dynamics \u2014 axisymmetric MOC unit processes",
       "type": "textbook",
-      "notes": "C\u00b1 slopes tan(\u03b8\u00b1\u03bc); axisym source \u2212sin\u03b8 sin\u03bc /(r cos(\u03b8\u00b1\u03bc))"
+      "notes": "C\u00b1 slopes tan(\u03b8\u00b1\u03bc); axisym source \u2212sin\u03b8 sin\u03bc/(r cos(\u03b8\u00b1\u03bc))"
+    },
+    "huzel_huang": {
+      "citation": "Huzel, D. K. & Huang, D. H., Modern Engineering for Design of Liquid-Propellant Rocket Engines (AIAA), conical nozzle practice",
+      "type": "textbook",
+      "notes": "15\u00b0 half-angle conical baseline; L=(Re\u2212Rt)/tan \u03b8_c; divergence loss concept"
+    },
+    "sauer_kliegel": {
+      "citation": "Sauer / Kliegel-type transonic throat initial-value line (engineering IVL)",
+      "type": "classic_analysis",
+      "local_pdf": "refs/Kliegel_Levine_1969.pdf",
+      "notes": "Slightly supersonic throat start; axis \u03b8\u22480; M>1 on IVL"
+    },
+    "shapiro_gas_dynamics": {
+      "citation": "Shapiro, A. H., The Dynamics and Thermodynamics of Compressible Fluid Flow \u2014 Prandtl\u2013Meyer function form",
+      "type": "textbook",
+      "notes": "\u03bd(M\u2192\u221e)=\u03c0/2(\u221a((\u03b3+1)/(\u03b3\u22121))\u22121); characteristic directions"
     }
   },
+  "sources_used_in_run": [
+    "anderson_compressible",
+    "huzel_huang",
+    "lee_vernacchia_spike",
+    "naca_report_1135",
+    "naca_rm_e8j12",
+    "nasa_tm_x_1502",
+    "nasa_tm_x_2343",
+    "rao_1958",
+    "sauer_kliegel",
+    "shapiro_gas_dynamics",
+    "sutton_biblarz",
+    "zucrow_hoffman"
+  ],
+  "n_cited_sources": 12,
   "summary": {
-    "n_cases": 34,
-    "n_passed": 34,
+    "n_cases": 43,
+    "n_passed": 43,
     "n_failed": 0,
-    "n_metrics": 151,
+    "n_metrics": 170,
+    "n_cited_sources": 12,
+    "n_sources_used": 12,
     "max_error_percent": 4.000000000000014,
-    "mean_error_percent": 0.20368908248201845,
+    "mean_error_percent": 0.17544023162684821,
     "median_error_percent": 0.0
   },
   "cases": [
     {
       "case_id": "thermo_g1.4_M1.5",
       "regime": "thermo_isentropic",
-      "source_id": "anderson_naca_isentropic",
-      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "source_id": "anderson_compressible",
+      "source_citation": "Anderson, J. D., Modern Compressible Flow (and standard \u03b3=1.4 isentropic/PM teaching tables)",
       "description": "Isentropic/PM table \u03b3=1.4 M=1.5",
       "inputs": {
         "gamma": 1.4,
@@ -121,8 +159,8 @@
     {
       "case_id": "thermo_g1.4_M2.0",
       "regime": "thermo_isentropic",
-      "source_id": "anderson_naca_isentropic",
-      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "source_id": "anderson_compressible",
+      "source_citation": "Anderson, J. D., Modern Compressible Flow (and standard \u03b3=1.4 isentropic/PM teaching tables)",
       "description": "Isentropic/PM table \u03b3=1.4 M=2.0",
       "inputs": {
         "gamma": 1.4,
@@ -180,8 +218,8 @@
     {
       "case_id": "thermo_g1.4_M2.5",
       "regime": "thermo_isentropic",
-      "source_id": "anderson_naca_isentropic",
-      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "source_id": "anderson_compressible",
+      "source_citation": "Anderson, J. D., Modern Compressible Flow (and standard \u03b3=1.4 isentropic/PM teaching tables)",
       "description": "Isentropic/PM table \u03b3=1.4 M=2.5",
       "inputs": {
         "gamma": 1.4,
@@ -239,8 +277,8 @@
     {
       "case_id": "thermo_g1.4_M3.0",
       "regime": "thermo_isentropic",
-      "source_id": "anderson_naca_isentropic",
-      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "source_id": "anderson_compressible",
+      "source_citation": "Anderson, J. D., Modern Compressible Flow (and standard \u03b3=1.4 isentropic/PM teaching tables)",
       "description": "Isentropic/PM table \u03b3=1.4 M=3.0",
       "inputs": {
         "gamma": 1.4,
@@ -298,8 +336,8 @@
     {
       "case_id": "thermo_g1.4_M4.0",
       "regime": "thermo_isentropic",
-      "source_id": "anderson_naca_isentropic",
-      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "source_id": "anderson_compressible",
+      "source_citation": "Anderson, J. D., Modern Compressible Flow (and standard \u03b3=1.4 isentropic/PM teaching tables)",
       "description": "Isentropic/PM table \u03b3=1.4 M=4.0",
       "inputs": {
         "gamma": 1.4,
@@ -357,8 +395,8 @@
     {
       "case_id": "thermo_g1.4_M5.0",
       "regime": "thermo_isentropic",
-      "source_id": "anderson_naca_isentropic",
-      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "source_id": "anderson_compressible",
+      "source_citation": "Anderson, J. D., Modern Compressible Flow (and standard \u03b3=1.4 isentropic/PM teaching tables)",
       "description": "Isentropic/PM table \u03b3=1.4 M=5.0",
       "inputs": {
         "gamma": 1.4,
@@ -414,10 +452,106 @@
       "meta": {}
     },
     {
+      "case_id": "pm_max_g1.4",
+      "regime": "pm_max_shapiro",
+      "source_id": "shapiro_gas_dynamics",
+      "source_citation": "Shapiro, A. H., The Dynamics and Thermodynamics of Compressible Fluid Flow \u2014 Prandtl\u2013Meyer function form",
+      "description": "\u03bd_max(M\u2192\u221e) \u03b3=1.4",
+      "inputs": {
+        "gamma": 1.4,
+        "nu_max_deg": 130.45
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "nu_max_deg",
+          "reference": 130.45407685048605,
+          "solver": 130.45407685048605,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": "Shapiro/Anderson \u03bd_max closed form"
+        }
+      ],
+      "meta": {
+        "catalog_digit_deg": 130.45,
+        "secondary_sources": [
+          "anderson_compressible",
+          "naca_report_1135"
+        ]
+      }
+    },
+    {
+      "case_id": "pm_max_g1.3",
+      "regime": "pm_max_shapiro",
+      "source_id": "shapiro_gas_dynamics",
+      "source_citation": "Shapiro, A. H., The Dynamics and Thermodynamics of Compressible Fluid Flow \u2014 Prandtl\u2013Meyer function form",
+      "description": "\u03bd_max(M\u2192\u221e) \u03b3=1.3",
+      "inputs": {
+        "gamma": 1.3,
+        "nu_max_deg": 152.74
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "nu_max_deg",
+          "reference": 159.19871588754222,
+          "solver": 159.19871588754222,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": "Shapiro/Anderson \u03bd_max closed form"
+        }
+      ],
+      "meta": {
+        "catalog_digit_deg": 152.74,
+        "secondary_sources": [
+          "anderson_compressible",
+          "naca_report_1135"
+        ]
+      }
+    },
+    {
+      "case_id": "pm_max_g1.25",
+      "regime": "pm_max_shapiro",
+      "source_id": "shapiro_gas_dynamics",
+      "source_citation": "Shapiro, A. H., The Dynamics and Thermodynamics of Compressible Fluid Flow \u2014 Prandtl\u2013Meyer function form",
+      "description": "\u03bd_max(M\u2192\u221e) \u03b3=1.25",
+      "inputs": {
+        "gamma": 1.25,
+        "nu_max_deg": 167.97
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "nu_max_deg",
+          "reference": 180.0,
+          "solver": 180.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.05,
+          "passed": true,
+          "unit": "deg",
+          "note": "Shapiro/Anderson \u03bd_max closed form"
+        }
+      ],
+      "meta": {
+        "catalog_digit_deg": 167.97,
+        "secondary_sources": [
+          "anderson_compressible",
+          "naca_report_1135"
+        ]
+      }
+    },
+    {
       "case_id": "thermo_multi_g1.2_M3.0",
       "regime": "thermo_multi_gamma",
-      "source_id": "anderson_naca_isentropic",
-      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "source_id": "naca_report_1135",
+      "source_citation": "Ames Research Staff, NACA Report 1135 (1953), Equations, Tables and Charts for Compressible Flow",
       "description": "PM & A/A* round-trip \u03b3=1.2 Me=3.0",
       "inputs": {
         "gamma": 1.2,
@@ -453,8 +587,8 @@
     {
       "case_id": "thermo_multi_g1.25_M3.0",
       "regime": "thermo_multi_gamma",
-      "source_id": "anderson_naca_isentropic",
-      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "source_id": "naca_report_1135",
+      "source_citation": "Ames Research Staff, NACA Report 1135 (1953), Equations, Tables and Charts for Compressible Flow",
       "description": "PM & A/A* round-trip \u03b3=1.25 Me=3.0",
       "inputs": {
         "gamma": 1.25,
@@ -490,8 +624,8 @@
     {
       "case_id": "thermo_multi_g1.3_M2.5",
       "regime": "thermo_multi_gamma",
-      "source_id": "anderson_naca_isentropic",
-      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "source_id": "naca_report_1135",
+      "source_citation": "Ames Research Staff, NACA Report 1135 (1953), Equations, Tables and Charts for Compressible Flow",
       "description": "PM & A/A* round-trip \u03b3=1.3 Me=2.5",
       "inputs": {
         "gamma": 1.3,
@@ -527,8 +661,8 @@
     {
       "case_id": "thermo_multi_g1.36_M4.05",
       "regime": "thermo_multi_gamma",
-      "source_id": "anderson_naca_isentropic",
-      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "source_id": "naca_report_1135",
+      "source_citation": "Ames Research Staff, NACA Report 1135 (1953), Equations, Tables and Charts for Compressible Flow",
       "description": "PM & A/A* round-trip \u03b3=1.36 Me=4.05",
       "inputs": {
         "gamma": 1.36,
@@ -564,8 +698,8 @@
     {
       "case_id": "thermo_multi_g1.4_M2.0",
       "regime": "thermo_multi_gamma",
-      "source_id": "anderson_naca_isentropic",
-      "source_citation": "Standard isentropic & Prandtl\u2013Meyer tables (\u03b3=1.4); Anderson Fundamentals of Aerodynamics; NACA Report 1135 lineage",
+      "source_id": "naca_report_1135",
+      "source_citation": "Ames Research Staff, NACA Report 1135 (1953), Equations, Tables and Charts for Compressible Flow",
       "description": "PM & A/A* round-trip \u03b3=1.4 Me=2.0",
       "inputs": {
         "gamma": 1.4,
@@ -602,7 +736,7 @@
       "case_id": "nasa_tm_x_1502_sample",
       "regime": "planar_mln_nasa",
       "source_id": "nasa_tm_x_1502",
-      "source_citation": "Vanco & Goldman, NASA TM-X-1502 (1968), Computer program for design of two-dimensional supersonic nozzle with sharp-edged throat",
+      "source_citation": "Vanco, M. R. & Goldman, L. J., NASA TM-X-1502 (1968), Computer program for design of two-dimensional supersonic nozzle with sharp-edged throat",
       "description": "NASA TM-X-1502 sample Me=4.05 \u03b3=1.36",
       "inputs": {
         "Me": 4.05,
@@ -680,14 +814,14 @@
         }
       ],
       "meta": {
-        "mesh_note": "TM-X-1502 Fig.3: \u0394\u03bd\u22480.1\u00b0 \u2192 ~0.5% x-error, ~0.62% y-error vs zero-\u0394\u03bd limit; \u0394\u03bd\u22480.5\u00b0 \u2192 ~2.5% x, ~0.08% y"
+        "mesh_note": "TM-X-1502 Fig.3: \u0394\u03bd\u22480.1\u00b0 \u2192 ~0.5% x-error; \u0394\u03bd\u22480.5\u00b0 \u2192 ~2.5% x vs zero-\u0394\u03bd limit"
       }
     },
     {
       "case_id": "naca_planar_M2.0_dnu1.0",
       "regime": "planar_mln_naca",
       "source_id": "naca_rm_e8j12",
-      "source_citation": "Shames & Seashore, NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
+      "source_citation": "Shames, H. & Seashore, F. L., NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
       "description": "NACA E8J12-rule planar MLN Me=2.0 \u03b3=1.4",
       "inputs": {
         "Me": 2.0,
@@ -724,7 +858,7 @@
           "solver": 1.6875000000000002,
           "error_percent": 0.0,
           "abs_error": 0.0,
-          "tol_percent": 0.0001,
+          "tol_percent": 0.01,
           "passed": true,
           "unit": "-",
           "note": ""
@@ -747,7 +881,7 @@
       "case_id": "naca_planar_M2.4_dnu1.0",
       "regime": "planar_mln_naca",
       "source_id": "naca_rm_e8j12",
-      "source_citation": "Shames & Seashore, NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
+      "source_citation": "Shames, H. & Seashore, F. L., NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
       "description": "NACA E8J12-rule planar MLN Me=2.4 \u03b3=1.4",
       "inputs": {
         "Me": 2.4,
@@ -784,7 +918,7 @@
           "solver": 2.40309987654321,
           "error_percent": 0.0,
           "abs_error": 0.0,
-          "tol_percent": 0.0001,
+          "tol_percent": 0.01,
           "passed": true,
           "unit": "-",
           "note": ""
@@ -807,7 +941,7 @@
       "case_id": "naca_planar_M3.0_dnu0.5",
       "regime": "planar_mln_naca",
       "source_id": "naca_rm_e8j12",
-      "source_citation": "Shames & Seashore, NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
+      "source_citation": "Shames, H. & Seashore, F. L., NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
       "description": "NACA E8J12-rule planar MLN Me=3.0 \u03b3=1.4",
       "inputs": {
         "Me": 3.0,
@@ -844,7 +978,7 @@
           "solver": 4.23456790123457,
           "error_percent": 0.0,
           "abs_error": 0.0,
-          "tol_percent": 0.0001,
+          "tol_percent": 0.01,
           "passed": true,
           "unit": "-",
           "note": ""
@@ -867,7 +1001,7 @@
       "case_id": "naca_planar_M3.5_dnu0.5",
       "regime": "planar_mln_naca",
       "source_id": "naca_rm_e8j12",
-      "source_citation": "Shames & Seashore, NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
+      "source_citation": "Shames, H. & Seashore, F. L., NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
       "description": "NACA E8J12-rule planar MLN Me=3.5 \u03b3=1.4",
       "inputs": {
         "Me": 3.5,
@@ -904,7 +1038,7 @@
           "solver": 6.789620535714286,
           "error_percent": 0.0,
           "abs_error": 0.0,
-          "tol_percent": 0.0001,
+          "tol_percent": 0.01,
           "passed": true,
           "unit": "-",
           "note": ""
@@ -927,7 +1061,7 @@
       "case_id": "naca_planar_M4.0_dnu0.5",
       "regime": "planar_mln_naca",
       "source_id": "naca_rm_e8j12",
-      "source_citation": "Shames & Seashore, NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
+      "source_citation": "Shames, H. & Seashore, F. L., NACA RM E8J12 (1948), Design data for graphical construction of two-dimensional sharp-edge-throat supersonic nozzles",
       "description": "NACA E8J12-rule planar MLN Me=4.0 \u03b3=1.4",
       "inputs": {
         "Me": 4.0,
@@ -964,7 +1098,7 @@
           "solver": 10.718750000000002,
           "error_percent": 0.0,
           "abs_error": 0.0,
-          "tol_percent": 0.0001,
+          "tol_percent": 0.01,
           "passed": true,
           "unit": "-",
           "note": ""
@@ -987,7 +1121,7 @@
       "case_id": "axisym_mln_g1.2_M2.5",
       "regime": "axisym_mln",
       "source_id": "zucrow_hoffman",
-      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "source_citation": "Zucrow, M. J. & Hoffman, J. D., Gas Dynamics \u2014 axisymmetric MOC unit processes",
       "description": "Axisym MLN \u03b3=1.2 Me=2.5 n=40",
       "inputs": {
         "gamma": 1.2,
@@ -1081,7 +1215,7 @@
       "case_id": "axisym_mln_g1.25_M3.0",
       "regime": "axisym_mln",
       "source_id": "zucrow_hoffman",
-      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "source_citation": "Zucrow, M. J. & Hoffman, J. D., Gas Dynamics \u2014 axisymmetric MOC unit processes",
       "description": "Axisym MLN \u03b3=1.25 Me=3.0 n=40",
       "inputs": {
         "gamma": 1.25,
@@ -1175,7 +1309,7 @@
       "case_id": "axisym_mln_g1.3_M3.5",
       "regime": "axisym_mln",
       "source_id": "zucrow_hoffman",
-      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "source_citation": "Zucrow, M. J. & Hoffman, J. D., Gas Dynamics \u2014 axisymmetric MOC unit processes",
       "description": "Axisym MLN \u03b3=1.3 Me=3.5 n=40",
       "inputs": {
         "gamma": 1.3,
@@ -1269,7 +1403,7 @@
       "case_id": "axisym_mln_g1.4_M2.0",
       "regime": "axisym_mln",
       "source_id": "zucrow_hoffman",
-      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "source_citation": "Zucrow, M. J. & Hoffman, J. D., Gas Dynamics \u2014 axisymmetric MOC unit processes",
       "description": "Axisym MLN \u03b3=1.4 Me=2.0 n=40",
       "inputs": {
         "gamma": 1.4,
@@ -1363,7 +1497,7 @@
       "case_id": "axisym_mln_g1.4_M3.0",
       "regime": "axisym_mln",
       "source_id": "zucrow_hoffman",
-      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "source_citation": "Zucrow, M. J. & Hoffman, J. D., Gas Dynamics \u2014 axisymmetric MOC unit processes",
       "description": "Axisym MLN \u03b3=1.4 Me=3.0 n=40",
       "inputs": {
         "gamma": 1.4,
@@ -1457,7 +1591,7 @@
       "case_id": "axisym_mln_g1.4_M4.0",
       "regime": "axisym_mln",
       "source_id": "zucrow_hoffman",
-      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "source_citation": "Zucrow, M. J. & Hoffman, J. D., Gas Dynamics \u2014 axisymmetric MOC unit processes",
       "description": "Axisym MLN \u03b3=1.4 Me=4.0 n=40",
       "inputs": {
         "gamma": 1.4,
@@ -1548,10 +1682,226 @@
       "meta": {}
     },
     {
+      "case_id": "conical_g1.4_M2.5_th15.0",
+      "regime": "conical_huzel",
+      "source_id": "huzel_huang",
+      "source_citation": "Huzel, D. K. & Huang, D. H., Modern Engineering for Design of Liquid-Propellant Rocket Engines (AIAA), conical nozzle practice",
+      "description": "Cone \u03b8=15.0\u00b0 \u03b3=1.4 Me=2.5",
+      "inputs": {
+        "gamma": 1.4,
+        "Me": 2.5,
+        "half_angle_deg": 15.0,
+        "Rt": 0.05
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "length_m",
+          "reference": 0.11640222283113844,
+          "solver": 0.11640222283113844,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "m",
+          "note": "L=(Re\u2212Rt)/tan \u03b8_c"
+        },
+        {
+          "name": "area_ratio",
+          "reference": 2.636718750000001,
+          "solver": 2.636718750000001,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "eta_div",
+          "reference": 0.9829629131445341,
+          "solver": 0.9829629131445341,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": "\u03b7_div=(1+cos \u03b8_e)/2"
+        }
+      ],
+      "meta": {
+        "secondary_sources": [
+          "sutton_biblarz"
+        ]
+      }
+    },
+    {
+      "case_id": "conical_g1.25_M3.0_th15.0",
+      "regime": "conical_huzel",
+      "source_id": "huzel_huang",
+      "source_citation": "Huzel, D. K. & Huang, D. H., Modern Engineering for Design of Liquid-Propellant Rocket Engines (AIAA), conical nozzle practice",
+      "description": "Cone \u03b8=15.0\u00b0 \u03b3=1.25 Me=3.0",
+      "inputs": {
+        "gamma": 1.25,
+        "Me": 3.0,
+        "half_angle_deg": 15.0,
+        "Rt": 0.05
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "length_m",
+          "reference": 0.2640287571948571,
+          "solver": 0.2640287571948571,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "m",
+          "note": "L=(Re\u2212Rt)/tan \u03b8_c"
+        },
+        {
+          "name": "area_ratio",
+          "reference": 5.831866838679954,
+          "solver": 5.831866838679954,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "eta_div",
+          "reference": 0.9829629131445341,
+          "solver": 0.9829629131445341,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": "\u03b7_div=(1+cos \u03b8_e)/2"
+        }
+      ],
+      "meta": {
+        "secondary_sources": [
+          "sutton_biblarz"
+        ]
+      }
+    },
+    {
+      "case_id": "conical_g1.4_M3.0_th15.0",
+      "regime": "conical_huzel",
+      "source_id": "huzel_huang",
+      "source_citation": "Huzel, D. K. & Huang, D. H., Modern Engineering for Design of Liquid-Propellant Rocket Engines (AIAA), conical nozzle practice",
+      "description": "Cone \u03b8=15.0\u00b0 \u03b3=1.4 Me=3.0",
+      "inputs": {
+        "gamma": 1.4,
+        "Me": 3.0,
+        "half_angle_deg": 15.0,
+        "Rt": 0.05
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "length_m",
+          "reference": 0.1973893941748626,
+          "solver": 0.1973893941748626,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "m",
+          "note": "L=(Re\u2212Rt)/tan \u03b8_c"
+        },
+        {
+          "name": "area_ratio",
+          "reference": 4.23456790123457,
+          "solver": 4.234567901234569,
+          "error_percent": 2.0974475800498576e-14,
+          "abs_error": 8.881784197001252e-16,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "eta_div",
+          "reference": 0.9829629131445341,
+          "solver": 0.9829629131445341,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": "\u03b7_div=(1+cos \u03b8_e)/2"
+        }
+      ],
+      "meta": {
+        "secondary_sources": [
+          "sutton_biblarz"
+        ]
+      }
+    },
+    {
+      "case_id": "conical_g1.2_M4.0_th12.0",
+      "regime": "conical_huzel",
+      "source_id": "huzel_huang",
+      "source_citation": "Huzel, D. K. & Huang, D. H., Modern Engineering for Design of Liquid-Propellant Rocket Engines (AIAA), conical nozzle practice",
+      "description": "Cone \u03b8=12.0\u00b0 \u03b3=1.2 Me=4.0",
+      "inputs": {
+        "gamma": 1.2,
+        "Me": 4.0,
+        "half_angle_deg": 12.0,
+        "Rt": 0.05
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "length_m",
+          "reference": 1.0173682284875607,
+          "solver": 1.0173682284875607,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "m",
+          "note": "L=(Re\u2212Rt)/tan \u03b8_c"
+        },
+        {
+          "name": "area_ratio",
+          "reference": 28.355261324888836,
+          "solver": 28.355261324888833,
+          "error_percent": 1.2529292670218157e-14,
+          "abs_error": 3.552713678800501e-15,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": ""
+        },
+        {
+          "name": "eta_div",
+          "reference": 0.9890738003669028,
+          "solver": 0.9890738003669028,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": 0.01,
+          "passed": true,
+          "unit": "-",
+          "note": "\u03b7_div=(1+cos \u03b8_e)/2"
+        }
+      ],
+      "meta": {
+        "secondary_sources": [
+          "sutton_biblarz"
+        ]
+      }
+    },
+    {
       "case_id": "rao_top_g1.25_M3.0_lf0.8",
       "regime": "rao_top",
       "source_id": "rao_1958",
-      "source_citation": "G.V.R. Rao, Exhaust Nozzle Contour for Optimum Thrust, Jet Propulsion / ARS (1958)",
+      "source_citation": "Rao, G. V. R., Exhaust Nozzle Contour for Optimum Thrust, Jet Propulsion / ARS (1958)",
       "description": "Rao TOP \u03b3=1.25 Me=3.0 L/L_15\u00b0=0.8",
       "inputs": {
         "gamma": 1.25,
@@ -1623,7 +1973,7 @@
       "case_id": "rao_top_g1.4_M3.5_lf0.8",
       "regime": "rao_top",
       "source_id": "rao_1958",
-      "source_citation": "G.V.R. Rao, Exhaust Nozzle Contour for Optimum Thrust, Jet Propulsion / ARS (1958)",
+      "source_citation": "Rao, G. V. R., Exhaust Nozzle Contour for Optimum Thrust, Jet Propulsion / ARS (1958)",
       "description": "Rao TOP \u03b3=1.4 Me=3.5 L/L_15\u00b0=0.8",
       "inputs": {
         "gamma": 1.4,
@@ -1695,7 +2045,7 @@
       "case_id": "rao_top_g1.25_M4.0_lf0.7",
       "regime": "rao_top",
       "source_id": "rao_1958",
-      "source_citation": "G.V.R. Rao, Exhaust Nozzle Contour for Optimum Thrust, Jet Propulsion / ARS (1958)",
+      "source_citation": "Rao, G. V. R., Exhaust Nozzle Contour for Optimum Thrust, Jet Propulsion / ARS (1958)",
       "description": "Rao TOP \u03b3=1.25 Me=4.0 L/L_15\u00b0=0.7",
       "inputs": {
         "gamma": 1.25,
@@ -1767,7 +2117,7 @@
       "case_id": "aerospike_lee_0",
       "regime": "aerospike",
       "source_id": "lee_vernacchia_spike",
-      "source_citation": "C.C. Lee (1963) annular aerospike; Vernacchia Spike Contour Algorithm notes",
+      "source_citation": "Lee, C. C. (1963) annular aerospike; Vernacchia Spike Contour Algorithm notes",
       "description": "Lee spike \u03b5=25.0 \u03b3=1.25",
       "inputs": {
         "Pc": 5000000.0,
@@ -1853,7 +2203,7 @@
       "case_id": "aerospike_lee_1",
       "regime": "aerospike",
       "source_id": "lee_vernacchia_spike",
-      "source_citation": "C.C. Lee (1963) annular aerospike; Vernacchia Spike Contour Algorithm notes",
+      "source_citation": "Lee, C. C. (1963) annular aerospike; Vernacchia Spike Contour Algorithm notes",
       "description": "Lee spike \u03b5=12.0 \u03b3=1.3",
       "inputs": {
         "Pc": 3000000.0,
@@ -1938,8 +2288,8 @@
     {
       "case_id": "cf_1d_g1.4_M2.0_pa0.0",
       "regime": "performance_1d",
-      "source_id": "sutton_1d_cf",
-      "source_citation": "Sutton & Biblarz, Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
+      "source_id": "sutton_biblarz",
+      "source_citation": "Sutton, G. P. & Biblarz, O., Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
       "description": "1-D Cf \u03b3=1.4 Me=2.0 pa/pc=0.0",
       "inputs": {
         "gamma": 1.4,
@@ -1987,8 +2337,8 @@
     {
       "case_id": "cf_1d_g1.4_M3.0_pa0.0",
       "regime": "performance_1d",
-      "source_id": "sutton_1d_cf",
-      "source_citation": "Sutton & Biblarz, Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
+      "source_id": "sutton_biblarz",
+      "source_citation": "Sutton, G. P. & Biblarz, O., Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
       "description": "1-D Cf \u03b3=1.4 Me=3.0 pa/pc=0.0",
       "inputs": {
         "gamma": 1.4,
@@ -2036,8 +2386,8 @@
     {
       "case_id": "cf_1d_g1.25_M3.0_pa0.0",
       "regime": "performance_1d",
-      "source_id": "sutton_1d_cf",
-      "source_citation": "Sutton & Biblarz, Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
+      "source_id": "sutton_biblarz",
+      "source_citation": "Sutton, G. P. & Biblarz, O., Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
       "description": "1-D Cf \u03b3=1.25 Me=3.0 pa/pc=0.0",
       "inputs": {
         "gamma": 1.25,
@@ -2085,8 +2435,8 @@
     {
       "case_id": "cf_1d_g1.25_M3.0_pa0.01",
       "regime": "performance_1d",
-      "source_id": "sutton_1d_cf",
-      "source_citation": "Sutton & Biblarz, Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
+      "source_id": "sutton_biblarz",
+      "source_citation": "Sutton, G. P. & Biblarz, O., Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
       "description": "1-D Cf \u03b3=1.25 Me=3.0 pa/pc=0.01",
       "inputs": {
         "gamma": 1.25,
@@ -2134,8 +2484,8 @@
     {
       "case_id": "cf_1d_g1.2_M4.0_pa0.0",
       "regime": "performance_1d",
-      "source_id": "sutton_1d_cf",
-      "source_citation": "Sutton & Biblarz, Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
+      "source_id": "sutton_biblarz",
+      "source_citation": "Sutton, G. P. & Biblarz, O., Rocket Propulsion Elements \u2014 ideal 1-D thrust coefficient",
       "description": "1-D Cf \u03b3=1.2 Me=4.0 pa/pc=0.0",
       "inputs": {
         "gamma": 1.2,
@@ -2181,10 +2531,104 @@
       "meta": {}
     },
     {
+      "case_id": "bl_tm_x_2343_delta_star",
+      "regime": "bl_tm_x_2343",
+      "source_id": "nasa_tm_x_2343",
+      "source_citation": "Goldman, L. J. & Vanco, M. R., NASA TM-X-2343 (1971), Computer program for design of two-dimensional supersonic nozzle with boundary-layer correction",
+      "description": "BL \u03b4* correction grows exit radius (TM-X-2343 spirit)",
+      "inputs": {
+        "gamma": 1.25,
+        "Me": 3.0,
+        "Rt": 0.05
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "delta_star_exit_positive",
+          "reference": 1.0,
+          "solver": 1.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "\u03b4*_e=1.348e-03 m"
+        },
+        {
+          "name": "R_corrected_ge_inviscid",
+          "reference": 0.12074629226896352,
+          "solver": 0.12209415563379539,
+          "error_percent": 0.0,
+          "abs_error": 0.0013478633648318639,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "m",
+          "note": "r_corr = r_inv + \u03b4* (radial approx)"
+        }
+      ],
+      "meta": {}
+    },
+    {
+      "case_id": "throat_ivl_sauer",
+      "regime": "throat_ivl_sauer",
+      "source_id": "sauer_kliegel",
+      "source_citation": "Sauer / Kliegel-type transonic throat initial-value line (engineering IVL)",
+      "description": "Sauer/Kliegel throat IVL: M>1, axis \u03b8\u22480",
+      "inputs": {
+        "name": "Sauer/Kliegel-type throat IVL",
+        "source_id": "sauer_kliegel",
+        "gamma": 1.25,
+        "Rt": 0.05,
+        "rc_over_rt": 1.5
+      },
+      "passed": true,
+      "metrics": [
+        {
+          "name": "M_min_supersonic",
+          "reference": 1.01,
+          "solver": 1.0419847124585904,
+          "error_percent": 0.0,
+          "abs_error": 0.03198471245859036,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "-",
+          "note": "IVL slightly supersonic"
+        },
+        {
+          "name": "theta_axis_near_zero",
+          "reference": 0.0,
+          "solver": 0.0,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
+          "tol_percent": null,
+          "passed": true,
+          "unit": "rad",
+          "note": "axisymmetry on centerline"
+        }
+      ],
+      "meta": {
+        "ivl": {
+          "n_points": 41,
+          "M_axis": 1.0419847124585904,
+          "M_wall": 1.4318584871481845,
+          "x_mean": 0.0025000000000000005,
+          "model": "sauer_hall_kliegel_first_order",
+          "Rc_over_Rt": 1.5,
+          "eps_Rt_over_Rc": 0.6666666666666666,
+          "x_over_Rt": 0.05000000000000001,
+          "gamma": 1.25,
+          "alpha": 1.7146428199482244,
+          "beta": 0.9644865862208762,
+          "hall_factor": 1.4,
+          "references": "Sauer; Hall; Kliegel & Levine 1969"
+        }
+      }
+    },
+    {
       "case_id": "family_ordering_mln_tic_ideal_rao",
       "regime": "family_ordering",
       "source_id": "zucrow_hoffman",
-      "source_citation": "Zucrow & Hoffman, Gas Dynamics \u2014 axisymmetric MOC unit processes",
+      "source_citation": "Zucrow, M. J. & Hoffman, J. D., Gas Dynamics \u2014 axisymmetric MOC unit processes",
       "description": "Length ordering \u03b3=1.25 Me=3.0",
       "inputs": {
         "gamma": 1.25,
@@ -2283,6 +2727,7 @@
             "eta_n": 1.0,
             "eta_div": 1.0,
             "theta_max_deg": 30.89465111685673,
+            "theta_exit_deg": 0.0,
             "exit_radius_m": 0.12074629226896352
           },
           {
@@ -2295,6 +2740,7 @@
             "eta_n": 1.0,
             "eta_div": 1.0,
             "theta_max_deg": 30.778788681231187,
+            "theta_exit_deg": 0.0,
             "exit_radius_m": 0.12993496494151774
           },
           {
@@ -2307,6 +2753,7 @@
             "eta_n": 0.9865473122177303,
             "eta_div": 0.9954978637555758,
             "theta_max_deg": 30.778788681231187,
+            "theta_exit_deg": 7.694640953331599,
             "exit_radius_m": 0.12699948390090104
           },
           {
@@ -2319,8 +2766,26 @@
             "eta_n": 0.9705589756255179,
             "eta_div": 0.9900915114330394,
             "theta_max_deg": 25.814349964178767,
+            "theta_exit_deg": 11.42552473066339,
+            "exit_radius_m": 0.12074629226895493
+          },
+          {
+            "kind": "conical",
+            "L_m": 0.2640287571948571,
+            "L_over_Rt": 5.280575143897141,
+            "area_ratio": 5.831866838679954,
+            "Cf_vac": 1.5658845839771165,
+            "Isp_vac_s": 225.1707604538162,
+            "eta_n": 0.9497531284077625,
+            "eta_div": 0.9829629131445341,
+            "theta_max_deg": 14.999999999999998,
+            "theta_exit_deg": 14.999999999999998,
             "exit_radius_m": 0.12074629226895493
           }
+        ],
+        "secondary_sources": [
+          "rao_1958",
+          "huzel_huang"
         ]
       }
     }

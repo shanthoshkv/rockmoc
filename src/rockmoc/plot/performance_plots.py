@@ -9,11 +9,14 @@ import numpy as np
 from rockmoc.geometry.contour import Contour
 from rockmoc.plot.theme import (
     COLORS,
+    annotation_box,
     apply_dark_theme,
+    finalize_figure,
     maybe_save,
     maybe_show,
     require_matplotlib,
     style_axes,
+    style_colorbar,
 )
 
 
@@ -33,48 +36,37 @@ def plot_nozzle_contour(
     fig, ax = plt.subplots(figsize=figsize)
     style_axes(ax, title=title, xlabel="x [m]", ylabel="r [m]")
 
-    ax.plot(contour.x, contour.r, color=COLORS["wall"], lw=2.8, label="Wall", zorder=4)
+    ax.plot(contour.x, contour.r, color=COLORS["wall"], lw=2.9, label="Wall", zorder=4, solid_capstyle="round")
     if mirror:
-        ax.plot(contour.x, -contour.r, color=COLORS["wall"], lw=2.8, zorder=4)
+        ax.plot(contour.x, -contour.r, color=COLORS["wall"], lw=2.9, zorder=4, solid_capstyle="round")
         ax.fill_between(contour.x, contour.r, -contour.r, color=COLORS["wall_fill"], zorder=1)
-    ax.axhline(0, color=COLORS["muted"], lw=0.9, alpha=0.8)
-    ax.plot(contour.x[0], contour.r[0], "s", color=COLORS["warn"], ms=8, label="Throat")
-    ax.plot(contour.x[-1], contour.r[-1], "D", color=COLORS["good"], ms=8, label="Exit")
+    ax.axhline(0, color=COLORS["muted"], lw=0.9, alpha=0.65, ls="-")
+    ax.plot(contour.x[0], contour.r[0], "s", color=COLORS["warn"], ms=9, label="Throat", zorder=6, markeredgecolor=COLORS["bg"], markeredgewidth=0.6)
+    ax.plot(contour.x[-1], contour.r[-1], "D", color=COLORS["good"], ms=9, label="Exit", zorder=6, markeredgecolor=COLORS["bg"], markeredgewidth=0.6)
 
     if contour.theta is not None:
-        # secondary: wall angle color scatter
         sc = ax.scatter(
             contour.x,
             contour.r,
             c=np.degrees(contour.theta),
             cmap="cool",
-            s=12,
+            s=14,
             zorder=5,
-            alpha=0.85,
+            alpha=0.9,
+            edgecolors="none",
         )
         cbar = fig.colorbar(sc, ax=ax, fraction=0.046, pad=0.04)
-        cbar.set_label("Wall angle [deg]", color=COLORS["text"])
-        cbar.ax.yaxis.set_tick_params(color=COLORS["muted"])
-        plt.setp(plt.getp(cbar.ax.axes, "yticklabels"), color=COLORS["muted"])
+        style_colorbar(cbar, "Wall angle [deg]")
 
     if metrics:
         txt = "\n".join(f"{k}: {v}" for k, v in metrics.items())
-        ax.text(
-            0.02,
-            0.98,
-            txt,
-            transform=ax.transAxes,
-            va="top",
-            fontsize=9,
-            color=COLORS["text"],
-            bbox=dict(boxstyle="round", facecolor=COLORS["bg"], edgecolor=COLORS["grid"], alpha=0.92),
-        )
+        annotation_box(ax, txt)
 
     ax.set_aspect("equal", adjustable="datalim")
-    rmax = float(np.max(np.abs(contour.r))) * 1.2 + 1e-9
+    rmax = float(np.max(np.abs(contour.r))) * 1.18 + 1e-9
     ax.set_ylim(-rmax, rmax)
-    ax.legend(loc="lower right", fontsize=9)
-    fig.tight_layout()
+    ax.legend(loc="lower right", fontsize=9, frameon=True)
+    finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)
     return fig
@@ -108,7 +100,7 @@ def plot_wall_profiles(
         axes[2].plot(contour.x, contour.M, color=COLORS["c_plus"], label="M(x)")
     axes[2].legend(loc="best", fontsize=9)
 
-    fig.tight_layout()
+    finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)
     return fig
@@ -131,21 +123,22 @@ def plot_performance_vs_altitude(
 
     fig, ax1 = plt.subplots(figsize=figsize)
     style_axes(ax1, title=title, xlabel="Altitude [km]", ylabel="Thrust coefficient  $C_F$")
-    ax1.plot(h, cf, "o-", color=COLORS["wall"], label="$C_F$", ms=6)
+    ax1.plot(h, cf, "o-", color=COLORS["wall"], label="$C_F$", ms=7, lw=2.2, markeredgecolor=COLORS["bg"], markeredgewidth=0.5)
     ax1.tick_params(axis="y", labelcolor=COLORS["wall"])
+    ax1.fill_between(h, cf, alpha=0.12, color=COLORS["wall"])
 
     ax2 = ax1.twinx()
     ax2.set_facecolor(COLORS["panel"])
-    ax2.plot(h, isp, "s--", color=COLORS["c_plus"], label="$I_{sp}$ [s]", ms=6)
+    ax2.plot(h, isp, "s--", color=COLORS["c_plus"], label="$I_{sp}$ [s]", ms=7, lw=2.0, markeredgecolor=COLORS["bg"], markeredgewidth=0.5)
     ax2.set_ylabel("$I_{sp}$ [s]", color=COLORS["c_plus"])
     ax2.tick_params(axis="y", colors=COLORS["c_plus"])
     for spine in ax2.spines.values():
-        spine.set_color(COLORS["grid"])
+        spine.set_color(COLORS["spine"])
 
     lines1, lab1 = ax1.get_legend_handles_labels()
     lines2, lab2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines1 + lines2, lab1 + lab2, loc="best", fontsize=9)
-    fig.tight_layout()
+    ax1.legend(lines1 + lines2, lab1 + lab2, loc="best", fontsize=9, frameon=True)
+    finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)
     return fig
@@ -184,7 +177,7 @@ def plot_of_ratio_sweep(
         axb.tick_params(axis="y", colors=COLORS["axis"])
     axes[2].legend(loc="best", fontsize=8)
 
-    fig.tight_layout()
+    finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)
     return fig
@@ -206,7 +199,7 @@ def plot_gamma_sweep(
     axes[0].plot(g, [r["L_over_Rt"] for r in rows], "o-", color=COLORS["wall"])
     style_axes(axes[1], xlabel="γ [-]", ylabel="Area ratio ε")
     axes[1].plot(g, [r["area_ratio"] for r in rows], "s-", color=COLORS["c_plus"])
-    fig.tight_layout()
+    finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)
     return fig
@@ -247,7 +240,7 @@ def plot_area_ratio_sweep(
             spine.set_color(COLORS["grid"])
     axes[2].legend(loc="best", fontsize=8)
 
-    fig.tight_layout()
+    finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)
     return fig
@@ -283,7 +276,7 @@ def plot_contour_overlay(
     ax.set_aspect("equal", adjustable="datalim")
     ax.set_ylim(-0.05 * rmax, rmax * 1.15 + 1e-9)
     ax.legend(loc="best", fontsize=9)
-    fig.tight_layout()
+    finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)
     return fig
@@ -318,7 +311,7 @@ def plot_design_comparison(
         for b, v in zip(bars, vals):
             ax.text(b.get_x() + b.get_width() / 2, b.get_height(), f"{v:.3g}", ha="center", va="bottom", fontsize=8, color=COLORS["muted"])
 
-    fig.tight_layout()
+    finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)
     return fig
@@ -349,7 +342,7 @@ def plot_mach_pressure_along_wall(
     lines1, lab1 = ax1.get_legend_handles_labels()
     lines2, lab2 = ax2.get_legend_handles_labels()
     ax1.legend(lines1 + lines2, lab1 + lab2, loc="best", fontsize=9)
-    fig.tight_layout()
+    finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)
     return fig
@@ -376,7 +369,7 @@ def plot_bl_displacement(
     style_axes(axes[1], xlabel="x [m]", ylabel="δ* [m]")
     axes[1].plot(inviscid.x, delta_star, color=COLORS["warn"], label="δ*")
     axes[1].legend(fontsize=9)
-    fig.tight_layout()
+    finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)
     return fig
@@ -404,7 +397,7 @@ def plot_aerospike(
     ax.axhline(0, color=COLORS["muted"], lw=0.8)
     ax.set_aspect("equal", adjustable="datalim")
     ax.legend(fontsize=9)
-    fig.tight_layout()
+    finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)
     return fig
