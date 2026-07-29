@@ -6,10 +6,12 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 
 | | |
 |--|--|
-| **Version** | 0.6.0 |
+| **Version** | see `src/rockmoc/_version.py` |
 | **Python** | ≥ 3.10 |
 | **Core deps** | NumPy, SciPy |
 | **License** | MIT |
+| **Author** | [shanthoshkv](https://github.com/shanthoshkv) |
+| **Repo** | https://github.com/shanthoshkv/rockmoc |
 
 ---
 
@@ -163,22 +165,36 @@ result.export_json("wall.json")
 
 ## Install
 
-```bash
-# Clone
-git clone https://github.com/<you>/rockmoc.git
-cd rockmoc
+### From PyPI (when published)
 
-# Editable install (recommended for development)
+```bash
+pip install rockmoc
+pip install "rockmoc[plot,cli]"   # figures + CLI
+pip install "rockmoc[all]"        # all optional extras
+```
+
+### From GitHub
+
+```bash
+pip install "git+https://github.com/shanthoshkv/rockmoc.git"
+```
+
+### From a clone (development)
+
+```bash
+git clone https://github.com/shanthoshkv/rockmoc.git
+cd rockmoc
 pip install -e ".[plot,cli,dev]"
 
 # Optional chemistry stacks
 pip install -e ".[cea]"
 pip install -e ".[cantera]"
 pip install -e ".[coolprop]"
-pip install -e ".[all]"
 ```
 
 **Requirements:** Python ≥ 3.10, NumPy ≥ 1.24, SciPy ≥ 1.10.
+
+Publishing notes for maintainers: see [PUBLISH.md](PUBLISH.md).
 
 ---
 
@@ -475,9 +491,7 @@ See `refs/README.md` and `docs/` for mapping from papers → modules.
 
 ---
 
-## Contributing / push checklist
-
-Before first GitHub push:
+## Contributing / release checklist
 
 ```bash
 # 1. Install
@@ -486,17 +500,20 @@ pip install -e ".[plot,cli,dev]"
 # 2. Tests
 pytest -q
 
-# 3. Deep validation artifacts (committed under tests/data/validation_results/)
-py -3.12 tests/run_deep_validation.py
+# 3. Deep validation (writes tests/data/validation_results/)
+python tests/run_deep_validation.py
 
-# 4. Optional: regenerate demo graphs (gitignored under tests/graphs/)
-py -3.12 tests/generate_all_graphs.py
+# 4. Build installable artifacts
+python -m build
+twine check dist/*
 
-# 5. Sanity: nothing secret staged
-git status
+# 5. Optional: regenerate demo graphs (gitignored)
+python tests/generate_all_graphs.py
 ```
 
-`.gitignore` excludes venvs, caches, local `outputs/`, generated PNGs (`tests/graphs/`), root-level export CSV/JSON/PDF, and secrets — while keeping `src/`, `tests/data/`, `docs/`, `examples/`, and literature under `refs/`.
+Publish to PyPI: [PUBLISH.md](PUBLISH.md).
+
+`.gitignore` excludes venvs, caches, `website/`, generated PNGs, secrets — while keeping `src/`, `tests/data/`, `docs/`, `examples/`.
 
 ---
 

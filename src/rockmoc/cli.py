@@ -1,4 +1,9 @@
-"""Command-line interface for rockmoc."""
+"""Command-line interface for rockmoc.
+
+Entry point (console script)::
+
+    rockmoc = rockmoc.cli:main
+"""
 
 from __future__ import annotations
 
@@ -49,21 +54,91 @@ def _run_design(
         json_meta.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
 
+def _run_fallback(argv: list[str] | None = None) -> None:
+    """Minimal CLI when typer is not installed."""
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if not argv or argv[0] in {"-h", "--help"}:
+        print(
+            "Usage: rockmoc design --type mln|ideal|tic --Me 2.5 --Rt 0.05 -o wall.csv\n"
+            "Install full CLI: pip install rockmoc[cli]"
+        )
+        return
+    if argv[0] in {"--version", "-V"}:
+        print(f"rockmoc {__version__}")
+        return
+    kind = "mln"
+    gamma = 1.4
+    R = 287.05
+    Rt = 0.05
+    Me: float | None = 2.5
+    area_ratio: float | None = None
+    n = 40
+    truncate = 0.8
+    output = Path("nozzle_wall.csv")
+    json_meta = None
+    args = argv[1:] if argv[0] == "design" else argv
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a in {"--type", "-t"}:
+            kind = args[i + 1]
+            i += 2
+        elif a in {"--gamma", "-g"}:
+            gamma = float(args[i + 1])
+            i += 2
+        elif a == "--R":
+            R = float(args[i + 1])
+            i += 2
+        elif a == "--Rt":
+            Rt = float(args[i + 1])
+            i += 2
+        elif a == "--Me":
+            Me = float(args[i + 1])
+            area_ratio = None
+            i += 2
+        elif a in {"--area-ratio", "-e"}:
+            area_ratio = float(args[i + 1])
+            Me = None
+            i += 2
+        elif a == "--n":
+            n = int(args[i + 1])
+            i += 2
+        elif a == "--truncate":
+            truncate = float(args[i + 1])
+            i += 2
+        elif a in {"--output", "-o"}:
+            output = Path(args[i + 1])
+            i += 2
+        elif a == "--json":
+            json_meta = Path(args[i + 1])
+            i += 2
+        else:
+            print(f"Unknown arg: {a}", file=sys.stderr)
+            raise SystemExit(2)
+    _run_design(kind, gamma, R, Rt, Me, area_ratio, n, truncate, output, json_meta)
+
+
 if typer is not None:
     app = typer.Typer(
         name="rockmoc",
-        help="Axisymmetric MOC rocket nozzle design tool",
+        help="MOC rocket nozzle design — MLN, ideal, TIC, and more.",
         add_completion=False,
+        no_args_is_help=False,
+        invoke_without_command=True,
     )
 
-    @app.callback()
-    def main(
+    @app.callback(invoke_without_command=True)
+    def _root(
+        ctx: typer.Context,
         version: bool = typer.Option(
-            False, "--version", help="Show version and exit."
+            False, "--version", "-V", help="Show version and exit."
         ),
     ) -> None:
         if version:
             typer.echo(f"rockmoc {__version__}")
+            raise typer.Exit()
+        if ctx.invoked_subcommand is None:
+            typer.echo(ctx.get_help())
             raise typer.Exit()
 
     @app.command("design")
@@ -92,77 +167,16 @@ if typer is not None:
             type.lower(), gamma, R, Rt, Me, area_ratio, n, truncate, output, json_meta
         )
 
-else:
-    # Minimal fallback without typer
-    def app(argv: list[str] | None = None) -> None:  # type: ignore[misc]
-        argv = list(sys.argv[1:] if argv is None else argv)
-        if not argv or argv[0] in {"-h", "--help"}:
-            print(
-                "Usage: rockmoc design --type mln|ideal|tic --Me 2.5 --Rt 0.05 -o wall.csv\n"
-                "Install typer for the full CLI: pip install rockmoc[cli]"
-            )
-            return
-        if argv[0] == "--version":
-            print(f"rockmoc {__version__}")
-            return
-        # very small parser
-        kind = "mln"
-        gamma = 1.4
-        R = 287.05
-        Rt = 0.05
-        Me: float | None = 2.5
-        area_ratio: float | None = None
-        n = 40
-        truncate = 0.8
-        output = Path("nozzle_wall.csv")
-        json_meta = None
-        args = argv[1:] if argv[0] == "design" else argv
-        i = 0
-        while i < len(args):
-            a = args[i]
-            if a in {"--type", "-t"}:
-                kind = args[i + 1]
-                i += 2
-            elif a in {"--gamma", "-g"}:
-                gamma = float(args[i + 1])
-                i += 2
-            elif a == "--R":
-                R = float(args[i + 1])
-                i += 2
-            elif a == "--Rt":
-                Rt = float(args[i + 1])
-                i += 2
-            elif a == "--Me":
-                Me = float(args[i + 1])
-                area_ratio = None
-                i += 2
-            elif a in {"--area-ratio", "-e"}:
-                area_ratio = float(args[i + 1])
-                Me = None
-                i += 2
-            elif a == "--n":
-                n = int(args[i + 1])
-                i += 2
-            elif a == "--truncate":
-                truncate = float(args[i + 1])
-                i += 2
-            elif a in {"--output", "-o"}:
-                output = Path(args[i + 1])
-                i += 2
-            elif a == "--json":
-                json_meta = Path(args[i + 1])
-                i += 2
-            else:
-                print(f"Unknown arg: {a}", file=sys.stderr)
-                raise SystemExit(2)
-        _run_design(kind, gamma, R, Rt, Me, area_ratio, n, truncate, output, json_meta)
+else:  # pragma: no cover
+    app = None  # type: ignore[assignment]
 
 
 def main() -> None:
-    if typer is not None:
+    """Console-script entry point used by ``pip install`` / PyPI."""
+    if typer is not None and app is not None:
         app()
     else:
-        app()  # type: ignore[call-arg]
+        _run_fallback()
 
 
 if __name__ == "__main__":

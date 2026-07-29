@@ -5,11 +5,16 @@ build-backend = "hatchling.build"
 [project]
 name = "rockmoc"
 version = "0.6.0"
-description = "Industry-oriented MOC rocket nozzle design: NASA planar MLN, axisymmetric bells, aerospike, pluggable thermo"
+description = "Industry-oriented Method of Characteristics (MOC) rocket nozzle design in Python — MLN, ideal, TIC, Rao, aerospike, plots, and literature-backed validation"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
-authors = [{ name = "rockmoc contributors" }]
+authors = [
+  { name = "shanthoshkv", email = "shanthoshkv@gmail.com" },
+]
+maintainers = [
+  { name = "shanthoshkv", email = "shanthoshkv@gmail.com" },
+]
 keywords = [
   "rocket",
   "nozzle",
@@ -17,17 +22,23 @@ keywords = [
   "MOC",
   "propulsion",
   "aerospace",
+  "aerospike",
+  "MLN",
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Science/Research",
+  "Intended Audience :: Education",
   "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering",
   "Topic :: Scientific/Engineering :: Physics",
+  "Typing :: Typed",
 ]
 dependencies = [
   "numpy>=1.24",
@@ -44,18 +55,35 @@ dev = [
   "pytest>=7.4",
   "pytest-cov>=4.1",
   "ruff>=0.4",
+  "build>=1.2",
+  "twine>=5.0",
 ]
 all = ["rockmoc[plot,cli,dev,cea,cantera,coolprop]"]
 
 [project.scripts]
-rockmoc = "rockmoc.cli:app"
+rockmoc = "rockmoc.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/example/rockmoc"
-Documentation = "https://github.com/example/rockmoc#readme"
+Homepage = "https://github.com/shanthoshkv/rockmoc"
+Documentation = "https://github.com/shanthoshkv/rockmoc#readme"
+Repository = "https://github.com/shanthoshkv/rockmoc"
+Issues = "https://github.com/shanthoshkv/rockmoc/issues"
+Changelog = "https://github.com/shanthoshkv/rockmoc/releases"
+
+# Version for runtime: src/rockmoc/_version.py (keep in sync with [project].version)
+# Hatchling discovers packages under src/ automatically.
 
 [tool.hatch.build.targets.sdist]
-include = ["src/rockmoc", "tests", "examples", "docs", "README.md", "LICENSE", "pyproject.toml"]
+include = [
+  "src/rockmoc",
+  "tests",
+  "examples",
+  "docs",
+  "README.md",
+  "LICENSE",
+  "pyproject.toml",
+  "PUBLISH.md",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/rockmoc"]
