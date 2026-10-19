@@ -35,6 +35,20 @@ See generated **`docs/validation_report.md`** from `rockmoc.validate.validation_
 - CEA Isp parity when RocketCEA is installed in CI  
 - CFD smoke tests (out of core library)
 
+## Axisymmetric MOC corrections
+
+- C− compatibility sign fixed: along C− (slope θ−μ), d(θ+ν)/dx = **+**sinθ sinμ / (r cos(θ−μ));
+  invariants were also swapped in the unit processes. Verified against the exact conical source flow.
+- Axisym MLN: θ_max solved so the last corner C− reaches the axis at Me (θ_max < ν_e/2, e.g.
+  11.8° vs 24.9° planar for Me = 3, γ = 1.4); corner region and transition region (Goursat
+  problem to the uniform exit C+) are solved, wall = streamline carrying the throat mass flow.
+  Kernel mass conservation → 0.998 πRt² at N = 64; exit wall angle → 0 with N.
+- Ideal contour: real MOC lattice from a Sauer transonic initial line along a circular-arc throat
+  (uniform near-sonic start as fallback for small Rc / low Me), attachment chosen so the axis
+  reaches Me, same transition + mass-flow wall. Exit ε reflects the discharge coefficient.
+- Known limits: axisym MLN wall angle rises a few degrees past the corner before turning back
+  (converged, shock-free); planar ideal shows a ~1° first-order bump after the arc attachment.
+
 ## Honesty
 
 rockmoc is a **traceable engineering design library**. Axisymmetric geometric ε is a MOC **output** (not forced equal to 1-D by default). Planar NASA sets y_e = A/A* per TM-X-1502 uniform-exit theory. Not a substitute for viscous CFD or hot-fire.

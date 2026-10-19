@@ -1,4 +1,9 @@
-"""MOC characteristic-field plots (C+, C−, wall, axis) — dark theme."""
+"""MOC characteristic-field plots (C+, C−, wall, axis) — dark theme.
+
+Draws the **full** characteristic net when ``net.interior`` rows span the
+nozzle (axis → wall). Fan rays, C− (within-row), C+ (across-row), wall
+nodes, and the nozzle contour are layered for textbook-style MOC figures.
+"""
 
 from __future__ import annotations
 
@@ -22,36 +27,63 @@ from rockmoc.plot.theme import (
 
 
 def _structured_rows(net: CharNet) -> list[list[FlowPoint]]:
-    """Prefer net.interior rows; else synthesize from points."""
-    if net.interior:
-        rows = []
-        for row in net.interior:
-            pts = [p for p in row if p is not None]
-            if len(pts) >= 2:
-                pts = sorted(pts, key=lambda p: p.r)
-                rows.append(pts)
-        if rows:
-            return rows
-    return []
+    """Prefer net.interior rows sorted by radius (axis → wall)."""
+    if not net.interior:
+        return []
+    rows = []
+    for row in net.interior:
+        pts = [p for p in row if p is not None]
+        if len(pts) >= 2:
+            pts = sorted(pts, key=lambda p: (p.r, p.x))
+            rows.append(pts)
+    return rows
 
 
-def _plot_c_families(ax: Any, net: CharNet, *, mirror: bool = True, alpha: float = 0.75) -> None:
-    """Draw C− / C+ families from structured kernel mesh when available."""
+def _plot_c_families(
+    ax: Any,
+    net: CharNet,
+    *,
+    mirror: bool = True,
+    alpha: float = 0.85,
+    max_lines: int = 80,
+) -> None:
+    """Draw C− (within row) and C+ (across rows) from structured kernel."""
     rows = _structured_rows(net)
 
     if rows:
-        # C− family: within each row (fixed wave index), axis → outer
+        # Subsample dense meshes for readability
+        step = max(1, len(rows) // max_lines)
+        # C− family: within each row (axis → wall) — left-running characteristics
+        labeled_m = False
         for i, row in enumerate(rows):
+            if i % step != 0 and i != len(rows) - 1:
+                continue
             xs = [p.x for p in row]
             rs = [p.r for p in row]
-            lab = "C− family" if i == 0 else None
-            ax.plot(xs, rs, color=COLORS["c_minus"], lw=1.15, alpha=alpha, label=lab, zorder=3)
+            lab = "C− family" if not labeled_m else None
+            ax.plot(
+                xs, rs,
+                color=COLORS["c_minus"],
+                lw=1.05,
+                alpha=alpha,
+                label=lab,
+                zorder=3,
+            )
             if mirror:
-                ax.plot(xs, [-r for r in rs], color=COLORS["c_minus"], lw=0.85, alpha=alpha * 0.4, zorder=2)
+                ax.plot(
+                    xs, [-r for r in rs],
+                    color=COLORS["c_minus"],
+                    lw=0.75,
+                    alpha=alpha * 0.35,
+                    zorder=2,
+                )
+            labeled_m = True
 
-        # C+ family: connect points of similar index across rows
+        # C+ family: connect equal index across rows (right-running)
         max_j = max(len(r) for r in rows)
-        for j in range(max_j):
+        step_j = max(1, max_j // max_lines)
+        labeled_p = False
+        for j in range(0, max_j, step_j):
             xs, rs = [], []
             for row in rows:
                 if j < len(row):
@@ -59,13 +91,27 @@ def _plot_c_families(ax: Any, net: CharNet, *, mirror: bool = True, alpha: float
                     rs.append(row[j].r)
             if len(xs) < 2:
                 continue
-            lab = "C+ family" if j == 0 else None
-            ax.plot(xs, rs, color=COLORS["c_plus"], lw=1.15, alpha=alpha, label=lab, zorder=3)
+            lab = "C+ family" if not labeled_p else None
+            ax.plot(
+                xs, rs,
+                color=COLORS["c_plus"],
+                lw=1.05,
+                alpha=alpha,
+                label=lab,
+                zorder=3,
+            )
             if mirror:
-                ax.plot(xs, [-r for r in rs], color=COLORS["c_plus"], lw=0.85, alpha=alpha * 0.4, zorder=2)
+                ax.plot(
+                    xs, [-r for r in rs],
+                    color=COLORS["c_plus"],
+                    lw=0.75,
+                    alpha=alpha * 0.35,
+                    zorder=2,
+                )
+            labeled_p = True
         return
 
-    # Fallback: Riemann-invariant bins on free points
+    # Fallback: scatter + Riemann bins
     if not net.points:
         return
     pts = net.points
@@ -75,7 +121,7 @@ def _plot_c_families(ax: Any, net: CharNet, *, mirror: bool = True, alpha: float
         ".",
         ms=2.5,
         color=COLORS["accent"],
-        alpha=0.35,
+        alpha=0.4,
         label="MOC nodes",
         zorder=3,
     )
@@ -89,84 +135,64 @@ def _plot_c_families(ax: Any, net: CharNet, *, mirror: bool = True, alpha: float
             alpha=0.15,
             zorder=2,
         )
-    jp = np.array([p.theta + p.nu for p in pts])
-    jm = np.array([p.theta - p.nu for p in pts])
-    xs = np.array([p.x for p in pts])
-    rs = np.array([p.r for p in pts])
-    for family, inv, color, name in (
-        ("+", jp, COLORS["c_plus"], "C+ (approx)"),
-        ("-", jm, COLORS["c_minus"], "C− (approx)"),
-    ):
-        bins = np.linspace(inv.min(), inv.max(), 14)
-        labeled = False
-        for k in range(len(bins) - 1):
-            mask = (inv >= bins[k]) & (inv < bins[k + 1])
-            if mask.sum() < 2:
-                continue
-            order = np.argsort(xs[mask] if family == "+" else rs[mask])
-            xx = xs[mask][order]
-            rr = rs[mask][order]
-            lab = name if not labeled else None
-            ax.plot(xx, rr, color=color, lw=0.95, alpha=0.55, label=lab, zorder=3)
-            if mirror:
-                ax.plot(xx, -rr, color=color, lw=0.7, alpha=0.25, zorder=2)
-            labeled = True
 
 
-def _plot_canceling_chars(
+def _plot_fan_rays(
     ax: Any,
-    wall: list[FlowPoint],
+    net: CharNet,
     *,
+    Rt: float,
     mirror: bool = True,
-    alpha: float = 0.55,
-    n_draw: int = 28,
 ) -> None:
-    """Approximate canceling C− rays from wall points into the core flow.
+    """Draw expansion-fan rays from the throat corner to first-wave nodes."""
+    corner_x, corner_r = 0.0, Rt
+    # Prefer first interior row (wave 0) points excluding pure axis
+    targets: list[FlowPoint] = []
+    if net.interior:
+        row0 = net.interior[0]
+        targets = [p for p in row0 if p.r > 1e-9]
+    elif net.fan:
+        targets = list(net.fan)
 
-    Each wall point emits a left-running characteristic with slope
-    tan(θ − μ). Drawn a limited length toward the axis for textbook-style
-    canceling-region visualization.
-    """
-    if len(wall) < 3:
+    if not targets:
         return
-    # subsample wall for clarity
-    idx = np.linspace(1, len(wall) - 2, min(n_draw, len(wall) - 2), dtype=int)
     labeled = False
-    for i in idx:
-        p = wall[int(i)]
-        # C− direction: dy/dx = tan(θ − μ)
-        beta = p.theta - p.mu
-        # avoid near-vertical blow-ups
-        if abs(math.cos(beta)) < 1e-3:
+    # Subsample
+    step = max(1, len(targets) // 24)
+    for i, p in enumerate(targets):
+        if i % step != 0 and i != len(targets) - 1:
             continue
-        slope = math.tan(beta)
-        # integrate backward a fraction of local radius toward axis
-        # go upstream (negative x for typical expanding wall with θ>0, μ>θ)
-        L = 0.55 * max(p.r, 1e-6)
-        # prefer direction that decreases radius (into the duct)
-        # try both signs of length; keep the one that reduces r and stays x-reasonable
-        best = None
-        for sgn in (-1.0, 1.0):
-            dx = sgn * L / math.sqrt(1.0 + slope * slope)
-            x1 = p.x + dx
-            r1 = p.r + slope * dx
-            if r1 < p.r and r1 > 0:
-                best = (x1, r1)
-                break
-        if best is None:
-            # fall back: step toward axis in r
-            r1 = max(0.05 * p.r, p.r - L * 0.6)
-            if abs(slope) > 1e-6:
-                x1 = p.x + (r1 - p.r) / slope
-            else:
-                x1 = p.x - 0.3 * L
-            best = (x1, r1)
-        x1, r1 = best
-        lab = "Canceling C−" if not labeled else None
-        ax.plot([p.x, x1], [p.r, r1], color=COLORS["c_minus"], lw=0.85, alpha=alpha, ls="--", label=lab, zorder=3)
+        lab = "Expansion fan" if not labeled else None
+        ax.plot(
+            [corner_x, p.x],
+            [corner_r, p.r],
+            color=COLORS["fan"],
+            lw=0.9,
+            alpha=0.55,
+            label=lab,
+            zorder=4,
+        )
         if mirror:
-            ax.plot([p.x, x1], [-p.r, -r1], color=COLORS["c_minus"], lw=0.65, alpha=alpha * 0.35, ls="--", zorder=2)
+            ax.plot(
+                [corner_x, p.x],
+                [-corner_r, -p.r],
+                color=COLORS["fan"],
+                lw=0.7,
+                alpha=0.25,
+                zorder=3,
+            )
         labeled = True
+    # Fan markers
+    if targets:
+        ax.plot(
+            [p.x for p in targets[::step]],
+            [p.r for p in targets[::step]],
+            "o",
+            ms=3.0,
+            color=COLORS["fan"],
+            alpha=0.85,
+            zorder=6,
+        )
 
 
 def _plot_wall_nodes(ax: Any, wall: list[FlowPoint], *, mirror: bool = True) -> None:
@@ -174,9 +200,19 @@ def _plot_wall_nodes(ax: Any, wall: list[FlowPoint], *, mirror: bool = True) -> 
         return
     xs = [p.x for p in wall]
     rs = [p.r for p in wall]
-    ax.plot(xs, rs, "o", ms=2.8, color=COLORS["wall"], alpha=0.85, label="Wall nodes", zorder=5)
+    ax.plot(
+        xs, rs,
+        "o",
+        ms=3.2,
+        color=COLORS["wall"],
+        alpha=0.9,
+        label="Wall nodes",
+        zorder=6,
+        markeredgecolor=COLORS.get("bg", "#0b0f14"),
+        markeredgewidth=0.4,
+    )
     if mirror:
-        ax.plot(xs, [-r for r in rs], "o", ms=2.0, color=COLORS["wall"], alpha=0.35, zorder=4)
+        ax.plot(xs, [-r for r in rs], "o", ms=2.2, color=COLORS["wall"], alpha=0.35, zorder=5)
 
 
 def plot_moc_field(
@@ -191,74 +227,54 @@ def plot_moc_field(
     annotate: dict | None = None,
     show_canceling: bool = True,
 ) -> Any:
-    """Dark-themed MOC plot: wall, axis, C+/C− characteristics, fan markers.
+    """Dark-themed MOC plot: wall, axis, full C+/C− mesh, fan rays.
 
-    Kernel mesh (C+/C−) is drawn from ``net.interior`` when present.
-    Canceling-region C− rays are approximated from wall-state (θ, μ).
+    Parameters
+    ----------
+    show_canceling:
+        Kept for API compatibility. Full nets already include canceling-region
+        characteristics in ``net.interior``; no synthetic stubs are drawn.
     """
+    _ = show_canceling  # full net supersedes stub canceling rays
     plt, mpl = require_matplotlib()
     apply_dark_theme(plt, mpl)
 
     fig, ax = plt.subplots(figsize=figsize)
     style_axes(ax, title=title, xlabel="Axial station  x  [m]", ylabel="Radius  r  [m]")
 
-    # Characteristic net first (under wall)
-    if net is not None:
-        if net.fan:
-            fx = [p.x for p in net.fan]
-            fr = [p.r for p in net.fan]
-            ax.plot(fx, fr, "o", ms=3.8, color=COLORS["fan"], alpha=0.9, label="Expansion fan", zorder=6)
-            if mirror:
-                ax.plot(fx, [-r for r in fr], "o", ms=2.8, color=COLORS["fan"], alpha=0.4, zorder=5)
-            # fan rays to axis / corner
-            corner = net.fan[0]
-            for p in net.fan[1:]:
-                ax.plot(
-                    [corner.x, p.x],
-                    [corner.r, p.r],
-                    color=COLORS["fan"],
-                    lw=0.7,
-                    alpha=0.45,
-                    zorder=3,
-                )
-                if mirror:
-                    ax.plot(
-                        [corner.x, p.x],
-                        [-corner.r, -p.r],
-                        color=COLORS["fan"],
-                        lw=0.55,
-                        alpha=0.2,
-                        zorder=2,
-                    )
+    Rt = float(contour.r[0]) if len(contour.r) else 0.05
 
+    # Characteristics under the wall
+    if net is not None:
         _plot_c_families(ax, net, mirror=mirror)
+        _plot_fan_rays(ax, net, Rt=Rt, mirror=mirror)
 
         if net.axis:
             ax.plot(
                 [p.x for p in net.axis],
                 [p.r for p in net.axis],
                 color=COLORS["axis"],
-                lw=1.5,
+                lw=1.6,
                 ls=":",
+                marker=".",
+                ms=4,
                 label="Axis nodes",
                 zorder=4,
             )
 
         if net.wall:
             _plot_wall_nodes(ax, net.wall, mirror=mirror)
-            if show_canceling:
-                _plot_canceling_chars(ax, net.wall, mirror=mirror)
 
     # Nozzle wall (upper + mirror)
-    ax.plot(contour.x, contour.r, color=COLORS["wall"], lw=2.8, label="Nozzle wall", zorder=7)
+    ax.plot(contour.x, contour.r, color=COLORS["wall"], lw=2.9, label="Nozzle wall", zorder=7)
     if mirror:
-        ax.plot(contour.x, -contour.r, color=COLORS["wall"], lw=2.8, zorder=7)
+        ax.plot(contour.x, -contour.r, color=COLORS["wall"], lw=2.9, zorder=7)
         ax.fill_between(
             contour.x,
             contour.r,
             -contour.r,
             color=COLORS["wall_fill"],
-            alpha=0.22,
+            alpha=0.20,
             zorder=1,
             label="Flow passage",
         )
@@ -268,21 +284,22 @@ def plot_moc_field(
     ax.axhline(0.0, color=COLORS["muted"], lw=1.0, ls="-", alpha=0.7, label="Centerline", zorder=1)
 
     # Throat / exit markers
-    ax.plot([contour.x[0]], [contour.r[0]], "s", color=COLORS["warn"], ms=8, zorder=8, label="Throat")
-    ax.plot([contour.x[-1]], [contour.r[-1]], "D", color=COLORS["good"], ms=8, zorder=8, label="Exit")
+    ax.plot([contour.x[0]], [contour.r[0]], "s", color=COLORS["warn"], ms=9, zorder=8, label="Throat")
+    ax.plot([contour.x[-1]], [contour.r[-1]], "D", color=COLORS["good"], ms=9, zorder=8, label="Exit")
     if mirror:
-        ax.plot([contour.x[0]], [-contour.r[0]], "s", color=COLORS["warn"], ms=6, zorder=8)
-        ax.plot([contour.x[-1]], [-contour.r[-1]], "D", color=COLORS["good"], ms=6, zorder=8)
+        ax.plot([contour.x[0]], [-contour.r[0]], "s", color=COLORS["warn"], ms=7, zorder=8)
+        ax.plot([contour.x[-1]], [-contour.r[-1]], "D", color=COLORS["good"], ms=7, zorder=8)
 
     ax.set_aspect("equal", adjustable="datalim")
-    # padding — include kernel upstream of throat if present
-    rmax = float(np.max(np.abs(contour.r))) * 1.15 + 1e-6
+    rmax = float(np.max(np.abs(contour.r))) * 1.18 + 1e-6
     xmin = x0
+    xmax = x1
     if net is not None and net.points:
         xmin = min(xmin, min(p.x for p in net.points))
-    pad = 0.04 * (x1 - xmin + 1e-9)
+        xmax = max(xmax, max(p.x for p in net.points))
+    pad = 0.05 * (xmax - xmin + 1e-9)
     ax.set_ylim(-rmax, rmax)
-    ax.set_xlim(xmin - pad, x1 + 1.2 * pad)
+    ax.set_xlim(xmin - pad, xmax + 1.15 * pad)
 
     if annotate:
         lines = [f"{k}: {v}" for k, v in annotate.items()]

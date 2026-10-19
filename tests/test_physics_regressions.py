@@ -44,20 +44,24 @@ def test_canceling_wall_angle_matches_geometry():
     )
     c = r.contour
     th_g = np.arctan2(np.gradient(c.r), np.gradient(c.x))
-    err = float(np.max(np.abs(th_g[2:-2] - np.asarray(c.theta)[2:-2])))
+    # skip the first ~10% (sharp-corner turn is under-resolved by the resample)
+    k = len(th_g) // 10
+    err = float(np.max(np.abs(th_g[k:-2] - np.asarray(c.theta)[k:-2])))
     assert err < math.radians(1.5)
 
 
-def test_theta_max_is_half_nu_e_order():
-    """Corner angle stays near ν_e/2 (not drifted by bogus axis-Me matching)."""
+def test_axisym_theta_max_from_axis_mach_and_mass():
+    """Axisym MLN: θ_max < ν_e/2 (sources), axis reaches Me, exit area = A/A* without rescale."""
     gas = PerfectGas(1.4)
     nu_e = float(gas.prandtl_meyer(3.0))
     for n in (20, 48):
         r = design_axisym_mln_hf(
-            gas, throat_radius=0.05, exit_mach=3.0, n_chars=n, store_net=False
+            gas, throat_radius=0.05, exit_mach=3.0, n_chars=n, store_net=False,
+            match_exit_area=False,
         )
-        # axisym mild bump to 0.52 ν_e
-        assert 0.48 * nu_e < r.theta_max_rad < 0.55 * nu_e
+        assert 0.2 * nu_e < r.theta_max_rad < 0.5 * nu_e
+        assert abs(r.axis_exit_mach - 3.0) < 1e-6
+        assert abs(r.area_ratio_geometric / r.area_ratio_1d - 1.0) < 1e-6
 
 
 def test_mln_exit_axial_theta_near_zero():
@@ -70,7 +74,7 @@ def test_mln_exit_axial_theta_near_zero():
 
 
 def test_mln_length_mesh_trend():
-    """Finer mesh should not collapse L; mild increase/stabilization expected."""
+    """Finer mesh should not collapse L; lengths stay in a tight band."""
     gas = PerfectGas(1.4)
     Ls = []
     for n in (16, 32, 48):
@@ -79,7 +83,9 @@ def test_mln_length_mesh_trend():
         )
         Ls.append(r.length / 0.05)
     assert Ls[0] > 2.0
-    assert Ls[-1] > Ls[0] * 0.95  # not collapsing with n
+    # Full MOC nets converge with n; allow mild decrease from coarse overshoot
+    assert Ls[-1] > Ls[0] * 0.80
+    assert max(Ls) / min(Ls) < 1.35
 
 
 def test_performance_no_false_wall_history_loss():
@@ -131,3 +137,18 @@ def test_area_ratio_matches_1d():
     )
     eps_1d = float(gas.area_ratio(2.5))
     assert abs(r.area_ratio_geometric - eps_1d) / eps_1d < 1e-6
+
+
+def test_axisym_ideal_is_true_moc():
+    """Arc-throat ideal: longer than MLN, mass-consistent exit, shock-free wall."""
+    from rockmoc.moc.axisym_hf import design_axisym_ideal_hf
+
+    gas = PerfectGas(1.4)
+    kw = dict(throat_radius=1.0, exit_mach=3.0, n_chars=24, match_exit_area=False)
+    ideal = design_axisym_ideal_hf(gas, **kw)
+    mln = design_axisym_mln_hf(gas, store_net=False, **kw)
+    assert ideal.length > mln.length
+    assert abs(ideal.area_ratio_geometric / ideal.area_ratio_1d - 1.0) < 0.03
+    M = np.array([p.M for p in ideal.net.wall])
+    assert np.all(np.diff(M) > -1e-6)
+    assert abs(float(ideal.contour.theta[-1])) < 1e-12

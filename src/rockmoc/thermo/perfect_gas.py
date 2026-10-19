@@ -6,6 +6,7 @@ All quantities use SI units unless noted.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 import numpy as np
@@ -193,15 +194,29 @@ class PerfectGas:
             if target <= 1e-15:
                 return 1.0
 
-            def f(M: float) -> float:
-                return float(self.prandtl_meyer(M) - target)
+            gp = math.sqrt((g + 1.0) / (g - 1.0))
 
-            # dν/dM = sqrt(M^2-1)/M * 1/(1 + 0.5(γ-1)M^2) * ... analytical optional
-            lo, hi = 1.0 + 1e-12, 50.0
-            # Ensure upper bound is high enough (ν is monotonic).
+            def f(M: float) -> float:
+                rt = math.sqrt(M * M - 1.0)
+                return gp * math.atan(rt / gp) - math.atan(rt) - target
+
+            # Safeguarded Newton, analytic dν/dM = √(M²−1) / (M (1 + (γ−1)M²/2))
+            lo, hi = 1.0, 50.0
             while f(hi) < 0.0 and hi < 1e4:
                 hi *= 1.5
-            return bracketed_newton(f, None, 2.0, x_min=lo, x_max=hi)
+            M = min(2.0, 0.5 * (lo + hi))
+            for _ in range(100):
+                fm = f(M)
+                if fm > 0.0:
+                    hi = M
+                else:
+                    lo = M
+                if abs(fm) < 1e-15 or hi - lo < 1e-15 * hi:
+                    break
+                d = math.sqrt(M * M - 1.0) / (M * (1.0 + 0.5 * (g - 1.0) * M * M))
+                M_new = M - fm / d if d > 0.0 else 0.5 * (lo + hi)
+                M = M_new if lo < M_new < hi else 0.5 * (lo + hi)
+            return M
 
         for idx, val in np.ndenumerate(nu_arr):
             out[idx] = solve_one(float(val))

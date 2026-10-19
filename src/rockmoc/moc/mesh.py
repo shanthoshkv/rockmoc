@@ -51,10 +51,10 @@ def interior_point(
 
     sm = source_minus(a.theta, a.mu, a.r, delta=delta)
     sp = source_plus(b.theta, b.mu, b.r, delta=delta)
-    km = (a.theta - a.nu) + sm * (x - a.x)  # θ − ν invariant + source
-    kp = (b.theta + b.nu) + sp * (x - b.x)  # θ + ν invariant + source
+    km = (a.theta + a.nu) + sm * (x - a.x)  # θ + ν along C− + source
+    kp = (b.theta - b.nu) + sp * (x - b.x)  # θ − ν along C+ + source
     theta = 0.5 * (km + kp)
-    nu = 0.5 * (kp - km)
+    nu = 0.5 * (km - kp)
     if nu < 0.0:
         nu = 0.0
 
@@ -82,10 +82,10 @@ def interior_point(
         # Under-relaxed average of predictor and corrector sources
         sm = source_minus(th_am, mu_am, max(r_am, 1e-14), delta=delta)
         sp = source_plus(th_bp, mu_bp, max(r_bp, 1e-14), delta=delta)
-        km = (a.theta - a.nu) + sm * (x_new - a.x)
-        kp = (b.theta + b.nu) + sp * (x_new - b.x)
+        km = (a.theta + a.nu) + sm * (x_new - a.x)
+        kp = (b.theta - b.nu) + sp * (x_new - b.x)
         theta_new = 0.5 * (km + kp)
-        nu_new = 0.5 * (kp - km)
+        nu_new = 0.5 * (km - kp)
         if nu_new < 0.0:
             nu_new = 0.0
         # Under-relaxation for stiff axisym sources
@@ -132,23 +132,21 @@ def axis_point(
     max_iter: int = 12,
     tol: float = 1e-9,
 ) -> FlowPoint:
-    """Axis point P (r=0, θ=0) reached by C+ through off-axis point B.
+    """Axis point P (r=0, θ=0) reached by the C− through off-axis point B.
 
-    Symmetry: the C− through P is the mirror of C+, so only one independent
-    compatibility equation is required. On the axis the geometric source is
-    treated in the limit (vanishes for θ→0).
+    Symmetry: the C+ through P is the mirror of the C−, so only one independent
+    compatibility equation is required: (θ+ν)_P = (θ+ν)_B + S−·Δx.
     """
-    # C+ from B: r_P = 0 = r_B + tan(θ_B+μ_B)*(x_P - x_B)
-    lam_p = char_slope_plus(b.theta, b.mu)
+    # C− from B: r_P = 0 = r_B + tan(θ_B−μ_B)*(x_P − x_B)
+    lam_p = char_slope_minus(b.theta, b.mu)
     if abs(lam_p) < 1e-16:
-        raise MeshError("Cannot reach axis: C+ is horizontal")
+        raise MeshError("Cannot reach axis: C− is horizontal")
     x = b.x - b.r / lam_p
     r = 0.0
     theta = 0.0
 
-    # On axis, S+ → 0 when θ→0. Use planar-like invariant along C+ then correct.
-    # (θ + ν)_P = (θ + ν)_B + S+_avg*(x_P - x_B), θ_P=0
-    sp = source_plus(b.theta, b.mu, b.r, delta=delta)
+    # (θ + ν)_P = (θ + ν)_B + S−_avg*(x_P - x_B), θ_P=0
+    sp = source_minus(b.theta, b.mu, b.r, delta=delta)
     nu = (b.theta + b.nu) + sp * (x - b.x)  # since θ_P=0 → ν_P = (θ+ν)_P
     if nu < 0.0:
         nu = 0.0
@@ -158,13 +156,11 @@ def axis_point(
     for _ in range(max_iter):
         th_bp, mu_bp, r_bp, _ = average_state(b, p)
         r_bp = max(0.5 * (b.r + p.r), 1e-14)
-        lam_p = char_slope_plus(th_bp, mu_bp)
+        lam_p = char_slope_minus(th_bp, mu_bp)
         if abs(lam_p) < 1e-16:
-            raise MeshError("C+ horizontal during axis corrector")
+            raise MeshError("C− horizontal during axis corrector")
         x_new = b.x - b.r / lam_p
-        sp = source_plus(th_bp, mu_bp, r_bp, delta=delta)
-        # Limit source as we approach axis: blend to 0
-        sp *= b.r / (b.r + p.r + 1e-14)
+        sp = source_minus(th_bp, mu_bp, r_bp, delta=delta)
         nu_new = (b.theta + b.nu) + sp * (x_new - b.x)
         # θ_P = 0
         if nu_new < 0.0:
@@ -268,8 +264,8 @@ def wall_point_from_previous(
             r_new = 0.0
 
         sm = source_minus(th_am, mu_am, r_am, delta=delta)
-        # (θ − ν)_P = (θ − ν)_A + S−*(x_P - x_A)
-        km = (a.theta - a.nu) + sm * (x_new - a.x)
+        # (θ + ν)_P = (θ + ν)_A + S−*(x_P - x_A)
+        km = (a.theta + a.nu) + sm * (x_new - a.x)
 
         if wall_theta is None:
             # Streamline: flow angle is free but wall is streamline.
@@ -306,10 +302,10 @@ def wall_point_from_previous(
             # when a C+ partner is not supplied, fall back to θ_P = a.theta
             # for a first-order wall march of the outer streamline.
             theta_new = a.theta
-            nu_new = theta_new - km  # from km = θ − ν
+            nu_new = km - theta_new  # from km = θ + ν
         else:
             theta_new = wall_theta
-            nu_new = theta_new - km
+            nu_new = km - theta_new
 
         if nu_new < 0.0:
             nu_new = 0.0
@@ -389,10 +385,10 @@ def wall_point_canceling(
 
         sm = source_minus(th_am, mu_am, r_am, delta=delta)
         sp = source_plus(th_bp, mu_bp, r_bp, delta=delta)
-        km = (a.theta - a.nu) + sm * (x_new - a.x)
-        kp = (b_plus.theta + b_plus.nu) + sp * (x_new - b_plus.x)
+        km = (a.theta + a.nu) + sm * (x_new - a.x)
+        kp = (b_plus.theta - b_plus.nu) + sp * (x_new - b_plus.x)
         theta_new = 0.5 * (km + kp)
-        nu_new = 0.5 * (kp - km)
+        nu_new = 0.5 * (km - kp)
         if nu_new < 0.0:
             nu_new = 0.0
 

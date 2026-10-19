@@ -1,0 +1,1419 @@
+%==============================================================================
+% rockmoc — Technical Report
+% Industry-oriented Method of Characteristics rocket nozzle design
+% Version aligned with package 0.6.1
+%==============================================================================
+\documentclass[11pt,a4paper]{report}
+
+% ---------- Encoding & fonts ----------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% ---------- Page geometry ----------
+\usepackage[
+  margin=1in,
+  headheight=14pt
+]{geometry}
+
+% ---------- Math ----------
+\usepackage{amsmath,amssymb,amsfonts,bm}
+\usepackage{mathtools}
+
+% ---------- Tables, figures, lists ----------
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{siunitx}
+\usepackage{listings}
+\usepackage{csquotes}
+\usepackage[numbers,sort&compress]{natbib}
+
+\sisetup{
+  per-mode = symbol,
+  detect-all
+}
+
+% ---------- Colors & hyperlinks ----------
+\definecolor{rockblue}{HTML}{1a4f8b}
+\definecolor{codebg}{HTML}{f5f5f5}
+\definecolor{codeframe}{HTML}{cccccc}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=rockblue,
+  citecolor=rockblue,
+  urlcolor=rockblue,
+  pdftitle={rockmoc Technical Report},
+  pdfauthor={shanthoshkv},
+  pdfsubject={Method of Characteristics rocket nozzle design}
+}
+
+% ---------- Header / footer ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{rockmoc} Technical Report}
+\fancyhead[R]{\small\thepage}
+\fancyfoot[C]{\small Version 0.6.1 --- Industry MOC Nozzle Design}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ---------- Listings (code) ----------
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  tabsize=2,
+  captionpos=b
+}
+
+% ---------- Spacing ----------
+\onehalfspacing
+\setlength{\parskip}{0.4em}
+\setlength{\parindent}{1.2em}
+
+% ---------- Custom commands ----------
+\newcommand{\rockmoc}{\texttt{rockmoc}}
+\newcommand{\Rt}{R_t}
+\newcommand{\Rexit}{R_e}
+\newcommand{\Me}{M_e}
+\newcommand{\thetamax}{\theta_{\max}}
+\newcommand{\nue}{\nu_e}
+\newcommand{\Cplus}{C^{+}}
+\newcommand{\Cminus}{C^{-}}
+% Use \varepsilon explicitly in equations; avoid \eps (conflicts with some packages)
+\newcommand{\Cf}{C_F}
+\newcommand{\Isp}{I_{\mathrm{sp}}}
+\newcommand{\deltastar}{\delta^{*}}
+\newcommand{\pc}{p_c}
+\newcommand{\pe}{p_e}
+\newcommand{\pa}{p_a}
+\newcommand{\Tc}{T_c}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title{%
+  \vspace{-1.5cm}
+  {\LARGE\bfseries Technical Report}\\[0.6em]
+  {\huge\bfseries \rockmoc: Industry-Oriented Method of\\[0.25em]
+  Characteristics Rocket Nozzle Design}\\[1em]
+  {\large A Python Library for Supersonic Contour Design,\\
+  Performance Estimation, and Literature-Backed Validation}
+}
+\author{K.\ V.\ Shanthosh\\[0.3em]
+  \texttt{shanthoshkv@gmail.com}\\[0.2em]
+  \url{https://github.com/shanthoshkv/rockmoc}\\[0.8em]
+  {\normalsize Portfolio: \url{https://aboutkvs.vercel.app/rockmoc.html}}
+}
+\date{Report revision aligned with package version \textbf{0.6.1}\\[0.3em]
+  \today}
+
+%==============================================================================
+\begin{document}
+
+% ---------- Title page ----------
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
+{\LARGE\bfseries TECHNICAL REPORT}\\[0.8cm]
+\rule{\textwidth}{1.2pt}\\[0.6cm]
+{\Huge\bfseries \rockmoc}\\[0.5cm]
+{\LARGE Industry-Oriented Method of Characteristics\\[0.2em]
+Rocket Nozzle Design in Python}\\[0.5cm]
+\rule{\textwidth}{1.2pt}\\[1.2cm]
+
+{\large A comprehensive technical description of the governing equations,\\
+design algorithms, software architecture, validation campaign,\\
+and engineering limits of the \rockmoc{} library.}\\[1.5cm]
+
+\begin{tabular}{rl}
+\textbf{Author} & K.\ V.\ Shanthosh (\texttt{shanthoshkv}) \\[0.3em]
+\textbf{Contact} & \texttt{shanthoshkv@gmail.com} \\[0.3em]
+\textbf{Repository} & \url{https://github.com/shanthoshkv/rockmoc} \\[0.3em]
+\textbf{Website} & \url{https://aboutkvs.vercel.app/rockmoc.html} \\[0.3em]
+\textbf{Package} & \texttt{pip install rockmoc} (PyPI) \\[0.3em]
+\textbf{Version} & 0.6.1 \\[0.3em]
+\textbf{License} & MIT \\[0.3em]
+\textbf{Language} & Python~$\geq$~3.10 (NumPy, SciPy core) \\
+\end{tabular}
+
+\vfill
+{\large \today}\\[0.5cm]
+\textit{Document class: technical report (equations, architecture, validation, bibliography).}\\
+\textit{Not a flight-qualification document. For educational and preliminary design use.}
+\end{titlepage}
+
+% ---------- Abstract ----------
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+This report documents \rockmoc{}, an open-source Python library for designing
+supersonic rocket nozzle contours with the \textbf{method of characteristics}
+(MOC). The software targets preliminary-to-production-engineering workflows:
+students who need reproducible homework contours, rocket teams comparing
+minimum-length, ideal, truncated-ideal, Rao, conical, and aerospike families,
+and pipelines that export walls to CAD or CFD with optional multi-$\gamma$
+thermochemistry.
+
+The physical model is steady, inviscid, adiabatic, isentropic, irrotational
+supersonic flow of a perfect gas (or a tabulated isentropic expansion with
+variable $\gamma$). Characteristic directions and planar Riemann invariants
+follow the classical theory of Shapiro and Anderson; axisymmetric geometric
+source terms follow Zucrow \& Hoffman unit processes. Planar sharp-throat
+minimum-length nozzles implement the NASA TM-X-1502 procedure. Throat
+initial-value lines use Sauer/Hall/Kliegel small-disturbance ideas. Walls may
+be grown by a compressible integral displacement thickness $\deltastar$ in the
+spirit of NASA TM-X-2343. Rao optimum-thrust ideas appear as engineering TOP
+parabolas, length-referenced TOC, and a control-surface TOC variant. Annular
+aerospikes follow Lee/Vernacchia isentropic spike theory. Performance is
+reported both as ideal one-dimensional thrust coefficient $\Cf$ and, when a
+characteristic field is available, as an exit-plane field integral.
+
+A multi-regime validation campaign exercises \textbf{43 cases} against
+\textbf{12 cited literature sources} (Anderson, NACA Report 1135, NASA
+TM-X-1502, NACA RM E8J12, NASA TM-X-2343, Rao 1958, Lee/Vernacchia, Sutton \&
+Biblarz, Zucrow \& Hoffman, Huzel \& Huang, Sauer/Kliegel, Shapiro). In the
+stored campaign snapshot, all 43 cases pass, with mean absolute relative error
+approximately $0.18\%$ and maximum about $4\%$ on engineering correlations.
+
+This document is written to be read like a working engineering memo: it states
+assumptions, writes every formula the code relies on, maps each formula to
+modules, and is honest about what MOC does \emph{not} replace---full CFD,
+heat transfer, multi-phase chemistry, or flight certification.
+
+\paragraph{Keywords.}
+Method of characteristics; rocket nozzle; Prandtl--Meyer expansion;
+minimum-length nozzle; Rao TOP; truncated ideal contour; aerospike;
+boundary-layer displacement; thrust coefficient; Python.
+
+\tableofcontents
+\clearpage
+\listoffigures
+\listoftables
+\clearpage
+
+% ---------- Nomenclature ----------
+\chapter*{Nomenclature}
+\addcontentsline{toc}{chapter}{Nomenclature}
+
+\section*{Latin symbols}
+\begin{longtable}{p{2.2cm}p{11.5cm}}
+$A$ & Cross-sectional area [\si{\metre\squared}] \\
+$A^{*}$ & Sonic (throat) area [\si{\metre\squared}] \\
+$a$ & Local speed of sound [\si{\metre\per\second}] \\
+$\Cf$ & Thrust coefficient, $F/(p_c A_t)$ \\
+$c^{*}$ & Characteristic velocity [\si{\metre\per\second}] \\
+$F$ & Thrust [\si{\newton}] \\
+$g_0$ & Standard gravity, \SI{9.80665}{\metre\per\second\squared} \\
+$\Isp$ & Specific impulse [\si{\second}] \\
+$J^{\pm}$ & Riemann invariants $\theta\pm\nu$ (planar) \\
+$L$ & Nozzle length from throat to exit [\si{\metre}] \\
+$M$ & Mach number \\
+$\Me$ & Design exit Mach number \\
+$\dot{m}$ & Mass flow rate [\si{\kilogram\per\second}] \\
+$p$ & Static pressure [\si{\pascal}] \\
+$\pc$ & Chamber (stagnation) pressure [\si{\pascal}] \\
+$\pe$ & Exit static pressure [\si{\pascal}] \\
+$\pa$ & Ambient pressure [\si{\pascal}] \\
+$R$ & Specific gas constant [\si{\joule\per\kilogram\per\kelvin}] \\
+$\Rt$ & Throat radius (axisym) or half-height (planar) [\si{\metre}] \\
+$\Rexit$ & Exit radius (or half-height) [\si{\metre}] \\
+$R_c$ & Throat wall radius of curvature [\si{\metre}] \\
+$r$ & Radial (or transverse) coordinate [\si{\metre}] \\
+$s$ & Arc length along wall or characteristic [\si{\metre}] \\
+$T$ & Static temperature [\si{\kelvin}] \\
+$T_0$, $\Tc$ & Stagnation / chamber temperature [\si{\kelvin}] \\
+$U$, $V$ & Flow speed [\si{\metre\per\second}] \\
+$u$ & Axial velocity component [\si{\metre\per\second}] \\
+$x$ & Axial coordinate; geometric throat at $x=0$ [\si{\metre}] \\
+\end{longtable}
+
+\section*{Greek symbols}
+\begin{longtable}{p{2.2cm}p{11.5cm}}
+$\gamma$ & Ratio of specific heats \\
+$\delta$ & Geometry switch: $0$ planar, $1$ axisymmetric; also spike turn angle \\
+$\deltastar$ & Boundary-layer displacement thickness [\si{\metre}] \\
+$\varepsilon$ & Area ratio $A_e/A_t$ \\
+$\eta_{\mathrm{div}}$ & Divergence efficiency $(1+\cos\theta_e)/2$ \\
+$\theta$ & Flow (or wall) angle relative to axis [rad] \\
+$\thetamax$ & Maximum wall / turning angle at throat region [rad] \\
+$\theta_e$ & Exit wall angle [rad] \\
+$\theta_n$ & Attachment (inflection) angle for Rao TOP [rad] \\
+$\theta_c$ & Conical half-angle [rad] \\
+$\mu$ & Mach angle $\arcsin(1/M)$ [rad] \\
+$\nu$ & Prandtl--Meyer function [rad] \\
+$\nue$ & Prandtl--Meyer angle at design $\Me$ [rad] \\
+$\rho$ & Density [\si{\kilogram\per\metre\cubed}] \\
+$\phi$ & Spike Mach-line inclination (Lee theory) [rad] \\
+\end{longtable}
+
+\section*{Subscripts \& abbreviations}
+\begin{longtable}{p{2.8cm}p{11cm}}
+$(\cdot)_e$ & Exit plane \\
+$(\cdot)_t$ & Throat \\
+$(\cdot)_0$ & Stagnation \\
+BL & Boundary layer \\
+CFD & Computational fluid dynamics \\
+IVL & Initial-value line \\
+MLN & Minimum-length nozzle \\
+MOC & Method of characteristics \\
+TIC & Truncated ideal contour \\
+TOC & Thrust-optimized contour \\
+TOP & Thrust-optimized parabola \\
+\end{longtable}
+
+\clearpage
+
+%==============================================================================
+\chapter{Introduction}
+\label{ch:intro}
+
+\section{Motivation}
+
+Every liquid-propellant rocket engine eventually faces the same geometric
+question: given a chamber pressure, a throat size, and a desired expansion, what
+should the diverging wall look like? A straight cone is easy to machine and
+easy to grade in a homework set, but it leaves a large exit angle and throws
+away axial momentum. A carefully contoured bell can recover that momentum, at
+the price of a longer or more expensive contour and a theory that most teams
+never implement from scratch.
+
+The classical tool for inviscid supersonic contour design is the
+\textbf{method of characteristics}. It is older than modern CFD, lighter than a
+full Euler solve, and still the right first model when you want a wall that
+cancels expansion waves and leaves nearly uniform, parallel exit flow. NASA
+technical memoranda from the late 1960s codified planar sharp-throat MLN
+procedures; Rao's 1958 paper made ``optimum thrust for fixed length'' an
+industry phrase; and every propulsion textbook still prints the
+Prandtl--Meyer function next to isentropic tables.
+
+\rockmoc{} exists because implementing all of that cleanly---planar and
+axisymmetric unit processes, several contour families, optional multi-$\gamma$
+gases, boundary-layer growth, field-integrated $\Cf$, dark plots, student
+helpers, and a regression suite tied to primary literature---is tedious if
+every team redoes it. The library is not a CFD code. It is a
+literature-faithful MOC design toolkit with an honest validation story.
+
+\section{Scope of this report}
+
+This report covers:
+
+\begin{enumerate}[leftmargin=*]
+  \item Flow assumptions and thermodynamic relations used by the code
+        (\cref{ch:assumptions,ch:thermo}).
+  \item Characteristic equations, unit processes, and mesh strategy
+        (\cref{ch:moc}).
+  \item Throat initial-value lines and boundary-layer displacement
+        (\cref{ch:throat,ch:bl}).
+  \item Contour families: MLN, ideal, TIC, Rao, conical, aerospike
+        (\cref{ch:designers}).
+  \item Performance metrics and field integration (\cref{ch:performance}).
+  \item Software architecture, API map, and student tooling
+        (\cref{ch:architecture}).
+  \item Validation campaign against twelve primary sources
+        (\cref{ch:validation}).
+  \item Known limits and recommended use (\cref{ch:limits}).
+\end{enumerate}
+
+Equations are written in the form implemented in source modules under
+\code{src/rockmoc/}. Local PDF copies of key references live in the repository
+directory \code{refs/}.
+
+\section{What rockmoc is not}
+
+A few limits should be stated up front, before the formulas:
+
+\begin{itemize}[leftmargin=*]
+  \item It does \textbf{not} solve the full Navier--Stokes or multi-species
+        reacting Euler equations inside the nozzle.
+  \item Viscous effects appear only as a \emph{post-design} displacement-thickness
+        wall correction, not as a coupled viscous--inviscid iteration.
+  \item Heat transfer, structural loads, and regenerative cooling channels are
+        out of scope.
+  \item Aerospike base-pressure models are engineering add-ons, not LES of the
+        open wake.
+  \item Validation is against published tables and design identities, not
+        against flight telemetry of a specific engine.
+\end{itemize}
+
+Those boundaries are intentional. They keep the package fast, auditable, and
+useful for the design stage where MOC belongs.
+
+%==============================================================================
+\chapter{Flow assumptions}
+\label{ch:assumptions}
+
+The design kernel of \rockmoc{} rests on the following idealizations, which
+are standard for classical MOC nozzle design~\cite{shapiro1953,anderson2003,zucrowhoffman}:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Steady flow.} No time dependence; the wall is a fixed
+        streamline of a steady field.
+  \item \textbf{Inviscid core.} The method of characteristics is applied to the
+        inviscid core. Viscosity enters only through an optional $\deltastar$
+        correction after the inviscid wall is known~\cite{nasa_tm_x_2343}.
+  \item \textbf{Adiabatic and isentropic.} Total enthalpy is constant along
+        streamlines; entropy is constant (perfect gas or isentropic expansion
+        table). Shock-free design is assumed inside the contour family.
+  \item \textbf{Irrotational.} For isentropic flow from a uniform chamber, the
+        flow is treated as irrotational so that a Prandtl--Meyer potential
+        description is valid.
+  \item \textbf{Supersonic domain.} Characteristics are real only for $M>1$.
+        The subsonic chamber and the sonic throat region are not solved with
+        hyperbolic MOC; a weakly supersonic initial-value line (IVL) seeds the
+        mesh~\cite{kliegel1969}.
+  \item \textbf{Perfect gas or tabulated isentrope.} Default
+        \code{PerfectGas} uses constant $\gamma$ and $R$. Optional
+        \code{VariableGammaGas} uses $\gamma(M)$ from multi-$\gamma$ or CEA-style
+        samples while still feeding a Prandtl--Meyer inverse into every unit
+        process.
+  \item \textbf{Gravity neglected.} Body forces are omitted at nozzle scale.
+  \item \textbf{Axisymmetric or planar.} Geometry switch $\delta=1$
+        (axisymmetric) or $\delta=0$ (planar) in the compatibility relations.
+\end{enumerate}
+
+Coordinate convention: SI units; geometric throat at $x=0$; wall radius $r=\Rt$
+at the throat for axisymmetric bells; API angles in \textbf{radians} unless a
+summary explicitly converts to degrees.
+
+%==============================================================================
+\chapter{Thermodynamics}
+\label{ch:thermo}
+
+\section{Perfect-gas isentropic relations}
+
+For a calorically perfect gas with ratio of specific heats $\gamma$ and
+specific gas constant $R$, the stagnation-to-static ratios at Mach number $M$
+are~\cite{anderson2003,naca1135}
+
+\begin{equation}
+  \frac{T_0}{T} = 1 + \frac{\gamma-1}{2}\, M^{2},
+  \label{eq:T0T}
+\end{equation}
+
+\begin{equation}
+  \frac{p_0}{p} = \left(\frac{T_0}{T}\right)^{\gamma/(\gamma-1)}
+  = \left(1 + \frac{\gamma-1}{2}\, M^{2}\right)^{\gamma/(\gamma-1)},
+  \label{eq:p0p}
+\end{equation}
+
+\begin{equation}
+  \frac{\rho_0}{\rho} = \left(\frac{T_0}{T}\right)^{1/(\gamma-1)}.
+  \label{eq:rho0rho}
+\end{equation}
+
+The isentropic area--Mach relation for a choked nozzle is
+
+\begin{equation}
+  \frac{A}{A^{*}}
+  = \frac{1}{M}
+  \left[
+    \frac{2}{\gamma+1}
+    \left(1 + \frac{\gamma-1}{2}\, M^{2}\right)
+  \right]^{\frac{\gamma+1}{2(\gamma-1)}}.
+  \label{eq:area_ratio}
+\end{equation}
+
+Equation~\eqref{eq:area_ratio} is inverted numerically on the subsonic or
+supersonic branch (bracketed Newton) when a design calls for $M$ given
+$\varepsilon=A_e/A_t$, or when local wall Mach is estimated from local geometric area
+ratio along a cone. Implementation: \code{thermo/perfect\_gas.py}, methods
+\code{temperature\_ratio}, \code{pressure\_ratio}, \code{area\_ratio},
+\code{mach\_from\_area\_ratio}.
+
+Local sound speed and velocity follow
+
+\begin{equation}
+  a = \sqrt{\gamma R T}, \qquad V = M\, a.
+  \label{eq:sound_speed}
+\end{equation}
+
+\section{Prandtl--Meyer function}
+
+The Prandtl--Meyer turning angle $\nu(M)$ for a perfect gas is~\cite{shapiro1953,anderson2003}
+
+\begin{equation}
+  \nu(M)
+  = \sqrt{\frac{\gamma+1}{\gamma-1}}
+    \arctan\sqrt{\frac{\gamma-1}{\gamma+1}\,(M^{2}-1)}
+  - \arctan\sqrt{M^{2}-1},
+  \label{eq:pm}
+\end{equation}
+
+with differential relation along an isentrope
+
+\begin{equation}
+  \mathrm{d}\nu = \sqrt{M^{2}-1}\; \frac{\mathrm{d}V}{V}.
+  \label{eq:dnu}
+\end{equation}
+
+As $M\to\infty$,
+
+\begin{equation}
+  \nu_{\max}
+  = \frac{\pi}{2}
+  \left(
+    \sqrt{\frac{\gamma+1}{\gamma-1}} - 1
+  \right).
+  \label{eq:nu_max}
+\end{equation}
+
+The inverse $M(\nu)$ is obtained by numerical root finding on
+\eqref{eq:pm}. Both forward and inverse maps are central to every MOC unit
+process. For $\gamma=1.4$, $\nu_{\max}\approx 130.45^{\circ}$; for
+$\gamma=1.25$, $\nu_{\max}=180^{\circ}$ exactly from \eqref{eq:nu_max}---these
+identities are regression-tested against Shapiro/Anderson closed forms.
+
+Mach angle:
+
+\begin{equation}
+  \mu(M) = \arcsin\frac{1}{M}.
+  \label{eq:mach_angle}
+\end{equation}
+
+\section{Characteristic velocity and thrust coefficient}
+
+Ideal characteristic velocity for chamber temperature $T_0$ is
+
+\begin{equation}
+  c^{*}
+  = \sqrt{\frac{R T_0}{\gamma}}
+  \left(\frac{\gamma+1}{2}\right)^{\frac{\gamma+1}{2(\gamma-1)}}.
+  \label{eq:cstar}
+\end{equation}
+
+The ideal one-dimensional thrust coefficient at exit pressure ratio
+$\pe/\pc$ and ambient ratio $\pa/\pc$ is~\cite{sutton2016}
+
+\begin{equation}
+  \Cf
+  = \sqrt{
+    \frac{2\gamma^{2}}{\gamma-1}
+    \left(\frac{2}{\gamma+1}\right)^{\frac{\gamma+1}{\gamma-1}}
+    \left[
+      1 - \left(\frac{\pe}{\pc}\right)^{\frac{\gamma-1}{\gamma}}
+    \right]
+  }
+  + \varepsilon\left(\frac{\pe}{\pc} - \frac{\pa}{\pc}\right),
+  \label{eq:Cf_1d}
+\end{equation}
+
+where $\varepsilon=A_e/A_t$. Vacuum performance uses $\pa=0$. Sea-level or altitude
+performance uses a specified $\pa/\pc$ (optionally from a standard atmosphere
+helper). Specific impulse follows
+
+\begin{equation}
+  \Isp = \frac{c^{*}\,\Cf}{g_0}
+  \quad\text{(ideal 1-D chain)},
+  \label{eq:Isp}
+\end{equation}
+
+with more detailed field-integrated forms in \cref{ch:performance}.
+
+\section{Variable gamma}
+
+Real rocket exhaust does not hold $\gamma$ fixed from chamber to exit. rockmoc
+supports expansion tables that sample $\gamma(M)$ (or multi-station chamber /
+throat / exit $\gamma$) and integrate local $\mathrm{d}\nu/\mathrm{d}M$ so that
+the same MOC mesh code receives a consistent $\nu(M)$ inverse. The class
+\code{VariableGammaGas} implements the gas protocol used by designers; wall
+stations can report $\gamma(x)$ after design for post-processing. Optional
+backends (RocketCEA, Cantera, CoolProp) supply mixture properties for table
+construction when the corresponding extras are installed.
+
+%==============================================================================
+\chapter{Method of characteristics}
+\label{ch:moc}
+
+\section{Hyperbolic structure}
+
+For steady, inviscid, irrotational, isentropic \emph{supersonic} flow, the Euler
+equations are hyperbolic. Information propagates along Mach lines
+(characteristics) whose slopes in the meridional plane are~\cite{zucrowhoffman,shapiro1953}
+
+\begin{equation}
+  \left(\frac{\mathrm{d}r}{\mathrm{d}x}\right)_{\pm}
+  = \tan(\theta \pm \mu),
+  \qquad
+  \mu = \arcsin\frac{1}{M}.
+  \label{eq:char_slope}
+\end{equation}
+
+Along those curves, compatibility relations couple the flow angle $\theta$ and
+the Prandtl--Meyer function $\nu(M)$.
+
+\section{Planar flow ($\delta = 0$)}
+
+In planar flow the geometric source vanishes and the Riemann invariants are
+constant:
+
+\begin{equation}
+  \begin{aligned}
+    \text{along }\Cplus:&\quad \theta + \nu = \text{const} = J^{+},\\
+    \text{along }\Cminus:&\quad \theta - \nu = \text{const} = J^{-}.
+  \end{aligned}
+  \label{eq:riemann}
+\end{equation}
+
+Solving for the unknown point $P$ given known points on $\Cplus$ and $\Cminus$,
+
+\begin{equation}
+  \theta_P = \frac{1}{2}\bigl(J^{+} + J^{-}\bigr),
+  \qquad
+  \nu_P = \frac{1}{2}\bigl(J^{+} - J^{-}\bigr).
+  \label{eq:from_riemann}
+\end{equation}
+
+This is the backbone of the NASA TM-X-1502 planar MLN mesh~\cite{nasa_tm_x_1502}.
+
+\section{Axisymmetric flow ($\delta = 1$)}
+
+Axisymmetric geometry introduces a source term proportional to
+$\sin\theta\sin\mu/r$. In differential form along characteristics
+(Zucrow \& Hoffman style, as coded in \code{moc/equations.py})~\cite{zucrowhoffman}:
+
+\begin{equation}
+  \begin{aligned}
+    \text{on }\Cplus:&\quad
+    \frac{\mathrm{d}(\theta+\nu)}{\mathrm{d}x}
+    = -\frac{\sin\theta\sin\mu}{r\cos(\theta+\mu)},\\[0.4em]
+    \text{on }\Cminus:&\quad
+    \frac{\mathrm{d}(\theta-\nu)}{\mathrm{d}x}
+    = -\frac{\sin\theta\sin\mu}{r\cos(\theta-\mu)}.
+  \end{aligned}
+  \label{eq:axisym_compat}
+\end{equation}
+
+Near the axis, $r\to 0$ and $\theta\to 0$ for smooth solutions, so
+$\sin\theta/r$ remains finite. The implementation regularizes with a small
+radius floor and a special axis unit process that enforces $\theta_P=0$.
+
+\section{Unit processes and predictor--corrector}
+
+Finite-difference unit processes advance an unknown interior, axis, or wall
+point from known neighbors. Slopes and sources are evaluated with
+\textbf{averaged} angles and radii between the known point and the predicted
+point (predictor--corrector), consistent with Hoffman-style codes and the
+averaging practice described in NASA TM-X-1502~\cite{nasa_tm_x_1502,zucrowhoffman}:
+
+\begin{equation}
+  \bar{\theta} = \tfrac{1}{2}(\theta_A + \theta_P),\quad
+  \bar{\mu} = \tfrac{1}{2}(\mu_A + \mu_P),\quad
+  \bar{r} = \tfrac{1}{2}(r_A + r_P).
+  \label{eq:avg_state}
+\end{equation}
+
+Modules:
+
+\begin{itemize}[leftmargin=*]
+  \item \code{moc/equations.py} --- slopes, sources, Riemann helpers.
+  \item \code{moc/mesh.py} --- unit processes, variable-$\gamma$ Mach sync.
+  \item \code{moc/types.py} --- \code{FlowPoint}, \code{CharNet}.
+  \item \code{moc/strict\_wall.py} --- canceling-wall unit process preferred
+        for high-quality axisymmetric walls.
+  \item \code{moc/planar\_nasa.py} --- planar TM-X-1502-style mesh.
+\end{itemize}
+
+\section{Mesh density}
+
+Design accuracy depends on characteristic spacing. Defaults use dense meshes
+(order $n\sim 160$ characteristics for axisymmetric designs; planar $\Delta\nu$
+down to $0.1^{\circ}$ for high fidelity). Helpers
+\code{mesh\_convergence\_planar} and \code{mesh\_convergence\_axisym} support
+mesh studies. Finer meshes increase runtime roughly linearly with the number of
+interior intersections.
+
+%==============================================================================
+\chapter{Throat initial-value line}
+\label{ch:throat}
+
+The hyperbolic MOC domain requires a weakly supersonic initial-value line just
+downstream of the geometric throat. rockmoc uses an engineering Sauer / Hall /
+Kliegel-type small-disturbance field rather than a full transonic CFD
+solve~\cite{kliegel1969,sauer}.
+
+A first-order axisymmetric model near the throat with curvature parameter
+$\varepsilon_c = \Rt/R_c$ takes the schematic form
+
+\begin{equation}
+  M^{2} - 1
+  \approx
+  \alpha\,\frac{x}{\Rt}
+  + \beta\left(\frac{r}{\Rt}\right)^{2},
+  \label{eq:sauer}
+\end{equation}
+
+with $\alpha \sim \sqrt{(\gamma+1)\,\varepsilon_c}$ and Hall-type corrections for
+finite $\varepsilon_c$. The IVL seeds the first row of characteristic points; it
+is not intended as a high-fidelity throat aerodynamics solution.
+
+Implementation: \code{analysis/throat.py}. Validation cases check that the IVL
+is weakly supersonic ($M>1$) and geometrically consistent with the design
+throat radius.
+
+%==============================================================================
+\chapter{Nozzle contour designers}
+\label{ch:designers}
+
+All axisymmetric designers share a \code{DesignSpec} (gas model, throat radius,
+design $\Me$ or area ratio, optional chamber conditions) and return a
+\code{DesignResult} with wall contour, metrics, optional characteristic net,
+and metadata.
+
+\section{Planar minimum-length nozzle (NASA TM-X-1502)}
+
+For planar sharp-throat MLN design~\cite{nasa_tm_x_1502,naca_rm_e8j12}:
+
+\begin{enumerate}[leftmargin=*]
+  \item A centered expansion fan issues from a sharp throat corner.
+  \item The wall angle at the throat is
+  \begin{equation}
+    \thetamax = \frac{\nue}{2},
+    \qquad \nue = \nu(\Me).
+    \label{eq:theta_max_planar}
+  \end{equation}
+  \item The mesh is controlled by a Prandtl--Meyer increment $\Delta\nu$
+        (prefer $\Delta\nu \le 0.1^{\circ}$ for published-sample fidelity).
+  \item The canceling wall turns the flow so that the exit is uniform and
+        parallel at $\Me$.
+  \item Exit half-height satisfies the two-dimensional area relation
+  \begin{equation}
+    \frac{y_e}{y_t} = \frac{A}{A^{*}}(\Me).
+    \label{eq:ye_planar}
+  \end{equation}
+\end{enumerate}
+
+API: \code{design\_planar\_mln\_nasa}. This path is the educational and
+literature-parity workhorse for planar MOC.
+
+\section{Axisymmetric minimum-length nozzle (MLN)}
+
+Axisymmetric MLN retains the sharp-throat centered-fan idea but must iterate
+$\thetamax$ so that the kernel axis Mach matches the design $\Me$; the pure
+planar rule $\thetamax=\nue/2$ is only a first guess and can differ by several
+percent in axisymmetric geometry~\cite{ijert_mln}. The wall then cancels
+waves so that $\theta_e\approx 0$ at design conditions.
+
+API: \code{design\_mln}. Typical use: shortest high-$\varepsilon$ vacuum bells when
+length and mass dominate.
+
+\section{Ideal contoured bell}
+
+The ideal contour starts from a circular-arc throat of prescribed
+$R_c/\Rt$, then builds a full canceling region sized so the exit core is
+uniform and parallel at $\Me$. It is longer than MLN for the same expansion
+and serves as an upper-bound length reference.
+
+API: \code{design\_ideal}.
+
+\section{Truncated ideal contour (TIC)}
+
+Industry practice often cannot afford full ideal length. TIC truncates an
+ideal contour at a fraction $f$ of ideal length ($0.05 < f \le 1$). Exit angle
+$\theta_e$ is generally nonzero, so divergence loss increases while mass and
+packaging improve---the classic flight trade.
+
+API: \code{design\_tic(..., truncate\_fraction=f)}.
+
+\section{Rao thrust-optimized designs}
+
+Rao~\cite{rao1958} posed the fixed-length, fixed-ambient-pressure optimum
+thrust problem using calculus of variations on a control surface lying on a
+$\Cplus$ characteristic. rockmoc exposes three engineering layers:
+
+\begin{description}[leftmargin=*,style=nextline]
+  \item[TOP (thrust-optimized parabola)] \code{design\_rao}: parabolic wall
+  with attachment angle $\theta_n$ and exit angle $\theta_e$ from engineering
+  correlations. Length is often expressed as a fraction of a $15^{\circ}$ cone
+  of the same $\varepsilon$ (classically near $0.8$).
+  \item[TOC length reference] \code{design\_rao\_toc}: length referenced to
+  MOC ideal length.
+  \item[Control-surface TOC] \code{design\_rao\_control}: applies Rao's exit
+  angle condition of the form
+  \begin{equation}
+    \tan\theta_e
+    = \frac{\sin\mu\cos\mu}
+    {\dfrac{\gamma M^{2}}{\gamma M^{2}-1} - \sin^{2}\mu}
+    \label{eq:rao_theta_e}
+  \end{equation}
+  together with an MOC kernel and circular-arc / Hermite wall construction in
+  the spirit of the 1958 engineering form.
+\end{description}
+
+TOP remains the practical default for many liquid-engine preliminary designs.
+
+\section{Conical baseline}
+
+The conical nozzle is the textbook baseline~\cite{huzelhuang}:
+
+\begin{equation}
+  \Rexit = \Rt\sqrt{\varepsilon(\Me)},
+  \qquad
+  L = \frac{\Rexit - \Rt}{\tan\theta_c},
+  \label{eq:cone_geometry}
+\end{equation}
+
+with default half-angle $\theta_c = 15^{\circ}$. Divergence efficiency
+
+\begin{equation}
+  \eta_{\mathrm{div}} = \frac{1 + \cos\theta_c}{2}
+  \label{eq:eta_div}
+\end{equation}
+
+quantifies the axial-momentum penalty of a large exit angle. Contoured designs
+are judged against this baseline before claiming gains.
+
+API: \code{design\_conical}.
+
+\section{Annular aerospike (Lee / Vernacchia)}
+
+The annular (plug) aerospike uses isentropic centered expansion from a shroud
+lip; the spike is the streamline that conserves mass on successive Mach-line
+frustums~\cite{lee1963,vernacchia}. Key identities:
+
+\begin{equation}
+  \nue = \nu(\Me),
+  \qquad
+  \delta = \frac{\pi}{2} - \nue,
+  \label{eq:spike_delta}
+\end{equation}
+
+\begin{equation}
+  \frac{h_t}{\Rexit}
+  = \frac{\varepsilon - \sqrt{\varepsilon\bigl(\varepsilon - \sin\delta\bigr)}}{\varepsilon\sin\delta},
+  \label{eq:spike_ht}
+\end{equation}
+
+\begin{equation}
+  \phi = \nue - \nu(M) + \mu(M),
+  \label{eq:spike_phi}
+\end{equation}
+
+\begin{equation}
+  \frac{R_x}{\Rexit}
+  = \sqrt{
+    \max\!\left(
+      0,\;
+      1 - \frac{1}{\varepsilon}
+      \left[
+        \frac{2}{\gamma+1}
+        \left(1+\frac{\gamma-1}{2}M^{2}\right)
+      \right]^{\frac{\gamma+1}{2(\gamma-1)}}
+      \sin\phi
+    \right)
+  },
+  \label{eq:spike_Rx}
+\end{equation}
+
+\begin{equation}
+  \frac{X_x}{\Rexit} = \frac{1 - R_x/\Rexit}{\tan\phi}.
+  \label{eq:spike_Xx}
+\end{equation}
+
+Model limit: $\nue < \pi/2$ (else $\delta<0$). Very large $\varepsilon$ with low
+$\gamma$ is rejected with a clear error. Truncation and base-pressure models
+provide practical plugs; primary cowl helpers assemble integrated packages.
+
+API: \code{design\_spike}, \code{design\_spike\_truncated},
+\code{design\_spike\_with\_cowl}.
+
+\section{Family length ordering}
+
+At fixed design $\Me$ and $\gamma$, a typical length ordering is
+
+\begin{equation}
+  L_{\mathrm{MLN}}
+  < L_{\mathrm{Rao\,TOP}}\,(\sim 0.8\, L_{15^{\circ}})
+  \lesssim L_{\mathrm{TIC}}
+  < L_{\mathrm{ideal}},
+  \label{eq:length_order}
+\end{equation}
+
+with the $15^{\circ}$ cone as an independent baseline (often longer than TOP at
+the same $\varepsilon$). Use \code{compare\_nozzle\_designs(spec)} for tabular lab
+comparisons.
+
+\section{Production design package}
+
+\code{design\_production} wraps MLN / ideal / TIC / Rao with optional
+multi-$\gamma$, boundary-layer $\deltastar$ growth, field $\Cf$, altitude
+sweep, and uncertainty helpers---the recommended path when a contour is meant
+to leave the notebook and enter a CAD/CFD handoff.
+
+%==============================================================================
+\chapter{Boundary-layer correction}
+\label{ch:bl}
+
+NASA TM-X-2343 designs sharp-edged-throat nozzles by MOC, then \textbf{adds
+displacement thickness} to ideal coordinates~\cite{nasa_tm_x_2343}. Laminar
+and turbulent integral methods (Cohen--Reshotko; Sasman--Cresci) appear in the
+memorandum; rockmoc implements a compressible integral \emph{estimate} that
+follows the same geometric rule:
+
+\begin{equation}
+  \mathbf{r}_{\mathrm{final}}
+  = \mathbf{r}_{\mathrm{ideal}} + \deltastar\,\mathbf{n},
+  \label{eq:bl_grow}
+\end{equation}
+
+i.e.\ grow the wall along the outward normal (implemented as radial growth for
+axisymmetric walls). Edge properties come from isentropic relations at local
+edge Mach (from contour $M$ or local area ratio); viscosity uses a Sutherland
+law; turbulent recovery uses $\mathrm{Pr}^{1/3}$. The correction is
+post-processing on an inviscid contour, not a fully coupled viscous design
+loop.
+
+API: \code{correct\_wall\_bl} in \code{analysis/boundary\_layer.py}.
+
+%==============================================================================
+\chapter{Performance metrics}
+\label{ch:performance}
+
+\section{One-dimensional metrics}
+
+From a designed contour and gas model, \code{compute\_metrics} reports:
+
+\begin{itemize}[leftmargin=*]
+  \item Geometric area ratio $\varepsilon = (\Rexit/\Rt)^{2}$ (axisymmetric).
+  \item Length $L$, exit radius, maximum wall angle.
+  \item Design exit Mach and $\pe/\pc$ from isentropic relations.
+  \item Ideal $\Cf$ in vacuum and optional ambient $\pa/\pc$ via
+        \eqref{eq:Cf_1d}.
+  \item Revolved lateral surface area
+  \begin{equation}
+    S = \int 2\pi r\,\mathrm{d}s
+    \label{eq:surface}
+  \end{equation}
+  for mass/heat-transfer order-of-magnitude estimates.
+\end{itemize}
+
+\section{Divergence and kinetic efficiency}
+
+When only the exit wall angle is known,
+
+\begin{equation}
+  \eta_{\mathrm{div}} = \frac{1 + \cos\theta_e}{2}.
+  \label{eq:eta_div2}
+\end{equation}
+
+For a well-designed MLN or ideal bell, $\theta_e\approx 0$ and
+$\eta_{\mathrm{div}}\approx 1$. An approximate exit kinetic efficiency assumes
+linear $\theta(r)$ from axis to wall and uniform speed magnitude.
+
+\section{Field-integrated thrust coefficient}
+
+When a characteristic net or exit station is available, axial thrust can be
+written as an exit-plane integral of momentum and pressure. Schematically, for
+axisymmetric flow,
+
+\begin{equation}
+  F
+  \sim
+  \int_{0}^{\Rexit}
+  \bigl(\rho u^{2} + p - \pa\bigr)\, 2\pi r\,\mathrm{d}r
+  \label{eq:field_thrust}
+\end{equation}
+
+(with careful treatment of discrete stations and fallbacks when only the wall
+state is known). Normalization by $\pc A_t$ yields field $\Cf$. Module:
+\code{performance/field\_cf.py}. This is closer to ``what the MOC field
+implies'' than pure 1-D tables, but still inviscid and shock-free by
+construction of the design method.
+
+\section{Altitude and atmosphere}
+
+Helpers in \code{analysis/atmosphere.py} support $\pa(h)$ for altitude sweeps
+of $\Cf$ and $\Isp$, which is especially meaningful for aerospikes and for
+bells that overexpand or underexpand off-design.
+
+%==============================================================================
+\chapter{Software architecture}
+\label{ch:architecture}
+
+\section{Package layout}
+
+The installable package lives under \code{src/rockmoc/}:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Module tree} & \textbf{Role} \\
+\midrule
+\code{thermo/} & Perfect gas, variable $\gamma$, CEA/Cantera/CoolProp backends \\
+\code{moc/} & Characteristics, mesh, planar NASA, strict wall \\
+\code{designers/} & MLN, ideal, TIC, Rao, conical, production \\
+\code{aerospike/} & Lee spike, truncation, base/cowl \\
+\code{geometry/} & Contour container, CSV/CAD-oriented export \\
+\code{performance/} & 1-D metrics, integrated \& field $\Cf$ \\
+\code{analysis/} & Throat IVL, BL, compare, UQ, atmosphere \\
+\code{plot/} & Dark theme, MOC field, sweeps, dashboard \\
+\code{student/} & Gases, tables, explainers, lab reports, limits \\
+\code{validate/} & Benchmark catalog runner \\
+\code{cli.py} & Typer CLI entry \code{rockmoc} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Core dependencies are NumPy and SciPy only. Optional extras install Matplotlib
+(plots), Typer (CLI), RocketCEA, Cantera, and CoolProp.
+
+\section{Design API sketch}
+
+A minimal axisymmetric MLN design looks like:
+
+\begin{lstlisting}[language=Python,caption={Minimal MLN design}]
+from rockmoc import DesignSpec, design_mln, PerfectGas
+
+gas = PerfectGas(gamma=1.25, R=360.0)
+spec = DesignSpec(gas=gas, throat_radius=0.05, exit_mach=3.5)
+result = design_mln(spec)
+print(result.metrics.as_dict())
+result.contour.to_csv("wall.csv")
+\end{lstlisting}
+
+Student-oriented helpers include \code{DesignSpec.student}, named example
+gases, \code{result.report()} / \code{lab\_report()}, \code{explainer("mln")},
+and \code{KNOWN\_LIMITS}. Comparison across families:
+
+\begin{lstlisting}[language=Python,caption={Family comparison for a lab report}]
+from rockmoc import compare_nozzle_designs
+cmp = compare_nozzle_designs(spec)
+print(cmp.to_markdown())
+\end{lstlisting}
+
+\section{Plotting}
+
+The \code{plot/} package applies a dark theme suitable for portfolio and
+website figures: wall contours, $M$ and $p$ along the wall, MOC
+$\Cplus$/$\Cminus$ nets, performance vs altitude, and parameter sweeps in
+$\varepsilon$, $\gamma$, and $O/F$ (when CEA is available). A post-solve dashboard
+assembles multiple panels for a single design.
+
+\section{Validation and CI hooks}
+
+Deep validation is runnable as
+
+\begin{lstlisting}[language=bash,caption={Deep validation entry points}]
+py -3.12 tests/run_deep_validation.py
+# or
+py -3.12 -m rockmoc.validate.benchmark --out tests/data/validation_results
+\end{lstlisting}
+
+Outputs include JSON, CSV, Markdown report, and a source index under
+\code{tests/data/validation\_results/}. The catalog of literature targets is
+\code{tests/data/validation\_catalog.json}.
+
+\section{Distribution}
+
+\begin{itemize}[leftmargin=*]
+  \item PyPI package name: \code{rockmoc}
+  \item Version: \code{0.6.1} (keep \code{pyproject.toml} and
+        \code{\_version.py} in sync)
+  \item License: MIT
+  \item Homepage: \url{https://aboutkvs.vercel.app/rockmoc.html}
+  \item Repository: \url{https://github.com/shanthoshkv/rockmoc}
+\end{itemize}
+
+%==============================================================================
+\chapter{Validation campaign}
+\label{ch:validation}
+
+\section{Philosophy}
+
+Nozzle MOC codes fail quietly if $\nu(M)$ is wrong by a fraction of a degree
+or if axisymmetric sources are mishandled near the axis. rockmoc therefore
+maintains a multi-regime campaign that compares solver output to
+\textbf{primary literature numbers}, not only to self-consistency checks.
+
+Relative error for a metric $y$ is
+
+\begin{equation}
+  e_{\%} = 100 \times \frac{|y_{\mathrm{solver}} - y_{\mathrm{ref}}|}
+  {|y_{\mathrm{ref}}|}.
+  \label{eq:error_pct}
+\end{equation}
+
+Thermo table metrics should sit well below $0.1\%$. Design-rule identities
+($\thetamax=\nue/2$, $\varepsilon=A/A^{*}$) should sit below about $1\%$. Engineering
+correlations (Rao $L/L_{15^{\circ}}$) intentionally allow a few percent.
+Axisymmetric $\thetamax$ versus pure planar $\nue/2$ allows up to roughly
+$8\%$ by documented mild axisymmetric corner difference.
+
+\section{Twelve cited sources}
+
+\begin{longtable}{p{3.2cm}p{10.5cm}}
+\toprule
+\textbf{Source ID} & \textbf{Document} \\
+\midrule
+\endhead
+\code{anderson\_compressible} &
+Anderson, \emph{Modern Compressible Flow} --- $\gamma=1.4$ PM \& isentropic tables \\
+\code{naca\_report\_1135} &
+Ames Research Staff, NACA Report 1135 (1953) --- compressible flow tables \\
+\code{nasa\_tm\_x\_1502} &
+Vanco \& Goldman, NASA TM-X-1502 (1968) --- planar sharp-throat MLN \\
+\code{naca\_rm\_e8j12} &
+Shames \& Seashore, NACA RM E8J12 (1948) --- 2D sharp-edge design data \\
+\code{nasa\_tm\_x\_2343} &
+Goldman \& Vanco, NASA TM-X-2343 (1971) --- MLN + BL displacement \\
+\code{rao\_1958} &
+G.\,V.\,R.\ Rao (1958) --- optimum thrust / TOP vs $15^{\circ}$ cone \\
+\code{lee\_vernacchia\_spike} &
+Lee 1963 / Vernacchia --- aerospike $\delta=\pi/2-\nue$ \\
+\code{sutton\_biblarz} &
+Sutton \& Biblarz --- ideal 1-D $\Cf$ \\
+\code{zucrow\_hoffman} &
+Zucrow \& Hoffman --- axisymmetric MOC unit processes \\
+\code{huzel\_huang} &
+Huzel \& Huang --- conical nozzle practice ($15^{\circ}$ baseline) \\
+\code{sauer\_kliegel} &
+Sauer / Kliegel --- transonic throat IVL \\
+\code{shapiro\_gas\_dynamics} &
+Shapiro --- Prandtl--Meyer form \& $\nu_{\max}$ \\
+\bottomrule
+\end{longtable}
+
+Local PDF copies of many of these documents are stored under \code{refs/} for
+offline audit.
+
+\section{Regimes exercised}
+
+\begin{enumerate}[leftmargin=*]
+  \item Thermo isentropic: $M=1.5\ldots 5$, $\gamma=1.4$ ($\nu$, $A/A^{*}$,
+        $\pe/\pc$).
+  \item $\nu_{\max}$ as $M\to\infty$ (Shapiro closed form).
+  \item Multi-$\gamma$ round-trips $\gamma\in\{1.2,\ldots,1.4\}$.
+  \item NASA TM-X-1502 sample (e.g.\ $\Me=4.05$, $\gamma=1.36$).
+  \item NACA planar MLN suite $\Me=2\ldots 4$.
+  \item Axisymmetric MLN multi-($\gamma$, $\Me$) contracts.
+  \item Conical baseline: Huzel length \& $\eta_{\mathrm{div}}$ analytics.
+  \item Rao TOP length fractions $0.7$--$0.8$.
+  \item Aerospike Lee identities.
+  \item One-dimensional $\Cf$ (Sutton form).
+  \item BL $\deltastar$ geometric spirit of TM-X-2343.
+  \item Throat IVL (Sauer/Kliegel).
+  \item Family ordering MLN / TIC / ideal / Rao.
+\end{enumerate}
+
+\section{Campaign snapshot (stored results)}
+
+A stored deep-validation run (UTC timestamp in
+\code{tests/data/validation\_results/validation\_report.md}) reports:
+
+\begin{center}
+\begin{tabular}{@{}l r@{}}
+\toprule
+Cases & 43 \\
+Passed & 43 \\
+Failed & 0 \\
+Metrics checked & 170 \\
+Cited sources used & 12 \\
+Max error \% & $\sim 4$ \\
+Mean error \% & $\sim 0.175$ \\
+Median error \% & $0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Example thermo fidelity at $\gamma=1.4$:
+
+\begin{center}
+\begin{tabular}{@{}l c c c@{}}
+\toprule
+$M$ & $\nu_{\mathrm{ref}}$ [deg] & $\nu_{\mathrm{solver}}$ [deg] & $e_{\%}$ \\
+\midrule
+1.5 & 11.905 & 11.9052 & $\sim 0.002$ \\
+2.0 & 26.38 & 26.3798 & $\sim 0.001$ \\
+3.0 & 49.757 & 49.7573 & $\sim 0.001$ \\
+5.0 & 76.92 & 76.9202 & $\sim 0.0003$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+These numbers are not a claim of flight accuracy; they are a claim that the
+thermodynamic kernel and design identities match the books the code cites.
+
+%==============================================================================
+\chapter{Limitations and recommended use}
+\label{ch:limits}
+
+\section{Physical limitations}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Shock-free by construction.} Overexpanded or underexpanded
+        off-design operation with internal shocks is not a design-target
+        solution of the MOC contour generators.
+  \item \textbf{No heat transfer / wall temperature field.} BL correction uses
+        simple recovery estimates, not conjugate heat transfer.
+  \item \textbf{Constant composition isentropes} unless the user builds a
+        multi-$\gamma$ or CEA table. Finite-rate chemistry is out of scope.
+  \item \textbf{Aerospike wakes} use engineering base pressure, not resolved
+        unsteady base flow.
+  \item \textbf{Transonic throat} is an IVL engineering model, not a full
+        potential or Euler throat solution.
+\end{itemize}
+
+\section{Numerical limitations}
+
+\begin{itemize}[leftmargin=*]
+  \item Coarse characteristic meshes under-resolve high-$\Me$ kernels; always
+        check mesh convergence for final contours.
+  \item Axis near-singular source terms need the built-in axis unit process;
+        users should not disable regularization casually.
+  \item Very large $\varepsilon$ with low $\gamma$ can exhaust $\nu_{\max}$ or violate
+        aerospike $\delta>0$.
+\end{itemize}
+
+\section{Recommended workflow}
+
+\begin{enumerate}[leftmargin=*]
+  \item Start with \code{PerfectGas} and \code{design\_mln} or
+        \code{design\_conical} for intuition.
+  \item Compare families with \code{compare\_nozzle\_designs}.
+  \item Increase mesh density; run planar NASA cases against TM-X-1502 if
+        teaching MOC.
+  \item For a deliverable contour: \code{design\_production} with BL and field
+        $\Cf$; export CSV; hand off to CAD/CFD.
+  \item Attach real propellant $\gamma$ via CEA/Cantera tables when moving
+        beyond classroom air/$\gamma=1.4$.
+  \item Re-run \code{tests/run\_deep\_validation.py} after physics changes.
+\end{enumerate}
+
+\section{Intended audience}
+
+\begin{itemize}[leftmargin=*]
+  \item Propulsion students and instructors (notebooks, homework set, glossary).
+  \item Student rocket teams needing reproducible bells and spikes.
+  \item Researchers prototyping contour families before CFD refinement.
+\end{itemize}
+
+It is \textbf{not} a certification tool for flight hardware by itself.
+
+%==============================================================================
+\chapter{Conclusions}
+\label{ch:conclusions}
+
+\rockmoc{} packages classical method-of-characteristics nozzle design into a
+modern, tested Python library. The report has laid out every major relation the
+code depends on: isentropic thermodynamics and the Prandtl--Meyer function;
+planar and axisymmetric characteristic compatibility; Sauer-type throat
+seeding; MLN, ideal, TIC, Rao, conical, and Lee aerospike constructors;
+displacement-thickness wall growth; and both one-dimensional and
+field-integrated performance.
+
+The validation campaign---43 cases, 12 primary sources, mean error well under
+one percent on thermo and design identities---supports confidence that the
+implementation tracks the literature it claims. The architecture keeps the
+core dependency surface small (NumPy/SciPy) while allowing optional chemistry
+and plotting stacks.
+
+Future work that would fit the same philosophy includes tighter coupling of
+viscous--inviscid iteration, richer Rao control-surface optimization loops,
+broader published contour digitizations in the gold-data set, and continued
+hardening of high-$\varepsilon$ axisymmetric meshes. Until then, the package remains
+what it was built to be: a careful, auditable MOC design tool with human-scale
+documentation and regression tests that refuse to forget the references.
+
+%==============================================================================
+\chapter*{Acknowledgments}
+\addcontentsline{toc}{chapter}{Acknowledgments}
+
+This work stands on decades of published nozzle theory---especially NASA and
+NACA memoranda, Rao's optimum-thrust paper, and the gas-dynamics textbooks of
+Shapiro, Anderson, Zucrow \& Hoffman, and Sutton \& Biblarz. Local PDF
+mirroring in \code{refs/} is for reproducible offline study; copyright remains
+with the original publishers. The open-source ecosystem (NumPy, SciPy,
+optional CEA/Cantera/CoolProp) made a pure-Python implementation practical.
+
+%==============================================================================
+\begin{thebibliography}{99}
+
+\bibitem{anderson2003}
+J.~D. Anderson,
+\emph{Modern Compressible Flow: With Historical Perspective},
+3rd~ed., McGraw--Hill, 2003.
+
+\bibitem{naca1135}
+Ames Research Staff,
+``Equations, Tables, and Charts for Compressible Flow,''
+NACA Report 1135, 1953.
+
+\bibitem{nasa_tm_x_1502}
+M.~R. Vanco and L.~J. Goldman,
+``Computer Program for Design of Two-Dimensional Supersonic Nozzle Contours
+Using the Method of Characteristics with Sharp-Edged Throat,''
+NASA TM-X-1502, 1968.
+
+\bibitem{naca_rm_e8j12}
+H.~Shames and F.~L. Seashore,
+``Design Data for Graphical Construction of Two-Dimensional
+Sharp-Edge-Throat Supersonic Nozzles,''
+NACA RM E8J12, 1948.
+
+\bibitem{nasa_tm_x_2343}
+L.~J. Goldman and M.~R. Vanco,
+``Computer Program for Design of Two-Dimensional Supersonic Nozzle Contours
+with Boundary-Layer Correction,''
+NASA TM-X-2343, 1971.
+
+\bibitem{rao1958}
+G.~V.~R. Rao,
+``Exhaust Nozzle Contour for Optimum Thrust,''
+\emph{Jet Propulsion}, vol.~28, no.~6, pp.~377--382, 1958.
+
+\bibitem{lee1963}
+C.~C. Lee,
+``FORTRAN Programs for Plug Nozzle Design,''
+MSFC / Brown Engineering, March 1963.
+See also M.~Vernacchia, \emph{Spike Contour Algorithm} notes
+(repository \code{refs/Spike\_Contour\_Algorithm.pdf}).
+
+\bibitem{vernacchia}
+M.~Vernacchia,
+\emph{Spike Contour Algorithm},
+technical notes accompanying open aerospike design tools;
+cf.\ \url{https://github.com/mvernacc/aerospike-nozzle-design-gui}.
+
+\bibitem{sutton2016}
+G.~P. Sutton and O.~Biblarz,
+\emph{Rocket Propulsion Elements},
+9th~ed., Wiley, 2016.
+
+\bibitem{zucrowhoffman}
+M.~J. Zucrow and J.~D. Hoffman,
+\emph{Gas Dynamics},
+Wiley, 1976 (Vols.\ I--II).
+
+\bibitem{huzelhuang}
+D.~K. Huzel and D.~H. Huang,
+\emph{Modern Engineering for Design of Liquid-Propellant Rocket Engines},
+AIAA Progress in Astronautics and Aeronautics, 1992.
+
+\bibitem{kliegel1969}
+J.~R. Kliegel and J.~N. Levine,
+``Transonic Flow in Small Throat Radius of Curvature Nozzles,''
+\emph{AIAA Journal}, related throat analyses; see also repository
+\code{refs/Kliegel\_Levine\_1969.pdf}.
+
+\bibitem{sauer}
+R.~Sauer,
+``General Characteristics of the Flow Through Nozzles at Near Critical
+Speeds,''
+NACA Technical Memorandum (trans.\ of German original), mid-20th century
+Sauer small-disturbance throat theory as used in engineering IVLs.
+
+\bibitem{shapiro1953}
+A.~H. Shapiro,
+\emph{The Dynamics and Thermodynamics of Compressible Fluid Flow},
+Ronald Press, 1953.
+
+\bibitem{murthy1965}
+S.~N.~B. Murthy,
+Nozzle design theory (NASA CR / related 1965 materials);
+repository \code{refs/Murthy\_1965\_nozzle\_design.pdf}.
+
+\bibitem{korte1997}
+J.~J. Korte,
+``Multidisciplinary Design of Aerospike Nozzles,''
+related NASA technical materials, 1997;
+repository \code{refs/Korte\_1997\_aerospike.pdf}.
+
+\bibitem{ijert_mln}
+Case-study literature on MLN design by MOC
+(repository \code{refs/IJERT\_MLN\_MOC.pdf}).
+
+\bibitem{seitzman}
+J.~Seitzman,
+``Nozzle Geometries'' course notes, Georgia Tech
+(repository \code{refs/Seitzman\_Nozzle\_Geometries.pdf}).
+
+\bibitem{rockmoc_repo}
+K.~V. Shanthosh,
+\emph{rockmoc}: Industry-oriented Method of Characteristics rocket nozzle
+design in Python,
+\url{https://github.com/shanthoshkv/rockmoc},
+version 0.6.1.
+
+\end{thebibliography}
+
+%==============================================================================
+\appendix
+\chapter{Module-to-equation map}
+\label{app:map}
+
+\begin{center}
+\begin{tabular}{@{}p{5.2cm}p{8.5cm}@{}}
+\toprule
+\textbf{Physics} & \textbf{Primary code path} \\
+\midrule
+Isentropic $T,p,\rho,A/A^{*}$ & \code{thermo/perfect\_gas.py} \\
+$\nu(M)$, $\nu_{\max}$, $M(\nu)$ & \code{thermo/perfect\_gas.py} \\
+$\Cf$, $c^{*}$ & \code{thermo/perfect\_gas.py} \\
+Variable $\gamma$ tables & \code{thermo/expansion\_table.py}, \code{variable\_gamma.py} \\
+$\Cplus$/$\Cminus$ slopes \& sources & \code{moc/equations.py} \\
+Unit processes & \code{moc/mesh.py} \\
+Planar NASA MLN & \code{moc/planar\_nasa.py}, designers planar entry \\
+Strict canceling wall & \code{moc/strict\_wall.py} \\
+Throat IVL & \code{analysis/throat.py} \\
+BL $\deltastar$ growth & \code{analysis/boundary\_layer.py} \\
+MLN / ideal / TIC & \code{designers/mln.py}, \code{ideal.py}, \code{tic.py} \\
+Rao TOP / TOC / control & \code{designers/rao.py}, \code{rao\_toc.py}, \code{rao\_control.py} \\
+Conical & \code{designers/conical.py} \\
+Production package & \code{designers/production.py} \\
+Aerospike & \code{aerospike/lee\_spike.py}, \code{base\_cowl.py} \\
+1-D metrics & \code{performance/metrics.py} \\
+Field $\Cf$ & \code{performance/field\_cf.py} \\
+Family compare & \code{analysis/compare.py} \\
+Validation runner & \code{validate/benchmark.py} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\chapter{Quick reference of key equations}
+\label{app:quick}
+
+\begin{align}
+\frac{T_0}{T} &= 1 + \tfrac{\gamma-1}{2}M^{2} \\
+\frac{A}{A^{*}} &= \frac{1}{M}\left[\frac{2}{\gamma+1}\Bigl(1+\tfrac{\gamma-1}{2}M^{2}\Bigr)\right]^{\frac{\gamma+1}{2(\gamma-1)}} \\
+\nu(M) &= \sqrt{\tfrac{\gamma+1}{\gamma-1}}\arctan\sqrt{\tfrac{\gamma-1}{\gamma+1}(M^{2}-1)} - \arctan\sqrt{M^{2}-1} \\
+\left(\tfrac{\mathrm{d}r}{\mathrm{d}x}\right)_{\pm} &= \tan(\theta\pm\mu) \\
+\delta=0:&\quad \theta\pm\nu=\mathrm{const\ on\ }C^{\pm} \\
+\delta=1:&\quad \tfrac{\mathrm{d}(\theta\pm\nu)}{\mathrm{d}x} = -\tfrac{\sin\theta\sin\mu}{r\cos(\theta\pm\mu)} \\
+\thetamax^{\mathrm{planar}} &= \nue/2 \\
+\eta_{\mathrm{div}} &= (1+\cos\theta_e)/2 \\
+\Cf &= \sqrt{\tfrac{2\gamma^{2}}{\gamma-1}\bigl(\tfrac{2}{\gamma+1}\bigr)^{\frac{\gamma+1}{\gamma-1}}\bigl[1-(\pe/\pc)^{\frac{\gamma-1}{\gamma}}\bigr]} + \varepsilon(\pe/\pc-\pa/\pc)
+\end{align}
+
+\chapter{Compile notes}
+\label{app:compile}
+
+This report is a single self-contained \LaTeX{} file:
+
+\begin{lstlisting}[language=bash,caption={Build PDF (TeX Live / MiKTeX)}]
+cd docs/report
+pdflatex rockmoc_technical_report.tex
+pdflatex rockmoc_technical_report.tex
+\end{lstlisting}
+
+A second pass resolves table of contents and cross-references. Bibliography
+uses the built-in \code{thebibliography} environment (no external
+\code{.bib} file required). Optional: \code{latexmk -pdf rockmoc\_technical\_report.tex}.
+
+\end{document}

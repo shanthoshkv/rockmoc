@@ -25,7 +25,7 @@ def design_mln_hf(spec: DesignSpec, *, store_net: bool = True) -> DesignResult:
         n_chars=n,
         throat_mach=spec.throat_mach,
         delta=spec.delta,
-        match_exit_area=False,
+        match_exit_area=True,
         store_net=store_net,
     )
     metrics = compute_metrics(
@@ -59,7 +59,7 @@ def design_ideal_hf(spec: DesignSpec, *, store_net: bool = True) -> DesignResult
         throat_rc_over_rt=spec.throat_rc_over_rt,
         throat_mach=spec.throat_mach,
         delta=spec.delta,
-        match_exit_area=False,
+        match_exit_area=True,
         store_net=store_net,
     )
     metrics = compute_metrics(
@@ -95,7 +95,7 @@ def design_tic_hf(spec: DesignSpec, *, store_net: bool = True) -> DesignResult:
         throat_rc_over_rt=spec.throat_rc_over_rt,
         throat_mach=spec.throat_mach,
         delta=spec.delta,
-        match_exit_area=False,
+        match_exit_area=True,
         store_net=store_net,
     )
     metrics = compute_metrics(

@@ -19,16 +19,17 @@ Characteristic directions (meridional plane)::
 
 **Planar (δ = 0)** Riemann invariants::
 
-    along C+:  θ + ν = constant
-    along C−:  θ − ν = constant
+    along C+ [slope tan(θ+μ)]:  θ − ν = constant
+    along C− [slope tan(θ−μ)]:  θ + ν = constant
 
-**Axisymmetric (δ = 1)** geometric source (Zucrow/Hoffman / standard form)::
+**Axisymmetric (δ = 1)** geometric source (Anderson MCF / Zucrow & Hoffman),
+verified against the exact conical source flow::
 
     along C+ [slope tan(θ+μ)]:
-        d(θ + ν)/dx = − δ · sinθ · sinμ / (r · cos(θ+μ))
+        d(θ − ν)/dx = − δ · sinθ · sinμ / (r · cos(θ+μ))
 
     along C− [slope tan(θ−μ)]:
-        d(θ − ν)/dx = − δ · sinθ · sinμ / (r · cos(θ−μ))
+        d(θ + ν)/dx = + δ · sinθ · sinμ / (r · cos(θ−μ))
 
 Finite-difference unit processes use **averaged** angles/radii between the
 known point and the unknown point (predictor–corrector), as in TM-X-1502
@@ -62,7 +63,7 @@ def char_slope_minus(theta: float, mu: float) -> float:
 
 
 def _source_core(theta: float, mu: float, r: float, char_angle: float, delta: float) -> float:
-    """Shared axisymmetric source −δ sinθ sinμ / (r cos φ), φ = θ±μ.
+    """Magnitude-signed core −δ sinθ sinμ / (r cos φ), φ = θ±μ (C+ sign).
 
     Near the axis, θ ∼ O(r) for smooth solutions so sinθ/r stays finite.
     We regularize with r_eff = max(r, r_floor) and sinθ → θ when |θ| is small.
@@ -83,7 +84,7 @@ def _source_core(theta: float, mu: float, r: float, char_angle: float, delta: fl
 
 
 def source_plus(theta: float, mu: float, r: float, *, delta: float = 1.0) -> float:
-    """Geometric source S+ so that (θ+ν)_P ≈ (θ+ν)_B + S+ · (x_P − x_B).
+    """Geometric source S+ so that (θ−ν)_P ≈ (θ−ν)_B + S+ · (x_P − x_B).
 
     First-principles axisymmetric form (δ = 1)::
 
@@ -93,13 +94,13 @@ def source_plus(theta: float, mu: float, r: float, *, delta: float = 1.0) -> flo
 
 
 def source_minus(theta: float, mu: float, r: float, *, delta: float = 1.0) -> float:
-    """Geometric source S− so that (θ−ν)_P ≈ (θ−ν)_A + S− · (x_P − x_A).
+    """Geometric source S− so that (θ+ν)_P ≈ (θ+ν)_A + S− · (x_P − x_A).
 
     First-principles::
 
-        S− = − sinθ · sinμ / (r · cos(θ−μ))
+        S− = + sinθ · sinμ / (r · cos(θ−μ))
     """
-    return _source_core(theta, mu, r, theta - mu, delta)
+    return -_source_core(theta, mu, r, theta - mu, delta)
 
 def source_along_ds(
     theta: float,
@@ -119,7 +120,7 @@ def source_along_ds(
     if abs(delta) < _ANGLE_EPS or abs(r) < _R_EPS:
         return 0.0
     if family == "+":
-        # d(θ+ν)/dx = S+ ⇒ d(θ+ν)/ds = S+ / (ds/dx)
+        # d(θ−ν)/dx = S+ ⇒ d(θ−ν)/ds = S+ / (ds/dx)
         ang = theta + mu
         Sx = source_plus(theta, mu, r, delta=delta)
     else:
@@ -140,7 +141,7 @@ def average_state(a: FlowPoint, b: FlowPoint) -> tuple[float, float, float, floa
 
 
 def riemann_invariants(theta: float, nu: float) -> tuple[float, float]:
-    """Return (J+, J−) = (θ+ν, θ−ν). Planar invariants when δ=0."""
+    """Return (θ+ν, θ−ν): conserved along C− and C+ respectively when δ=0."""
     return theta + nu, theta - nu
 
 

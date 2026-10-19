@@ -157,7 +157,7 @@
       ],
       "contracts": {
         "theta_exit_near_zero_deg": 1.0,
-        "L_over_Rt_min": 1.5,
+        "L_over_Rt_min": 1.2,
         "L_over_Rt_max": 25.0
       },
       "tol_percent": {

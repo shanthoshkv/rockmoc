@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rockmoc"
-version = "0.6.0"
+version = "0.6.1"
 description = "Industry-oriented Method of Characteristics (MOC) rocket nozzle design in Python — MLN, ideal, TIC, Rao, aerospike, plots, and literature-backed validation"
 readme = "README.md"
 license = "MIT"
@@ -64,11 +64,13 @@ all = ["rockmoc[plot,cli,dev,cea,cantera,coolprop]"]
 rockmoc = "rockmoc.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/shanthoshkv/rockmoc"
-Documentation = "https://github.com/shanthoshkv/rockmoc#readme"
+Homepage = "https://aboutkvs.vercel.app/rockmoc.html"
+Documentation = "https://github.com/shanthoshkv/rockmoc/blob/main/docs/how_to_use.md"
 Repository = "https://github.com/shanthoshkv/rockmoc"
 Issues = "https://github.com/shanthoshkv/rockmoc/issues"
 Changelog = "https://github.com/shanthoshkv/rockmoc/releases"
+"Project Website" = "https://aboutkvs.vercel.app/rockmoc.html"
+"How to Use" = "https://github.com/shanthoshkv/rockmoc/blob/main/docs/how_to_use.md"
 
 # Version for runtime: src/rockmoc/_version.py (keep in sync with [project].version)
 # Hatchling discovers packages under src/ automatically.

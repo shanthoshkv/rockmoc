@@ -6,6 +6,7 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 
 | | |
 |--|--|
+| **Website** | **[aboutkvs.vercel.app/rockmoc.html](https://aboutkvs.vercel.app/rockmoc.html)** — full portfolio showcase |
 | **Version** | see `src/rockmoc/_version.py` |
 | **Python** | ≥ 3.10 |
 | **Core deps** | NumPy, SciPy |
@@ -17,7 +18,8 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 
 ## Table of contents
 
-- [**How to use (full guide)**](docs/how_to_use.md) ← start here if you are new
+- [**How to use (full guide)**](https://github.com/shanthoshkv/rockmoc/blob/main/docs/how_to_use.md) ← start here if you are new
+- [**Project website**](https://aboutkvs.vercel.app/rockmoc.html) — interactive gallery, validation, API overview
 - [What rockmoc is](#what-rockmoc-is)
 - [Nozzle types](#nozzle-types)
 - [Capabilities](#capabilities)
@@ -30,14 +32,15 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 - [Project layout](#project-layout)
 - [CLI](#cli)
 - [References](#references)
-- [Contributing / push checklist](#contributing--push-checklist)
+- [Contributing / release checklist](#contributing--release-checklist)
 - [License](#license)
 
 > **New to rockmoc?** Start here:  
-> - **[docs/how_to_use.md](docs/how_to_use.md)** — install, first design, student helpers, FAQ  
-> - **[examples/notebooks/](examples/notebooks/)** — Jupyter tutorials (MLN, compare, altitude, NASA planar)  
-> - **[docs/student_problems.md](docs/student_problems.md)** — worked homework  
-> - **[docs/glossary.md](docs/glossary.md)** — symbols & units
+> - **[Project website](https://aboutkvs.vercel.app/rockmoc.html)** — figures, validation, and overview  
+> - **[How to use (full guide)](https://github.com/shanthoshkv/rockmoc/blob/main/docs/how_to_use.md)** — install, first design, student helpers, FAQ  
+> - **[Jupyter tutorials](https://github.com/shanthoshkv/rockmoc/tree/main/examples/notebooks)** — MLN, compare, altitude, NASA planar  
+> - **[Homework problems](https://github.com/shanthoshkv/rockmoc/blob/main/docs/student_problems.md)**  
+> - **[Glossary & symbols](https://github.com/shanthoshkv/rockmoc/blob/main/docs/glossary.md)**  
 
 ---
 
@@ -88,7 +91,7 @@ print(cmp.to_markdown())   # lab report
 cmp.to_csv("compare.csv")
 ```
 
-**Student helpers:** `DesignSpec.student`, `example_gas`, `result.report()`, `result.lab_report()`, `explainer("mln")`, `KNOWN_LIMITS` — see [docs/how_to_use.md](docs/how_to_use.md#9-student-helpers-reports-gases-tables-cone).
+**Student helpers:** `DesignSpec.student`, `example_gas`, `result.report()`, `result.lab_report()`, `explainer("mln")`, `KNOWN_LIMITS` — see [how to use](https://github.com/shanthoshkv/rockmoc/blob/main/docs/how_to_use.md#9-student-helpers-reports-gases-tables-cone).
 
 ---
 
@@ -194,13 +197,13 @@ pip install -e ".[coolprop]"
 
 **Requirements:** Python ≥ 3.10, NumPy ≥ 1.24, SciPy ≥ 1.10.
 
-Publishing notes for maintainers: see [PUBLISH.md](PUBLISH.md).
+Publishing notes for maintainers: see [PUBLISH.md](https://github.com/shanthoshkv/rockmoc/blob/main/PUBLISH.md).
 
 ---
 
 ## Quickstart
 
-For a slower, more detailed tour (inputs, mesh, exports, FAQ), see **[docs/how_to_use.md](docs/how_to_use.md)**.
+For a slower, more detailed tour (inputs, mesh, exports, FAQ), see the **[full how-to guide](https://github.com/shanthoshkv/rockmoc/blob/main/docs/how_to_use.md)** or the **[project website](https://aboutkvs.vercel.app/rockmoc.html)**.
 
 ### Axisymmetric MLN
 
@@ -345,7 +348,7 @@ py -3.12 tests/run_deep_validation.py
 | `tests/data/validation_results/validation_results.csv` | Flat table with **error_percent** |
 | `tests/data/validation_results/validation_report.md` | Human-readable report |
 | `tests/data/validation_results/sources.md` | Source index |
-| `docs/validation.md` / `docs/validation_deep.md` | Methodology |
+| [docs/validation.md](https://github.com/shanthoshkv/rockmoc/blob/main/docs/validation.md) / [validation_deep.md](https://github.com/shanthoshkv/rockmoc/blob/main/docs/validation_deep.md) | Methodology |
 
 ### Campaign snapshot (representative)
 
@@ -511,7 +514,7 @@ twine check dist/*
 python tests/generate_all_graphs.py
 ```
 
-Publish to PyPI: [PUBLISH.md](PUBLISH.md).
+Publish to PyPI: [PUBLISH.md](https://github.com/shanthoshkv/rockmoc/blob/main/PUBLISH.md).
 
 `.gitignore` excludes venvs, caches, `website/`, generated PNGs, secrets — while keeping `src/`, `tests/data/`, `docs/`, `examples/`.
 
@@ -519,4 +522,4 @@ Publish to PyPI: [PUBLISH.md](PUBLISH.md).
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](https://github.com/shanthoshkv/rockmoc/blob/main/LICENSE).

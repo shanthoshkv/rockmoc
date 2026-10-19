@@ -1,6 +1,6 @@
 {
   "title": "rockmoc deep multi-regime validation (10+ cited sources)",
-  "generated_utc": "2026-07-29T18:08:29.789720+00:00",
+  "generated_utc": "2026-10-19T19:09:16.930759+00:00",
   "catalog_title": "rockmoc deep validation catalog (10+ cited sources)",
   "sources": {
     "anderson_compressible": {
@@ -92,8 +92,8 @@
     "n_metrics": 170,
     "n_cited_sources": 12,
     "n_sources_used": 12,
-    "max_error_percent": 4.000000000000014,
-    "mean_error_percent": 0.17544023162684821,
+    "max_error_percent": 0.013533078114693519,
+    "mean_error_percent": 0.0002577498743607096,
     "median_error_percent": 0.0
   },
   "cases": [
@@ -562,9 +562,9 @@
         {
           "name": "pm_roundtrip_M",
           "reference": 3.0,
-          "solver": 3.0000000000001137,
-          "error_percent": 3.789561257387201e-12,
-          "abs_error": 1.1368683772161603e-13,
+          "solver": 2.999999999999999,
+          "error_percent": 2.960594732333751e-14,
+          "abs_error": 8.881784197001252e-16,
           "tol_percent": 0.0001,
           "passed": true,
           "unit": "-",
@@ -599,9 +599,9 @@
         {
           "name": "pm_roundtrip_M",
           "reference": 3.0,
-          "solver": 3.0000000000001137,
-          "error_percent": 3.789561257387201e-12,
-          "abs_error": 1.1368683772161603e-13,
+          "solver": 3.0000000000000004,
+          "error_percent": 1.4802973661668755e-14,
+          "abs_error": 4.440892098500626e-16,
           "tol_percent": 0.0001,
           "passed": true,
           "unit": "-",
@@ -636,9 +636,9 @@
         {
           "name": "pm_roundtrip_M",
           "reference": 2.5,
-          "solver": 2.4999999999998863,
-          "error_percent": 4.547473508864641e-12,
-          "abs_error": 1.1368683772161603e-13,
+          "solver": 2.5,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
           "tol_percent": 0.0001,
           "passed": true,
           "unit": "-",
@@ -673,9 +673,9 @@
         {
           "name": "pm_roundtrip_M",
           "reference": 4.05,
-          "solver": 4.049999999999841,
-          "error_percent": 3.9255293117610476e-12,
-          "abs_error": 1.5898393712632242e-13,
+          "solver": 4.050000000000001,
+          "error_percent": 2.1930331350620376e-14,
+          "abs_error": 8.881784197001252e-16,
           "tol_percent": 0.0001,
           "passed": true,
           "unit": "-",
@@ -804,7 +804,7 @@
         {
           "name": "xe_over_ht",
           "reference": null,
-          "solver": 38.43090571501838,
+          "solver": 38.4309057150184,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -866,7 +866,7 @@
         {
           "name": "L_over_ht",
           "reference": null,
-          "solver": 6.208728897247724,
+          "solver": 6.208728897247687,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -926,7 +926,7 @@
         {
           "name": "L_over_ht",
           "reference": null,
-          "solver": 8.953531384477278,
+          "solver": 8.95353138447697,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -986,7 +986,7 @@
         {
           "name": "L_over_ht",
           "reference": null,
-          "solver": 14.867142240919238,
+          "solver": 14.867142240919478,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -1046,7 +1046,7 @@
         {
           "name": "L_over_ht",
           "reference": null,
-          "solver": 22.439110703486342,
+          "solver": 22.4391107034864,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -1106,7 +1106,7 @@
         {
           "name": "L_over_ht",
           "reference": null,
-          "solver": 33.277263875169915,
+          "solver": 33.2772638751704,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -1134,24 +1134,24 @@
         {
           "name": "area_ratio",
           "reference": 3.420532586514756,
-          "solver": 3.4205325865142524,
-          "error_percent": 1.472277054033552e-11,
-          "abs_error": 5.03597163969971e-13,
+          "solver": 3.420532586514757,
+          "error_percent": 2.596608560905735e-14,
+          "abs_error": 8.881784197001252e-16,
           "tol_percent": 0.05,
           "passed": true,
           "unit": "-",
           "note": "\u03b5_geom vs A/A*(Me)"
         },
         {
-          "name": "theta_max_vs_half_nu_e_deg",
-          "reference": 24.230755087052504,
-          "solver": 25.199985290534602,
-          "error_percent": 3.9999999999999925,
-          "abs_error": 0.9692302034820983,
-          "tol_percent": 8.0,
+          "name": "theta_max_below_half_nu_e_deg",
+          "reference": null,
+          "solver": 15.039363190777536,
+          "error_percent": 0.0,
+          "abs_error": null,
+          "tol_percent": null,
           "passed": true,
           "unit": "deg",
-          "note": "corner \u2248 \u03bd_e/2 (axisym mild offset allowed)"
+          "note": "axisym sources \u21d2 \u03b8_max < \u03bd_e/2 = 24.23\u00b0 (planar limit)"
         },
         {
           "name": "theta_exit_deg",
@@ -1167,20 +1167,20 @@
         {
           "name": "L_over_Rt",
           "reference": null,
-          "solver": 3.2518890282796535,
+          "solver": 6.378338981014672,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
           "passed": true,
           "unit": "-",
-          "note": "band [1.5, 25.0]"
+          "note": "band [1.2, 25.0]"
         },
         {
           "name": "exit_radius_m",
           "reference": 0.09247340950936594,
-          "solver": 0.09247340950935913,
-          "error_percent": 7.368598010811703e-12,
-          "abs_error": 6.813993813636898e-15,
+          "solver": 0.09247340950936594,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
           "tol_percent": 0.05,
           "passed": true,
           "unit": "m",
@@ -1189,7 +1189,7 @@
         {
           "name": "Cf_vac_1d",
           "reference": null,
-          "solver": 1.579037579911307,
+          "solver": 1.5790375799113345,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -1228,24 +1228,24 @@
         {
           "name": "area_ratio",
           "reference": 5.831866838679954,
-          "solver": 5.831866838680783,
-          "error_percent": 1.422458137243216e-11,
-          "abs_error": 8.29558643999917e-13,
+          "solver": 5.831866838679954,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
           "tol_percent": 0.05,
           "passed": true,
           "unit": "-",
           "note": "\u03b5_geom vs A/A*(Me)"
         },
         {
-          "name": "theta_max_vs_half_nu_e_deg",
-          "reference": 29.70639530466993,
-          "solver": 30.89465111685673,
-          "error_percent": 4.000000000000008,
-          "abs_error": 1.1882558121867994,
-          "tol_percent": 8.0,
+          "name": "theta_max_below_half_nu_e_deg",
+          "reference": null,
+          "solver": 18.37426649388171,
+          "error_percent": 0.0,
+          "abs_error": null,
+          "tol_percent": null,
           "passed": true,
           "unit": "deg",
-          "note": "corner \u2248 \u03bd_e/2 (axisym mild offset allowed)"
+          "note": "axisym sources \u21d2 \u03b8_max < \u03bd_e/2 = 29.71\u00b0 (planar limit)"
         },
         {
           "name": "theta_exit_deg",
@@ -1261,20 +1261,20 @@
         {
           "name": "L_over_Rt",
           "reference": null,
-          "solver": 4.344173273373076,
+          "solver": 9.754864639332288,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
           "passed": true,
           "unit": "-",
-          "note": "band [1.5, 25.0]"
+          "note": "band [1.2, 25.0]"
         },
         {
           "name": "exit_radius_m",
           "reference": 0.12074629226895493,
-          "solver": 0.12074629226896352,
-          "error_percent": 7.114380484580571e-12,
-          "abs_error": 8.590350653037149e-15,
+          "solver": 0.12074629226895493,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
           "tol_percent": 0.05,
           "passed": true,
           "unit": "m",
@@ -1283,7 +1283,7 @@
         {
           "name": "Cf_vac_1d",
           "reference": null,
-          "solver": 1.6487280085113287,
+          "solver": 1.6487280085113096,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -1331,15 +1331,15 @@
           "note": "\u03b5_geom vs A/A*(Me)"
         },
         {
-          "name": "theta_max_vs_half_nu_e_deg",
-          "reference": 33.159041735177695,
-          "solver": 34.4854034045848,
-          "error_percent": 3.9999999999999947,
-          "abs_error": 1.326361669407106,
-          "tol_percent": 8.0,
+          "name": "theta_max_below_half_nu_e_deg",
+          "reference": null,
+          "solver": 20.44348379496832,
+          "error_percent": 0.0,
+          "abs_error": null,
+          "tol_percent": null,
           "passed": true,
           "unit": "deg",
-          "note": "corner \u2248 \u03bd_e/2 (axisym mild offset allowed)"
+          "note": "axisym sources \u21d2 \u03b8_max < \u03bd_e/2 = 33.16\u00b0 (planar limit)"
         },
         {
           "name": "theta_exit_deg",
@@ -1355,13 +1355,13 @@
         {
           "name": "L_over_Rt",
           "reference": null,
-          "solver": 5.485957058630545,
+          "solver": 13.858839720125937,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
           "passed": true,
           "unit": "-",
-          "note": "band [1.5, 25.0]"
+          "note": "band [1.2, 25.0]"
         },
         {
           "name": "exit_radius_m",
@@ -1425,15 +1425,15 @@
           "note": "\u03b5_geom vs A/A*(Me)"
         },
         {
-          "name": "theta_max_vs_half_nu_e_deg",
-          "reference": 13.189880406708228,
-          "solver": 13.71747562297656,
-          "error_percent": 4.000000000000014,
-          "abs_error": 0.5275952162683311,
-          "tol_percent": 8.0,
+          "name": "theta_max_below_half_nu_e_deg",
+          "reference": null,
+          "solver": 8.199369261313633,
+          "error_percent": 0.0,
+          "abs_error": null,
+          "tol_percent": null,
           "passed": true,
           "unit": "deg",
-          "note": "corner \u2248 \u03bd_e/2 (axisym mild offset allowed)"
+          "note": "axisym sources \u21d2 \u03b8_max < \u03bd_e/2 = 13.19\u00b0 (planar limit)"
         },
         {
           "name": "theta_exit_deg",
@@ -1449,13 +1449,13 @@
         {
           "name": "L_over_Rt",
           "reference": null,
-          "solver": 2.161682071640002,
+          "solver": 3.5761539235275035,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
           "passed": true,
           "unit": "-",
-          "note": "band [1.5, 25.0]"
+          "note": "band [1.2, 25.0]"
         },
         {
           "name": "exit_radius_m",
@@ -1510,24 +1510,24 @@
         {
           "name": "area_ratio",
           "reference": 4.23456790123457,
-          "solver": 4.234567901235026,
-          "error_percent": 1.0780880561456267e-11,
-          "abs_error": 4.565237077258644e-13,
+          "solver": 4.234567901234569,
+          "error_percent": 2.0974475800498576e-14,
+          "abs_error": 8.881784197001252e-16,
           "tol_percent": 0.05,
           "passed": true,
           "unit": "-",
           "note": "\u03b5_geom vs A/A*(Me)"
         },
         {
-          "name": "theta_max_vs_half_nu_e_deg",
-          "reference": 24.878673372173036,
-          "solver": 25.873820307059958,
-          "error_percent": 4.000000000000001,
-          "abs_error": 0.9951469348869217,
-          "tol_percent": 8.0,
+          "name": "theta_max_below_half_nu_e_deg",
+          "reference": null,
+          "solver": 15.424352821008691,
+          "error_percent": 0.0,
+          "abs_error": null,
+          "tol_percent": null,
           "passed": true,
           "unit": "deg",
-          "note": "corner \u2248 \u03bd_e/2 (axisym mild offset allowed)"
+          "note": "axisym sources \u21d2 \u03b8_max < \u03bd_e/2 = 24.88\u00b0 (planar limit)"
         },
         {
           "name": "theta_exit_deg",
@@ -1543,20 +1543,20 @@
         {
           "name": "L_over_Rt",
           "reference": null,
-          "solver": 3.936569762567637,
+          "solver": 8.368668661955867,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
           "passed": true,
           "unit": "-",
-          "note": "band [1.5, 25.0]"
+          "note": "band [1.2, 25.0]"
         },
         {
           "name": "exit_radius_m",
           "reference": 0.10289032876362299,
-          "solver": 0.10289032876362854,
-          "error_percent": 5.395176776894882e-12,
-          "abs_error": 5.551115123125783e-15,
+          "solver": 0.10289032876362299,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
           "tol_percent": 0.05,
           "passed": true,
           "unit": "m",
@@ -1565,7 +1565,7 @@
         {
           "name": "Cf_vac_1d",
           "reference": null,
-          "solver": 1.5678153054540782,
+          "solver": 1.5678153054540658,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -1604,24 +1604,24 @@
         {
           "name": "area_ratio",
           "reference": 10.718750000000002,
-          "solver": 10.718749999998913,
-          "error_percent": 1.0158896723520498e-11,
-          "abs_error": 1.0889067425523535e-12,
+          "solver": 10.718750000000004,
+          "error_percent": 1.657242532385073e-14,
+          "abs_error": 1.7763568394002505e-15,
           "tol_percent": 0.05,
           "passed": true,
           "unit": "-",
           "note": "\u03b5_geom vs A/A*(Me)"
         },
         {
-          "name": "theta_max_vs_half_nu_e_deg",
-          "reference": 32.89240989887426,
-          "solver": 34.208106294829236,
-          "error_percent": 4.000000000000007,
-          "abs_error": 1.3156963959549728,
-          "tol_percent": 8.0,
+          "name": "theta_max_below_half_nu_e_deg",
+          "reference": null,
+          "solver": 20.254278430455717,
+          "error_percent": 0.0,
+          "abs_error": null,
+          "tol_percent": null,
           "passed": true,
           "unit": "deg",
-          "note": "corner \u2248 \u03bd_e/2 (axisym mild offset allowed)"
+          "note": "axisym sources \u21d2 \u03b8_max < \u03bd_e/2 = 32.89\u00b0 (planar limit)"
         },
         {
           "name": "theta_exit_deg",
@@ -1637,20 +1637,20 @@
         {
           "name": "L_over_Rt",
           "reference": null,
-          "solver": 6.237009671607613,
+          "solver": 16.864633095008593,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
           "passed": true,
           "unit": "-",
-          "note": "band [1.5, 25.0]"
+          "note": "band [1.2, 25.0]"
         },
         {
           "name": "exit_radius_m",
           "reference": 0.16369751067135996,
-          "solver": 0.16369751067135163,
-          "error_percent": 5.08662144619007e-12,
-          "abs_error": 8.326672684688674e-15,
+          "solver": 0.16369751067135996,
+          "error_percent": 0.0,
+          "abs_error": 0.0,
           "tol_percent": 0.05,
           "passed": true,
           "unit": "m",
@@ -1659,7 +1659,7 @@
         {
           "name": "Cf_vac_1d",
           "reference": null,
-          "solver": 1.651914185980583,
+          "solver": 1.6519141859805901,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -2552,14 +2552,14 @@
           "tol_percent": null,
           "passed": true,
           "unit": "-",
-          "note": "\u03b4*_e=1.348e-03 m"
+          "note": "\u03b4*_e=2.520e-03 m"
         },
         {
           "name": "R_corrected_ge_inviscid",
-          "reference": 0.12074629226896352,
-          "solver": 0.12209415563379539,
+          "reference": 0.12074629226895493,
+          "solver": 0.1232665835300393,
           "error_percent": 0.0,
-          "abs_error": 0.0013478633648318639,
+          "abs_error": 0.0025202912610843703,
           "tol_percent": null,
           "passed": true,
           "unit": "m",
@@ -2640,7 +2640,7 @@
         {
           "name": "L_mln_m",
           "reference": null,
-          "solver": 0.21195871355791718,
+          "solver": 0.4877158778116762,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -2651,7 +2651,7 @@
         {
           "name": "L_tic_m",
           "reference": null,
-          "solver": 0.25036081157935647,
+          "solver": 0.42017163064694146,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -2662,7 +2662,7 @@
         {
           "name": "L_ideal_m",
           "reference": null,
-          "solver": 0.3129510144741956,
+          "solver": 0.5252145383086768,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -2712,49 +2712,49 @@
           "tol_percent": null,
           "passed": true,
           "unit": "",
-          "note": "Rao TOP typically shorter than full ideal"
+          "note": "Rao TOP typically shorter than full ideal (15% band)"
         }
       ],
       "meta": {
         "comparison": [
           {
             "kind": "mln",
-            "L_m": 0.21195871355791718,
-            "L_over_Rt": 4.239174271158343,
-            "area_ratio": 5.831866838680783,
-            "Cf_vac": 1.6487280085113287,
-            "Isp_vac_s": 237.08346276396264,
+            "L_m": 0.4877158778116762,
+            "L_over_Rt": 9.754317556233524,
+            "area_ratio": 5.831866838679954,
+            "Cf_vac": 1.6487280085113096,
+            "Isp_vac_s": 237.0834627639599,
             "eta_n": 1.0,
             "eta_div": 1.0,
-            "theta_max_deg": 30.89465111685673,
+            "theta_max_deg": 18.369088065122686,
             "theta_exit_deg": 0.0,
-            "exit_radius_m": 0.12074629226896352
+            "exit_radius_m": 0.12074629226895493
           },
           {
             "kind": "ideal",
-            "L_m": 0.3129510144741956,
-            "L_over_Rt": 6.259020289483912,
-            "area_ratio": 6.7532380457413765,
-            "Cf_vac": 1.6699917637436947,
-            "Isp_vac_s": 240.1411440163158,
+            "L_m": 0.5252145383086768,
+            "L_over_Rt": 10.504290766173536,
+            "area_ratio": 5.831866838679954,
+            "Cf_vac": 1.6487280085113096,
+            "Isp_vac_s": 237.0834627639599,
             "eta_n": 1.0,
             "eta_div": 1.0,
-            "theta_max_deg": 30.778788681231187,
+            "theta_max_deg": 17.618376560283508,
             "theta_exit_deg": 0.0,
-            "exit_radius_m": 0.12993496494151774
+            "exit_radius_m": 0.12074629226895493
           },
           {
             "kind": "tic",
-            "L_m": 0.25036081157935647,
-            "L_over_Rt": 5.007216231587129,
-            "area_ratio": 6.451547564438088,
-            "Cf_vac": 1.640657022959241,
-            "Isp_vac_s": 235.92287278627757,
-            "eta_n": 0.9865473122177303,
-            "eta_div": 0.9954978637555758,
-            "theta_max_deg": 30.778788681231187,
-            "theta_exit_deg": 7.694640953331599,
-            "exit_radius_m": 0.12699948390090104
+            "L_m": 0.42017163064694146,
+            "L_over_Rt": 8.403432612938829,
+            "area_ratio": 5.686297009637156,
+            "Cf_vac": 1.6442604758583876,
+            "Isp_vac_s": 236.44104139069643,
+            "eta_n": 0.9993265844311843,
+            "eta_div": 0.9997756314902233,
+            "theta_max_deg": 17.618376560283508,
+            "theta_exit_deg": 1.7165237686268096,
+            "exit_radius_m": 0.1192297887446459
           },
           {
             "kind": "rao",
