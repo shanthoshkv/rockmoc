@@ -4,6 +4,11 @@
 
 Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-throat MLNs**, and **annular aerospikes** from literature-faithful algorithms — with pluggable thermochemistry, boundary-layer correction, field-integrated performance, dark-themed plots, and a multi-regime validation campaign against NASA/NACA/Rao sources.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/hero_field.png" alt="rockmoc axisymmetric MOC field: C+/C− characteristic net coloured by Mach number, wall coloured by local Mach" width="100%">
+  <br><sub>Axisymmetric minimum-length nozzle, Mach-coloured field and characteristic net — one call, <code>design_mln(...).plot()</code>.</sub>
+</p>
+
 | | |
 |--|--|
 | **Website** | **[aboutkvs.vercel.app/rockmoc.html](https://aboutkvs.vercel.app/rockmoc.html)** — full portfolio showcase |
@@ -82,6 +87,10 @@ Typical length ordering at fixed design point:
 MLN  <  Rao TOP (~0.8 × 15° cone)  ≲  TIC (e.g. 80% ideal)  <  Ideal
 (+ conical 15° as length/angle baseline)
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/family_overlay.png" alt="MLN, ideal, TIC 80% and Rao 80% contours overlaid at the same exit Mach and throat radius, with wall-angle inset" width="100%">
+</p>
 
 Use `compare_nozzle_designs(spec)` (includes cone by default) then:
 
@@ -163,6 +172,11 @@ result.export_csv("wall.csv")
 result.export_json("wall.json")
 # Contour also: result.contour.export_csv / export_json
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/openfoam_mesh.png" alt="blockMeshDict preview: single wedge block with collapsed axis and wall grading, exported from a rockmoc contour" width="100%">
+  <br><sub>Contour → OpenFOAM <code>blockMeshDict</code> (7,500 cells, <code>checkMesh</code>: Mesh OK). CSV, JSON and DXF exports ship too.</sub>
+</p>
 
 ---
 
@@ -324,6 +338,24 @@ py -3.12 tests/generate_all_graphs.py   # writes tests/graphs/*.png
 | BL | Inviscid vs δ*-corrected wall |
 
 Saving is always optional (`save_dir=None` → display only).
+
+### Gallery
+
+<table>
+  <tr>
+    <td width="50%"><img src="https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/mln_field.png" alt="Minimum-length nozzle MOC field"><br><sub><b>Minimum-length nozzle</b> — C+/C− net, expansion fan, Mach-coloured wall.</sub></td>
+    <td width="50%"><img src="https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/rao_field.png" alt="Rao thrust-optimised bell MOC field"><br><sub><b>Rao thrust-optimised bell</b> — TOC control-surface net.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/aerospike.png" alt="Annular aerospike spike contour"><br><sub><b>Annular aerospike</b> — Lee / Vernacchia spike with shroud lip.</sub></td>
+    <td width="50%"><img src="https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/wall_properties.png" alt="Wall Mach, pressure and temperature along the nozzle"><br><sub><b>Wall properties</b> — M, p and T along the contour.</sub></td>
+  </tr>
+</table>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/convergence.png" alt="Grid convergence of length, exit wall angle and max wall angle versus number of characteristics" width="100%">
+  <br><sub>Grid convergence vs number of characteristics (<code>rockmoc.analysis.convergence</code>); L/R<sub>t</sub> observed order ≈ 1.5.</sub>
+</p>
 
 ---
 
