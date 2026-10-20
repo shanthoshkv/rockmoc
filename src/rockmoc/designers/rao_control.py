@@ -1,34 +1,25 @@
-"""Rao control-surface thrust-optimized contour (TOC).
+"""Rao thrust-optimised contour (TOC) — DesignSpec wrapper.
 
-Implements a practical form of Rao's optimum-thrust construction:
-
-1. Build an axisymmetric MOC kernel (expansion fan + interior).
-2. On candidate last right-running characteristics (control surfaces),
-   apply the vacuum/ambient **Rao wall-exit condition** relating θ_e and μ_e.
-3. Construct the wall as the streamline through the control surface end.
-4. Select the surface matching the prescribed length (or ε).
+The contour is built by :func:`rockmoc.moc.rao.design_rao_moc`: smooth-throat
+characteristic lattice to the inflection N, Rao's control surface DE
+(V cos(θ−μ)/cos μ and r ρV² sin²θ tan μ constant, mass-matched), and the wall
+NE as the mass-flow streamline between ND and DE.
 
 References
 ----------
 * G.V.R. Rao, "Exhaust Nozzle Contour for Optimum Thrust," *Jet Propulsion*, 1958
-  (local: ``refs/Rao_1958_Exhaust_Nozzle_Optimum_Thrust.pdf``)
-* Murthy / Thompson optimized thrust nozzle notes
-  (``refs/Murthy_1965_nozzle_design.pdf``)
-
-Not a full 3D variational code; axisymmetric control-surface TOC for design.
+* Zucrow & Hoffman, *Gas Dynamics* Vol. 2, §16.6
 """
 
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
-
-import numpy as np
 
 from rockmoc.designers.base import DesignResult, DesignSpec
 from rockmoc.exceptions import DesignError
 from rockmoc.geometry.contour import Contour
-from rockmoc.moc.axisym_hf import build_axisym_kernel
+from rockmoc.moc.rao import design_rao_moc
+from rockmoc.moc.types import CharNet
 from rockmoc.performance.metrics import compute_metrics
 from rockmoc.thermo.gas_protocol import MOCGas
 from rockmoc.thermo.perfect_gas import PerfectGas
@@ -67,134 +58,46 @@ def design_rao_control_surface(
     length_fraction: float = 0.80,
     n_chars: int = 80,
     pa_pc: float = 0.0,
-    rc_over_rt: float = 1.5,
-    n_wall: int = 120,
-) -> tuple[Contour, dict]:
-    """Design TOC wall via Rao control surface + MOC kernel.
+    rc_over_rt: float = 0.382,
+    throat_mach: float = 1.02,
+) -> tuple[Contour, dict, CharNet]:
+    """Rao TOC by MOC (:func:`rockmoc.moc.rao.design_rao_moc`), vacuum optimum.
 
-    Parameters
-    ----------
-    length_fraction:
-        Target length as fraction of a pure ideal-length estimate
-        L_ref ≈ (R_e − R_t) / tan(θ_max/2) * 1.5 (axisym).
-    pa_pc:
-        Ambient / chamber pressure for Rao exit-angle correction.
+    ``length_fraction`` is relative to the 15° cone (Rao's convention). An
+    unreachable length falls back to the nearest feasible one with a warning.
+    ``pa_pc`` > 0 is reported only: the construction is the vacuum optimum.
+    N ≥ 64 and a near-sonic start (M₀ = 1.02) keep the short-bell end of the
+    feasible length range resolved.
     """
-    if exit_mach <= 1.0 or throat_radius <= 0:
-        raise DesignError("need exit_mach > 1 and throat_radius > 0")
-
-    Rt = float(throat_radius)
-    Me = float(exit_mach)
-    nu_e = float(gas.prandtl_meyer(Me))
-    theta_max = 0.5 * nu_e
-    eps = float(gas.area_ratio(Me))
-    Re = Rt * math.sqrt(eps)
-    pe_pc = float(gas.pe_pc_from_mach(Me))
-    pa_pe = (pa_pc / pe_pc) if pe_pc > 0 else 0.0
-
-    # Kernel at planar corner rule
-    net, grid, fan = build_axisym_kernel(
-        gas,  # type: ignore[arg-type]
-        Rt=Rt,
-        theta_max=theta_max,
-        n_chars=n_chars,
-        throat_mach=1.05,
-        delta=1.0,
+    contour, net, meta = design_rao_moc(
+        gas, throat_radius=throat_radius, exit_mach=exit_mach,
+        length_fraction=length_fraction, n_chars=max(int(n_chars), 64),
+        rc_over_rt=rc_over_rt, throat_mach=throat_mach, clamp_length=True,
     )
-
-    # Reference ideal-ish length
-    tan_ref = max(math.tan(0.5 * theta_max), 0.08)
-    L_ref = 1.5 * (Re - Rt) / tan_ref
-    if net.axis:
-        L_ref = max(L_ref, 2.0 * net.axis[-1].x)
-    L_target = float(np.clip(length_fraction, 0.55, 1.0)) * L_ref
-
-    # Rao exit angle at design Me
-    th_e_rao = rao_exit_angle(Me, gas.gamma, pa_pe=pa_pe)
-
-    # Build wall: circular arc to θ_n then turn down to θ_e_rao over L_target
-    # Inflection θ_n from kernel max turning (slightly above θ_e)
-    th_n = min(theta_max * 0.95, th_e_rao + math.radians(12.0))
-    th_n = max(th_n, th_e_rao + math.radians(3.0))
-
-    Rc = rc_over_rt * Rt
-    # Arc to th_n
-    n_arc = max(20, n_wall // 4)
-    phi = np.linspace(0.0, th_n, n_arc)
-    x_arc = Rc * np.sin(phi)
-    r_arc = Rt + Rc * (1.0 - np.cos(phi))
-    x_n, r_n = float(x_arc[-1]), float(r_arc[-1])
-
-    # Remaining length for control-surface region
-    L_par = max(L_target - x_n, 0.5 * Rt)
-    x_e = x_n + L_par
-    r_e = Re
-
-    # Cubic Hermite from N (θ=θ_n) to E (θ=θ_e_rao) — control-surface wall
-    n_par = max(40, n_wall - n_arc)
-    t = np.linspace(0.0, 1.0, n_par).reshape(-1, 1)
-    P0 = np.array([x_n, r_n])
-    P1 = np.array([x_e, r_e])
-    c1 = 0.42 * L_par / max(math.cos(th_n), 0.15)
-    c2 = 0.42 * L_par / max(math.cos(th_e_rao), 0.15)
-    m0 = c1 * np.array([math.cos(th_n), math.sin(th_n)])
-    m1 = c2 * np.array([math.cos(th_e_rao), math.sin(th_e_rao)])
-    h00 = 2 * t**3 - 3 * t**2 + 1
-    h10 = t**3 - 2 * t**2 + t
-    h01 = -2 * t**3 + 3 * t**2
-    h11 = t**3 - t**2
-    P = h00 * P0 + h10 * m0 + h01 * P1 + h11 * m1
-    x = np.concatenate([x_arc[:-1], P[:, 0]])
-    r = np.concatenate([r_arc[:-1], P[:, 1]])
-    x[-1], r[-1] = x_e, r_e
-    r = np.maximum.accumulate(np.maximum(r, Rt))
-    th = np.arctan2(np.gradient(r), np.gradient(x))
-
-    # Local M from area + design Me at exit
-    M = np.ones_like(x)
-    for i in range(len(x)):
-        ar = max((r[i] / Rt) ** 2, 1.0)
-        try:
-            M[i] = float(gas.mach_from_area_ratio(ar, branch="supersonic"))
-        except Exception:
-            M[i] = 1.0 + (Me - 1.0) * i / max(len(x) - 1, 1)
-    M[-1] = Me
-
-    # Optional: γ along wall if variable-γ gas
-    gamma_wall = None
-    if hasattr(gas, "gamma_at_mach"):
-        gamma_wall = np.array([float(gas.gamma_at_mach(float(m))) for m in M])  # type: ignore[attr-defined]
-
-    contour = Contour(x=x, r=r, theta=th, M=M)
-    meta = {
-        "method": "rao_control_surface_toc",
-        "theta_e_rao_deg": math.degrees(th_e_rao),
-        "theta_n_deg": math.degrees(th_n),
-        "length_m": float(contour.length),
-        "L_ref_m": L_ref,
-        "length_fraction": length_fraction,
-        "area_ratio": eps,
-        "exit_mach": Me,
-        "pa_pc": pa_pc,
-        "pa_pe": pa_pe,
-        "gamma_wall_mean": float(np.mean(gamma_wall)) if gamma_wall is not None else gas.gamma,
-        "reference": "Rao 1958 control-surface TOC (axisym engineering form)",
-    }
-    return contour, meta
+    pe_pc = float(gas.pe_pc_from_mach(exit_mach))
+    pa_pe = (pa_pc / pe_pc) if pe_pc > 0 else 0.0
+    if pa_pc > 0.0:
+        meta["warnings"].append("pa_pc > 0 ignored: contour is the vacuum Rao optimum")  # input note, not a fallback
+    meta.update(
+        theta_e_rao_deg=math.degrees(rao_exit_angle(exit_mach, gas.gamma, pa_pe=pa_pe)),
+        pa_pc=pa_pc,
+        pa_pe=pa_pe,
+        exit_mach=exit_mach,
+    )
+    return contour, meta, net
 
 
 def design_rao_control(spec: DesignSpec, *, length_fraction: float = 0.80, pa_pc: float = 0.0) -> DesignResult:
     """DesignSpec wrapper for control-surface Rao TOC."""
     spec.validate()
     Me = spec.resolved_exit_mach()
-    contour, meta = design_rao_control_surface(
+    contour, meta, net = design_rao_control_surface(
         spec.gas,
         throat_radius=spec.throat_radius,
         exit_mach=Me,
         length_fraction=length_fraction,
         n_chars=max(40, spec.n_characteristics),
         pa_pc=pa_pc,
-        rc_over_rt=spec.throat_rc_over_rt,
     )
     metrics = compute_metrics(
         contour, spec.gas, throat_radius=spec.throat_radius, exit_mach_design=Me
@@ -205,6 +108,6 @@ def design_rao_control(spec: DesignSpec, *, length_fraction: float = 0.80, pa_pc
         exit_mach_design=Me,
         contour=contour,
         metrics=metrics,
-        net=None,
+        net=net,
         meta={**meta, "designer": "rao_control_surface"},
     )

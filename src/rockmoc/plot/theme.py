@@ -1,7 +1,13 @@
-"""Dark-theme styling for rockmoc figures (publication-oriented)."""
+"""Styling for rockmoc figures: dark (screen) and light (publication) themes.
+
+Public plot functions are wrapped with :func:`themed`: styling is applied
+inside ``matplotlib.rc_context`` so the caller's global rcParams are left
+untouched, and each accepts ``theme="dark" | "light"``.
+"""
 
 from __future__ import annotations
 
+import functools
 from typing import Any
 
 # Palette — refined dark aerospace (high contrast on OLED / projectors)
@@ -30,11 +36,41 @@ COLORS = {
     "spine": "#3d4a5c",
 }
 
+DARK = dict(COLORS)
+
+# Light / publication palette (print-safe, colour-blind friendly hues)
+LIGHT = {
+    "bg": "#ffffff",
+    "panel": "#ffffff",
+    "panel2": "#f6f8fa",
+    "grid": "#d0d7de",
+    "grid_minor": "#eaeef2",
+    "text": "#1f2328",
+    "muted": "#57606a",
+    "wall": "#0550ae",
+    "wall_fill": "#0550ae18",
+    "c_plus": "#1a7f37",
+    "c_minus": "#cf222e",
+    "axis": "#8250df",
+    "fan": "#bc4c00",
+    "accent": "#0969da",
+    "warn": "#9a6700",
+    "good": "#1a7f37",
+    "line2": "#0969da",
+    "line3": "#cf222e",
+    "line4": "#8250df",
+    "line5": "#116329",
+    "annotation_bg": "#ffffffe6",
+    "spine": "#8c959f",
+}
+
+THEMES = {"dark": DARK, "light": LIGHT}
+
 
 def require_matplotlib():
     try:
-        import matplotlib.pyplot as plt
         import matplotlib as mpl
+        import matplotlib.pyplot as plt
     except ImportError as exc:
         raise ImportError(
             "matplotlib is required for plotting; install with: pip install rockmoc[plot]"
@@ -43,7 +79,11 @@ def require_matplotlib():
 
 
 def apply_dark_theme(plt: Any = None, mpl: Any = None) -> None:
-    """Apply a consistent dark theme globally for the session."""
+    """Apply the active palette (dark unless inside a light ``themed`` call) to rcParams.
+
+    Called directly this changes the global rcParams for the session; plot
+    functions call it inside ``rc_context`` via :func:`themed`.
+    """
     if plt is None or mpl is None:
         plt, mpl = require_matplotlib()
     mpl.rcParams.update(
@@ -208,14 +248,46 @@ def finalize_figure(fig: Any) -> None:
 
 
 def maybe_save(fig: Any, path: str | None, *, dpi: int = 200) -> str | None:
+    """Save ``fig``. No suffix → SVG (vector, LaTeX/Inkscape friendly).
+
+    ``.svg`` / ``.pdf`` / ``.eps`` are written as vectors (dpi only affects
+    embedded rasters such as filled contours); other suffixes as rasters.
+    """
     if path is None:
         return None
     from pathlib import Path
 
+    from rockmoc._version import __version__
+
     p = Path(path)
+    if not p.suffix:
+        p = p.with_suffix(".svg")
     p.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(p, dpi=dpi, bbox_inches="tight", facecolor=COLORS["bg"], edgecolor=COLORS["bg"])
+    meta = {"Creator": f"rockmoc {__version__}"} if p.suffix.lower() in (".svg", ".pdf") else None
+    fig.savefig(p, dpi=dpi, bbox_inches="tight", facecolor=COLORS["bg"], edgecolor=COLORS["bg"],
+                metadata=meta)
     return str(p)
+
+
+def themed(fn: Any) -> Any:
+    """Decorator: run a plot function with ``theme`` palette inside ``rc_context``."""
+
+    @functools.wraps(fn)
+    def wrapper(*args: Any, theme: str = "dark", **kwargs: Any) -> Any:
+        if theme not in THEMES:
+            raise ValueError(f"theme must be one of {sorted(THEMES)}")
+        plt, mpl = require_matplotlib()
+        saved = dict(COLORS)
+        COLORS.update(THEMES[theme])
+        try:
+            with mpl.rc_context():
+                apply_dark_theme(plt, mpl)
+                return fn(*args, **kwargs)
+        finally:
+            COLORS.clear()
+            COLORS.update(saved)
+
+    return wrapper
 
 
 def maybe_show(fig: Any, show: bool) -> None:

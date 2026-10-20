@@ -5,7 +5,6 @@ from __future__ import annotations
 import math
 
 import numpy as np
-import pytest
 
 from rockmoc.designers import DesignSpec, design_mln
 from rockmoc.moc.axisym_hf import design_axisym_mln_hf
@@ -127,7 +126,11 @@ def test_field_cf_reasonable():
     assert field.Cf_vac > 1.2
     assert field.Cf_vac < 2.2
     assert field.mass_flow > 0.0
-    assert field.method == "contour_exit_station"
+    assert field.method == "moc_exit_plane"  # integrated on the MOC net's exit plane
+    cf_1d = gas.thrust_coefficient(
+        float(gas.pe_pc_from_mach(3.0)), 0.0, area_ratio=float(gas.area_ratio(3.0))
+    )
+    assert abs(field.Cf_vac / cf_1d - 1.0) < 1e-3  # MLN exit is uniform
 
 
 def test_area_ratio_matches_1d():

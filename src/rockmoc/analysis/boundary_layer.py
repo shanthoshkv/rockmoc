@@ -128,7 +128,6 @@ def correct_wall_bl(
     # Momentum thickness θ
     if turbulent:
         # Compressible 1/7-power: θ/x ≈ 0.036 Re_x^{-1/5} * (T_ref/T_e) factors
-        cf = 0.0592 * Re_ref ** (-0.2)
         # von Karman: dθ/dx + … ≈ cf/2; integrate approximately θ ≈ 0.036 x Re^{-1/5}
         theta = 0.036 * s * Re_ref ** (-0.2)
         # Shape factor H = δ*/θ ~ 1.3–1.4 incompressible; compressibility increases H

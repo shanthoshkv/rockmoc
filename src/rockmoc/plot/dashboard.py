@@ -11,8 +11,10 @@ from rockmoc.plot.performance_plots import (
     plot_nozzle_contour,
     plot_wall_profiles,
 )
+from rockmoc.plot.theme import themed
 
 
+@themed
 def display_design_result(
     result: DesignResult,
     *,
@@ -90,6 +92,7 @@ def display_design_result(
     return figs
 
 
+@themed
 def display_production_result(
     prod: Any,
     *,

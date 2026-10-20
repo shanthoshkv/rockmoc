@@ -7,7 +7,6 @@ nodes, and the nozzle contour are layered for textbook-style MOC figures.
 
 from __future__ import annotations
 
-import math
 from typing import Any
 
 import numpy as np
@@ -23,20 +22,26 @@ from rockmoc.plot.theme import (
     maybe_show,
     require_matplotlib,
     style_axes,
+    style_colorbar,
+    themed,
 )
 
 
-def _structured_rows(net: CharNet) -> list[list[FlowPoint]]:
-    """Prefer net.interior rows sorted by radius (axis → wall)."""
-    if not net.interior:
-        return []
-    rows = []
-    for row in net.interior:
-        pts = [p for p in row if p is not None]
-        if len(pts) >= 2:
-            pts = sorted(pts, key=lambda p: (p.r, p.x))
-            rows.append(pts)
-    return rows
+def _draw_lines(ax: Any, lines: list[list[FlowPoint]], *, color: str, label: str,
+                mirror: bool, alpha: float, max_lines: int) -> None:
+    lines = [ln for ln in lines if len(ln) >= 2]
+    if not lines:
+        return
+    step = max(1, len(lines) // max_lines)
+    keep = lines[::step]
+    if lines[-1] is not keep[-1]:
+        keep.append(lines[-1])
+    for i, ln in enumerate(keep):
+        xs = [p.x for p in ln]
+        rs = [p.r for p in ln]
+        ax.plot(xs, rs, color=color, lw=0.9, alpha=alpha, label=label if i == 0 else None, zorder=3)
+        if mirror:
+            ax.plot(xs, [-r for r in rs], color=color, lw=0.6, alpha=alpha * 0.35, zorder=2)
 
 
 def _plot_c_families(
@@ -45,96 +50,69 @@ def _plot_c_families(
     *,
     mirror: bool = True,
     alpha: float = 0.85,
-    max_lines: int = 80,
+    max_lines: int = 60,
 ) -> None:
-    """Draw C− (within row) and C+ (across rows) from structured kernel."""
-    rows = _structured_rows(net)
+    """C+ family = ``net.interior`` rows; C− family = ``net.c_minus`` polylines."""
+    _draw_lines(ax, net.interior, color=COLORS["c_plus"], label="C+ characteristics",
+                mirror=mirror, alpha=alpha, max_lines=max_lines)
+    _draw_lines(ax, net.c_minus, color=COLORS["c_minus"], label="C− characteristics",
+                mirror=mirror, alpha=alpha, max_lines=max_lines)
+    if not net.interior and not net.c_minus and net.points:
+        ax.plot([p.x for p in net.points], [p.r for p in net.points], ".", ms=2.5,
+                color=COLORS["accent"], alpha=0.4, label="MOC nodes", zorder=3)
 
-    if rows:
-        # Subsample dense meshes for readability
-        step = max(1, len(rows) // max_lines)
-        # C− family: within each row (axis → wall) — left-running characteristics
-        labeled_m = False
-        for i, row in enumerate(rows):
-            if i % step != 0 and i != len(rows) - 1:
-                continue
-            xs = [p.x for p in row]
-            rs = [p.r for p in row]
-            lab = "C− family" if not labeled_m else None
-            ax.plot(
-                xs, rs,
-                color=COLORS["c_minus"],
-                lw=1.05,
-                alpha=alpha,
-                label=lab,
-                zorder=3,
-            )
-            if mirror:
-                ax.plot(
-                    xs, [-r for r in rs],
-                    color=COLORS["c_minus"],
-                    lw=0.75,
-                    alpha=alpha * 0.35,
-                    zorder=2,
-                )
-            labeled_m = True
 
-        # C+ family: connect equal index across rows (right-running)
-        max_j = max(len(r) for r in rows)
-        step_j = max(1, max_j // max_lines)
-        labeled_p = False
-        for j in range(0, max_j, step_j):
-            xs, rs = [], []
-            for row in rows:
-                if j < len(row):
-                    xs.append(row[j].x)
-                    rs.append(row[j].r)
-            if len(xs) < 2:
-                continue
-            lab = "C+ family" if not labeled_p else None
-            ax.plot(
-                xs, rs,
-                color=COLORS["c_plus"],
-                lw=1.05,
-                alpha=alpha,
-                label=lab,
-                zorder=3,
-            )
-            if mirror:
-                ax.plot(
-                    xs, [-r for r in rs],
-                    color=COLORS["c_plus"],
-                    lw=0.75,
-                    alpha=alpha * 0.35,
-                    zorder=2,
-                )
-            labeled_p = True
+def _plot_mach_field(ax: Any, fig: Any, net: CharNet, contour: Contour, *, mirror: bool) -> None:
+    """Filled Mach contours from the net nodes (Delaunay), masked outside the wall."""
+    import matplotlib.tri as mtri
+
+    pts = list({id(p): p for p in [*net.points, *net.wall, *net.axis]}.values())
+    if len(pts) < 10:
         return
-
-    # Fallback: scatter + Riemann bins
-    if not net.points:
-        return
-    pts = net.points
-    ax.plot(
-        [p.x for p in pts],
-        [p.r for p in pts],
-        ".",
-        ms=2.5,
-        color=COLORS["accent"],
-        alpha=0.4,
-        label="MOC nodes",
-        zorder=3,
-    )
+    x = np.array([p.x for p in pts])
+    r = np.array([p.r for p in pts])
+    M = np.array([p.M for p in pts])
+    tri = mtri.Triangulation(x, r)
+    xc = x[tri.triangles].mean(axis=1)
+    rc = r[tri.triangles].mean(axis=1)
+    r_wall = np.interp(xc, contour.x, contour.r, left=np.nan, right=np.nan)
+    scale = float(contour.r[-1]) / max(net.wall[-1].r, 1e-12) if net.wall else 1.0
+    tri.set_mask(~(rc * scale <= r_wall * 1.001))
+    levels = np.linspace(float(M.min()), float(M.max()), 24)
+    cf = ax.tricontourf(tri, M, levels=levels, cmap="turbo", alpha=0.55, zorder=1)
     if mirror:
-        ax.plot(
-            [p.x for p in pts],
-            [-p.r for p in pts],
-            ".",
-            ms=2.0,
-            color=COLORS["accent"],
-            alpha=0.15,
-            zorder=2,
-        )
+        tri_m = mtri.Triangulation(x, -r, tri.triangles, mask=tri.mask)
+        ax.tricontourf(tri_m, M, levels=levels, cmap="turbo", alpha=0.55, zorder=1)
+    cbar = fig.colorbar(cf, ax=ax, fraction=0.035, pad=0.02)
+    style_colorbar(cbar, "Mach number")
+
+
+def _plot_regions(ax: Any, net: CharNet, *, mirror: bool) -> None:
+    """Shade the uniform-exit region (axis point E → lip → exit plane) when present."""
+    if not net.axis or not net.wall or abs(net.wall[-1].theta) > 1e-6:
+        return
+    E, lip = net.axis[-1], net.wall[-1]
+    if lip.x <= E.x:
+        return
+    for sgn in ((1, -1) if mirror else (1,)):
+        ax.fill([E.x, lip.x, lip.x], [0.0, sgn * lip.r, 0.0], color=COLORS["good"], alpha=0.10,
+                zorder=1, label="Uniform exit region" if sgn == 1 else None)
+
+
+def _plot_wall_mach(ax: Any, contour: Contour, *, mirror: bool, lw: float = 3.2) -> None:
+    """Wall drawn as a LineCollection coloured by local wall Mach."""
+    from matplotlib.collections import LineCollection
+
+    if contour.M is None:
+        return
+    pts = np.column_stack([contour.x, contour.r])
+    segs = np.stack([pts[:-1], pts[1:]], axis=1)
+    for sgn in ((1, -1) if mirror else (1,)):
+        s_ = segs.copy()
+        s_[:, :, 1] *= sgn
+        lc = LineCollection(s_, cmap="turbo", linewidths=lw, zorder=7)
+        lc.set_array(0.5 * (np.asarray(contour.M)[:-1] + np.asarray(contour.M)[1:]))
+        ax.add_collection(lc)
 
 
 def _plot_fan_rays(
@@ -215,6 +193,7 @@ def _plot_wall_nodes(ax: Any, wall: list[FlowPoint], *, mirror: bool = True) -> 
         ax.plot(xs, [-r for r in rs], "o", ms=2.2, color=COLORS["wall"], alpha=0.35, zorder=5)
 
 
+@themed
 def plot_moc_field(
     contour: Contour,
     net: CharNet | None = None,
@@ -226,8 +205,11 @@ def plot_moc_field(
     figsize: tuple[float, float] = (11, 6.5),
     annotate: dict | None = None,
     show_canceling: bool = True,
+    mach_field: bool = True,
+    wall_mach: bool = True,
+    shade_regions: bool = True,
 ) -> Any:
-    """Dark-themed MOC plot: wall, axis, full C+/C− mesh, fan rays.
+    """MOC plot: Mach field, C+/C− characteristics, wall coloured by Mach, regions.
 
     Parameters
     ----------
@@ -246,8 +228,13 @@ def plot_moc_field(
 
     # Characteristics under the wall
     if net is not None:
+        if mach_field:
+            _plot_mach_field(ax, fig, net, contour, mirror=mirror)
+        if shade_regions:
+            _plot_regions(ax, net, mirror=mirror)
         _plot_c_families(ax, net, mirror=mirror)
-        _plot_fan_rays(ax, net, Rt=Rt, mirror=mirror)
+        if net.fan:  # sharp-corner nets only
+            _plot_fan_rays(ax, net, Rt=Rt, mirror=mirror)
 
         if net.axis:
             ax.plot(
@@ -266,9 +253,13 @@ def plot_moc_field(
             _plot_wall_nodes(ax, net.wall, mirror=mirror)
 
     # Nozzle wall (upper + mirror)
-    ax.plot(contour.x, contour.r, color=COLORS["wall"], lw=2.9, label="Nozzle wall", zorder=7)
-    if mirror:
-        ax.plot(contour.x, -contour.r, color=COLORS["wall"], lw=2.9, zorder=7)
+    if wall_mach and contour.M is not None:
+        _plot_wall_mach(ax, contour, mirror=mirror)
+        ax.plot([], [], color=COLORS["wall"], lw=2.9, label="Nozzle wall (coloured by M)")
+    else:
+        ax.plot(contour.x, contour.r, color=COLORS["wall"], lw=2.9, label="Nozzle wall", zorder=7)
+        if mirror:
+            ax.plot(contour.x, -contour.r, color=COLORS["wall"], lw=2.9, zorder=7)
         ax.fill_between(
             contour.x,
             contour.r,
@@ -290,7 +281,7 @@ def plot_moc_field(
         ax.plot([contour.x[0]], [-contour.r[0]], "s", color=COLORS["warn"], ms=7, zorder=8)
         ax.plot([contour.x[-1]], [-contour.r[-1]], "D", color=COLORS["good"], ms=7, zorder=8)
 
-    ax.set_aspect("equal", adjustable="datalim")
+    ax.set_aspect("equal", adjustable="box")
     rmax = float(np.max(np.abs(contour.r))) * 1.18 + 1e-6
     xmin = x0
     xmax = x1
@@ -305,7 +296,8 @@ def plot_moc_field(
         lines = [f"{k}: {v}" for k, v in annotate.items()]
         annotation_box(ax, "\n".join(lines), fontsize=8.5)
 
-    ax.legend(loc="upper right", fontsize=8, ncol=2, frameon=True, fancybox=True)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.13), fontsize=8, ncol=4,
+              frameon=True, fancybox=True)
     finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)

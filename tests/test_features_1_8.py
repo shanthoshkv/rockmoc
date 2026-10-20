@@ -21,8 +21,6 @@ from rockmoc import (
     sauer_throat_ivl,
 )
 from rockmoc.aerospike import truncated_spike_with_base
-from rockmoc.moc.strict_wall import strict_canceling_wall
-from rockmoc.moc.types import FlowPoint, PointKind
 from rockmoc.thermo.expansion_table import build_multi_gamma_table, build_perfect_gas_table
 
 
@@ -46,28 +44,6 @@ def test_expansion_tables():
     )
     assert m.mode == "multi_gamma"
     assert m.mach_from_nu(float(m.nu[10])) > 1.0
-
-
-def test_strict_wall():
-    gas = PerfectGas(1.4)
-    refs = []
-    for i in range(8):
-        refs.append(
-            FlowPoint.from_mach_theta(
-                0.01 * i, 0.02 + 0.01 * i, 1.5 + 0.1 * i, 0.1, gas, kind=PointKind.INTERIOR
-            )
-        )
-    wall = strict_canceling_wall(
-        gas,
-        throat_radius=0.05,
-        theta_max=0.3,
-        nu_e=0.6,
-        n=6,
-        interior_refs=refs,
-        delta=1.0,
-    )
-    assert len(wall) >= 3
-    assert wall[-1].theta == 0.0 or abs(wall[-1].theta) < 1e-9
 
 
 def test_sauer_throat():

@@ -10,7 +10,6 @@ import numpy as np
 from rockmoc.geometry.contour import Contour
 from rockmoc.thermo.perfect_gas import PerfectGas
 
-
 G0 = 9.80665
 
 

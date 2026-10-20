@@ -145,7 +145,7 @@ def generate_lab_report(
         f"**Generated (UTC):** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}",
         f"**Student:** {student_name or '_your name_'}",
         f"**Course:** {course or '_course / section_'}",
-        f"**Tool:** rockmoc",
+        "**Tool:** rockmoc",
         "",
         "## 1. Objective",
         "",

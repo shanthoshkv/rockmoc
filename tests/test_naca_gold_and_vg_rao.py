@@ -6,7 +6,6 @@ import json
 import math
 from pathlib import Path
 
-import numpy as np
 import pytest
 
 from rockmoc import (
@@ -84,11 +83,12 @@ def test_rao_control_surface():
         length_fraction=0.8,
     )
     assert r.kind == "rao"
-    assert r.meta["method"] == "rao_control_surface_toc"
+    assert r.meta["method"] == "rao_moc_toc"
     assert r.metrics.length > 0
     assert r.meta["theta_n_deg"] > r.meta["theta_e_rao_deg"]
 
 
+@pytest.mark.slow
 def test_variable_gamma_rao_control():
     tab = build_multi_gamma_table(
         gamma_c=1.25, gamma_t=1.22, gamma_e=1.18, R=350.0, M_max=5.0, n=80

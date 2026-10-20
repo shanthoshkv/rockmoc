@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import Enum, auto
 
 import numpy as np
@@ -23,7 +23,7 @@ class PointKind(Enum):
     EXIT = auto()
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, frozen=True)
 class FlowPoint:
     """State and position of a single characteristic-mesh node.
 
@@ -43,19 +43,7 @@ class FlowPoint:
     gamma_local: float = float("nan")
 
     def copy(self, **kwargs: object) -> FlowPoint:
-        data = {
-            "x": self.x,
-            "r": self.r,
-            "theta": self.theta,
-            "nu": self.nu,
-            "M": self.M,
-            "mu": self.mu,
-            "kind": self.kind,
-            "id": self.id,
-            "gamma_local": self.gamma_local,
-        }
-        data.update(kwargs)
-        return FlowPoint(**data)  # type: ignore[arg-type]
+        return replace(self, **kwargs)  # type: ignore[arg-type]
 
     @classmethod
     def from_mach_theta(
@@ -73,7 +61,7 @@ class FlowPoint:
             raise ThermoError(f"FlowPoint requires M ≥ 1; got {M}")
         nu = float(gas.prandtl_meyer(M))
         mu = float(gas.mach_angle(M))
-        g_loc = float(getattr(gas, "gamma_at_mach", lambda _m: gas.gamma)(M))
+        g_loc = float(gas.gamma_at_mach(M))
         return cls(
             x=x, r=r, theta=theta, nu=nu, M=M, mu=mu, kind=kind, id=id, gamma_local=g_loc
         )
@@ -92,7 +80,7 @@ class FlowPoint:
     ) -> FlowPoint:
         M = float(gas.mach_from_prandtl_meyer(nu))
         mu = float(gas.mach_angle(M))
-        g_loc = float(getattr(gas, "gamma_at_mach", lambda _m: gas.gamma)(M))
+        g_loc = float(gas.gamma_at_mach(M))
         return cls(
             x=x, r=r, theta=theta, nu=nu, M=M, mu=mu, kind=kind, id=id, gamma_local=g_loc
         )
@@ -108,9 +96,11 @@ class CharNet:
     axis: list[FlowPoint] = field(default_factory=list)
     wall: list[FlowPoint] = field(default_factory=list)
     fan: list[FlowPoint] = field(default_factory=list)
+    # C− characteristic polylines (upstream → downstream); ``interior`` rows are C+
+    c_minus: list[list[FlowPoint]] = field(default_factory=list)
 
     def add(self, p: FlowPoint) -> FlowPoint:
-        p.id = len(self.points)
+        object.__setattr__(p, "id", len(self.points))  # bookkeeping only; FlowPoint is frozen
         self.points.append(p)
         return p
 

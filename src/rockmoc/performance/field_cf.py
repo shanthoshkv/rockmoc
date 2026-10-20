@@ -13,7 +13,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from rockmoc.geometry.contour import Contour
-from rockmoc.moc.types import CharNet, FlowPoint
+from rockmoc.moc.types import CharNet
 from rockmoc.performance.integrated import IntegratedPerformance, divergence_efficiency
 from rockmoc.thermo.perfect_gas import PerfectGas
 
@@ -56,20 +56,32 @@ class FieldCfResult:
         }
 
 
-def _collect_exit_ray(net: CharNet, *, x_exit: float, r_exit: float) -> list[FlowPoint]:
-    """Exit-plane candidates: wall exit + points near (x_exit, r ≤ r_exit).
+def _exit_ray_from_net(net: CharNet, *, n: int = 64) -> tuple[np.ndarray, np.ndarray, np.ndarray] | None:
+    """(r, M, θ) on the exit plane x = x_lip, interpolated from the characteristic net.
 
-    Kernel-only nets (expansion fan near the throat) are rejected — those
-    points are *not* an exit plane.
+    Linear interpolation on the Delaunay triangulation of all net points
+    (axis, interior, transition, wall); the lip is the net's last wall node.
+    Returns None for nets that do not reach the exit (e.g. kernel-only).
     """
-    if net.wall and len(net.wall) >= 2:
-        # Prefer last few wall stations only if they sit near design exit
-        w_end = net.wall[-1]
-        if abs(w_end.x - x_exit) < 0.25 * max(abs(x_exit), 1e-9) or w_end.r > 0.7 * r_exit:
-            # Build a synthetic radial ray from wall exit state is better than
-            # mixing throat kernel points; return empty → contour station.
-            return []
-    return []
+    from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
+
+    if not net.wall or len(net.points) < 10:
+        return None
+    lip = net.wall[-1]
+    pts = list({id(p): p for p in [*net.points, *net.wall, *net.axis]}.values())
+    xy = np.array([(p.x, p.r) for p in pts])
+    if xy[:, 0].max() < lip.x * (1.0 - 1e-6) or not np.any(np.abs(xy[:, 0] - lip.x) < 0.05 * lip.r):
+        return None
+    vals = np.array([(p.M, p.theta) for p in pts])
+    r = np.linspace(0.0, lip.r, n)
+    q = np.column_stack([np.full(n, lip.x), r])
+    out = LinearNDInterpolator(xy, vals)(q)
+    bad = np.isnan(out[:, 0])
+    if bad.any():
+        out[bad] = NearestNDInterpolator(xy, vals)(q[bad])
+    out[-1] = (lip.M, lip.theta)
+    out[0, 1] = 0.0
+    return r, out[:, 0], out[:, 1]
 
 
 def _exit_station_from_contour(
@@ -124,22 +136,17 @@ def field_integrated_cf(
     g = gas.gamma
     At = math.pi * Rt**2
 
-    ray = (
-        _collect_exit_ray(net, x_exit=float(contour.x[-1]), r_exit=float(contour.r[-1]))
-        if net is not None
-        else []
-    )
+    ray = _exit_ray_from_net(net) if net is not None else None
+    if net is not None and ray is None:
+        from rockmoc.exceptions import warn_fallback
 
-    if len(ray) >= 4:
-        method = "moc_exit_ray"
-        r = np.array([p.r for p in ray], dtype=np.float64)
-        M = np.array([p.M for p in ray], dtype=np.float64)
-        th = np.array([p.theta for p in ray], dtype=np.float64)
-        # Ensure axis and wall endpoints
-        if r[0] > 1e-9:
-            r = np.concatenate([[0.0], r])
-            M = np.concatenate([[M[0]], M])
-            th = np.concatenate([[0.0], th])
+        warn_fallback("MOC net does not reach the exit plane; synthetic exit station used for Cf")
+    if ray is not None:
+        method = "moc_exit_plane"
+        r, M, th = ray
+        # The net may be at the un-rescaled (mass-consistent) size; scale the
+        # exit plane to this contour's exit radius so At / Ae stay consistent.
+        r = r * (float(contour.r[-1]) / float(r[-1]))
     else:
         r, M, th, method = _exit_station_from_contour(
             contour, exit_mach_design=exit_mach_design
@@ -168,7 +175,8 @@ def field_integrated_cf(
     m_dot_1d = pc * At / cstar if cstar > 0 else m_dot
     # Prefer consistent Cf from force / (pc At); mass for Isp from integral
     # renormalized to throat continuity when ray m_dot is off (sparse state)
-    if m_dot > 1e-12 and abs(m_dot - m_dot_1d) / max(m_dot_1d, 1e-12) > 0.15:
+    mass_error = (m_dot - m_dot_1d) / max(m_dot_1d, 1e-12)
+    if method != "moc_exit_plane" and m_dot > 1e-12 and abs(mass_error) > 0.15:
         # Scale density level so m_dot matches 1-D throat (same M,θ shape)
         scale_m = m_dot_1d / m_dot
         m_dot = m_dot_1d
@@ -181,8 +189,14 @@ def field_integrated_cf(
         F_vac = F_abs
         F = F_abs - pa * Ae
 
-    Cf_vac = F_vac / (pc * At) if pc * At > 0 else float("nan")
-    Cf_amb = F / (pc * At) if pc * At > 0 else float("nan")
+    if method == "moc_exit_plane" and m_dot > 1e-12:
+        # C_F = F / (ṁ c*): uses the field's own mass flow, so the result is
+        # independent of the net's absolute scale (discharge coefficient, etc.)
+        Cf_vac = F_vac / (m_dot * cstar)
+        Cf_amb = F / (m_dot * cstar)
+    else:
+        Cf_vac = F_vac / (pc * At) if pc * At > 0 else float("nan")
+        Cf_amb = F / (pc * At) if pc * At > 0 else float("nan")
 
     if m_dot > 1e-12:
         Isp_vac = F_vac / (m_dot * G0)
@@ -214,6 +228,7 @@ def field_integrated_cf(
             "cstar_m_s": float(cstar),
             "m_dot_1d_kg_s": float(m_dot_1d),
             "n_ray_points": int(len(r)),
+            "mass_error_vs_1d": float(mass_error),
             "exit_mach_design": exit_mach_design,
             "eta_div_contour": divergence_efficiency(contour),
         },

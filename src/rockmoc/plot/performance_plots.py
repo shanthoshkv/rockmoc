@@ -17,9 +17,11 @@ from rockmoc.plot.theme import (
     require_matplotlib,
     style_axes,
     style_colorbar,
+    themed,
 )
 
 
+@themed
 def plot_nozzle_contour(
     contour: Contour,
     *,
@@ -72,6 +74,7 @@ def plot_nozzle_contour(
     return fig
 
 
+@themed
 def plot_wall_profiles(
     contour: Contour,
     *,
@@ -106,6 +109,7 @@ def plot_wall_profiles(
     return fig
 
 
+@themed
 def plot_performance_vs_altitude(
     rows: Sequence[dict],
     *,
@@ -144,6 +148,7 @@ def plot_performance_vs_altitude(
     return fig
 
 
+@themed
 def plot_of_ratio_sweep(
     rows: Sequence[dict],
     *,
@@ -183,6 +188,7 @@ def plot_of_ratio_sweep(
     return fig
 
 
+@themed
 def plot_gamma_sweep(
     rows: Sequence[dict],
     *,
@@ -205,6 +211,7 @@ def plot_gamma_sweep(
     return fig
 
 
+@themed
 def plot_area_ratio_sweep(
     rows: Sequence[dict],
     *,
@@ -246,42 +253,97 @@ def plot_area_ratio_sweep(
     return fig
 
 
+@themed
 def plot_contour_overlay(
     contours: dict[str, Contour],
     *,
     title: str = "Nozzle contour overlay",
+    normalize: bool = True,
+    angle_inset: bool = True,
     show: bool = True,
     save_path: str | None = None,
-    figsize: tuple[float, float] = (10, 5.5),
+    figsize: tuple[float, float] = (11, 4.6),
 ) -> Any:
-    """Overlay multiple wall contours (e.g. MLN vs ideal vs TIC vs Rao)."""
+    """Overlay wall contours (MLN / ideal / TIC / Rao / cone …).
+
+    ``normalize`` plots x/Rt, r/Rt (each contour's own Rt = r[0]);
+    ``angle_inset`` adds wall angle θ(x) in an inset.
+    """
     plt, mpl = require_matplotlib()
-    apply_dark_theme(plt, mpl)
     fig, ax = plt.subplots(figsize=figsize)
-    style_axes(ax, title=title, xlabel="x [m]", ylabel="r [m]")
-    palette = [
-        COLORS["wall"],
-        COLORS["c_plus"],
-        COLORS["c_minus"],
-        COLORS["axis"],
-        COLORS["fan"],
-        COLORS["line2"],
-    ]
+    unit = "/ $R_t$" if normalize else "[m]"
+    style_axes(ax, title=title, xlabel=f"x {unit}", ylabel=f"r {unit}")
+    palette = [COLORS["wall"], COLORS["c_plus"], COLORS["c_minus"], COLORS["axis"],
+               COLORS["fan"], COLORS["line2"], COLORS["line5"]]
+    ins = None
+    if angle_inset:
+        ins = ax.inset_axes([0.58, 0.08, 0.38, 0.38])
+        style_axes(ins)
+        ins.set_xlabel(f"x {unit}", fontsize=8)
+        ins.set_ylabel("θ [deg]", fontsize=8)
+        ins.tick_params(labelsize=7)
     rmax = 0.0
     for i, (name, c) in enumerate(contours.items()):
         color = palette[i % len(palette)]
-        ax.plot(c.x, c.r, color=color, lw=2.2, label=name)
-        rmax = max(rmax, float(np.max(np.abs(c.r))))
+        s_ = float(c.r[0]) if normalize else 1.0
+        x, r = np.asarray(c.x) / s_, np.asarray(c.r) / s_
+        ax.plot(x, r, color=color, lw=2.2, label=name)
+        rmax = max(rmax, float(np.max(np.abs(r))))
+        if ins is not None:
+            th = c.theta if c.theta is not None else np.arctan2(np.gradient(c.r), np.gradient(c.x))
+            ins.plot(x, np.degrees(th), color=color, lw=1.4)
     ax.axhline(0, color=COLORS["muted"], lw=0.9, alpha=0.8)
-    ax.set_aspect("equal", adjustable="datalim")
+    ax.set_aspect("equal", adjustable="box")
     ax.set_ylim(-0.05 * rmax, rmax * 1.15 + 1e-9)
-    ax.legend(loc="best", fontsize=9)
+    ax.legend(loc="upper left", fontsize=9)
     finalize_figure(fig)
     maybe_save(fig, save_path)
     maybe_show(fig, show)
     return fig
 
 
+@themed
+def plot_wall_properties(
+    contour: Contour,
+    gas: Any,
+    *,
+    pc: float | None = None,
+    Tc: float | None = None,
+    title: str = "Wall properties",
+    show: bool = True,
+    save_path: str | None = None,
+    figsize: tuple[float, float] = (11, 7.5),
+) -> Any:
+    """M, p/p₀ and T/T₀ along the wall (absolute p, T if ``pc`` / ``Tc`` given).
+
+    Isentropic from the wall Mach — the inputs for heat-flux / regen sizing.
+    """
+    if contour.M is None:
+        raise ValueError("contour has no wall Mach distribution")
+    plt, mpl = require_matplotlib()
+    M = np.asarray(contour.M, dtype=float)
+    p = np.array([1.0 / float(gas.pressure_ratio(float(m))) for m in M])
+    T = np.array([1.0 / float(gas.temperature_ratio(float(m))) for m in M])
+    fig, axes = plt.subplots(3, 1, figsize=figsize, sharex=True)
+    fig.suptitle(title, color=COLORS["text"], fontweight="semibold")
+    rows = (
+        (M, "M [-]", COLORS["c_plus"]),
+        (p * pc if pc else p, "p [Pa]" if pc else "p / p$_0$", COLORS["c_minus"]),
+        (T * Tc if Tc else T, "T [K]" if Tc else "T / T$_0$", COLORS["fan"]),
+    )
+    for ax, (y, lab, col) in zip(axes, rows):
+        style_axes(ax, ylabel=lab)
+        ax.plot(contour.x, y, color=col)
+    if not pc:
+        axes[1].set_yscale("log")
+    axes[-1].set_xlabel("x [m]")
+    finalize_figure(fig)
+    maybe_save(fig, save_path)
+    maybe_show(fig, show)
+    return fig
+
+
+@themed
 def plot_design_comparison(
     rows: Sequence[dict],
     *,
@@ -317,6 +379,7 @@ def plot_design_comparison(
     return fig
 
 
+@themed
 def plot_mach_pressure_along_wall(
     contour: Contour,
     gas: Any,
@@ -348,6 +411,7 @@ def plot_mach_pressure_along_wall(
     return fig
 
 
+@themed
 def plot_bl_displacement(
     inviscid: Contour,
     corrected: Contour,
@@ -375,6 +439,7 @@ def plot_bl_displacement(
     return fig
 
 
+@themed
 def plot_aerospike(
     X: np.ndarray,
     R: np.ndarray,

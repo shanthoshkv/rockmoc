@@ -15,7 +15,6 @@ from rockmoc import (
     design_mln,
     example_gas,
     explainer,
-    generate_lab_report,
     list_example_gases,
 )
 from rockmoc.exceptions import DesignError

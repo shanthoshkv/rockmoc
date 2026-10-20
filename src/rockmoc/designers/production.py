@@ -13,8 +13,8 @@ from rockmoc.analysis.boundary_layer import BLCorrectionResult, correct_wall_bl
 from rockmoc.analysis.throat import sauer_throat_ivl
 from rockmoc.analysis.uq import mesh_certificate
 from rockmoc.designers.base import DesignResult, DesignSpec
-from rockmoc.designers.mln import design_mln
 from rockmoc.designers.ideal import design_ideal
+from rockmoc.designers.mln import design_mln
 from rockmoc.designers.rao import design_rao
 from rockmoc.designers.tic import design_tic
 from rockmoc.exceptions import DesignError

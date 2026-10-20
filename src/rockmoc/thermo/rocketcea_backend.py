@@ -139,6 +139,12 @@ class RocketCEAGas:
     def prandtl_meyer(self, M):
         return self.gas.prandtl_meyer(M)
 
+    def prandtl_meyer_max(self):
+        return self.gas.prandtl_meyer_max()
+
+    def gamma_at_mach(self, M):
+        return self.gas.gamma_at_mach(M)
+
     def mach_from_prandtl_meyer(self, nu):
         return self.gas.mach_from_prandtl_meyer(nu)
 

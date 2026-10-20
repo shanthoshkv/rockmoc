@@ -6,15 +6,17 @@ area–Mach, while isentropic p,T ratios use local γ at the evaluation point.
 
 from __future__ import annotations
 
+import math
+from bisect import bisect_right
 from dataclasses import dataclass
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
+from scipy.interpolate import PchipInterpolator
 
 from rockmoc.exceptions import ThermoError
 from rockmoc.thermo.expansion_table import ExpansionTable
 from rockmoc.thermo.perfect_gas import PerfectGas
-from rockmoc.thermo.solve import bracketed_newton
 
 
 @dataclass
@@ -22,6 +24,37 @@ class VariableGammaGas:
     """MOC-facing gas model backed by an :class:`ExpansionTable`."""
 
     table: ExpansionTable
+
+    def __post_init__(self) -> None:
+        # Monotone cubic (PCHIP) interpolants: 3rd-order accurate and shape-
+        # preserving, vs. 1st-order np.interp (matters for ν(M) in MOC).
+        t = self.table
+        self._nu_M = PchipInterpolator(t.M, t.nu, extrapolate=False)
+        self._M_nu = PchipInterpolator(t.nu, t.M, extrapolate=False)
+        self._ar_M = PchipInterpolator(t.M, t.area_ratio, extrapolate=False)
+        self._M_ar = PchipInterpolator(t.area_ratio, t.M, extrapolate=False)
+        # Dense samples of the PCHIP curves for fast scalar lookups (MOC calls
+        # these per point): linear on 4000 nodes, error ~1e-7 relative.
+        Md = np.linspace(t.M[0], t.M[-1], 4000)
+        nud = self._nu_M(Md)
+        ard = self._ar_M(Md)
+        gd = np.interp(Md, t.M, t.gamma_local)
+        self._dense = {k: v.tolist() for k, v in (("M", Md), ("nu", nud), ("ar", ard), ("g", gd))}
+
+    def _lookup(self, xkey: str, ykey: str, x: float) -> float:
+        xs, ys = self._dense[xkey], self._dense[ykey]
+        if x <= xs[0]:
+            return ys[0]
+        if x >= xs[-1]:
+            return ys[-1]
+        i = bisect_right(xs, x) - 1
+        f = (x - xs[i]) / (xs[i + 1] - xs[i])
+        return ys[i] + f * (ys[i + 1] - ys[i])
+
+    @staticmethod
+    def _eval(f: PchipInterpolator, x: ArrayLike, lo: float, hi: float) -> NDArray | float:
+        out = f(np.clip(np.asarray(x, dtype=np.float64), lo, hi))
+        return float(out) if np.ndim(out) == 0 else out
 
     @property
     def gamma(self) -> float:
@@ -33,20 +66,24 @@ class VariableGammaGas:
         return float(self.table.R)
 
     def gamma_at_mach(self, M: float) -> float:
+        if isinstance(M, float):
+            return self._lookup("M", "g", M)
         M = float(np.clip(M, self.table.M[0], self.table.M[-1]))
         return float(np.interp(M, self.table.M, self.table.gamma_local))
 
     def prandtl_meyer(self, M: ArrayLike) -> NDArray | float:
-        arr = np.asarray(M, dtype=np.float64)
-        out = np.interp(arr, self.table.M, self.table.nu)
-        return float(out) if out.ndim == 0 else out
+        if isinstance(M, float):
+            return self._lookup("M", "nu", M)
+        return self._eval(self._nu_M, M, self.table.M[0], self.table.M[-1])
 
     def mach_from_prandtl_meyer(self, nu: ArrayLike) -> NDArray | float:
-        arr = np.asarray(nu, dtype=np.float64)
-        out = np.interp(arr, self.table.nu, self.table.M)
-        return float(out) if np.ndim(out) == 0 else out
+        if isinstance(nu, float):
+            return self._lookup("nu", "M", nu)
+        return self._eval(self._M_nu, nu, self.table.nu[0], self.table.nu[-1])
 
     def mach_angle(self, M: ArrayLike) -> NDArray | float:
+        if isinstance(M, float) and M >= 1.0:
+            return math.asin(1.0 / M)
         arr = np.asarray(M, dtype=np.float64)
         if np.any(arr < 1.0):
             raise ThermoError("Mach angle requires M ≥ 1")
@@ -54,9 +91,9 @@ class VariableGammaGas:
         return float(out) if out.ndim == 0 else out
 
     def area_ratio(self, M: ArrayLike) -> NDArray | float:
-        arr = np.asarray(M, dtype=np.float64)
-        out = np.interp(arr, self.table.M, self.table.area_ratio)
-        return float(out) if out.ndim == 0 else out
+        if isinstance(M, float):
+            return self._lookup("M", "ar", M)
+        return self._eval(self._ar_M, M, self.table.M[0], self.table.M[-1])
 
     def mach_from_area_ratio(
         self, area_ratio: ArrayLike, *, branch: str = "supersonic"
@@ -66,9 +103,7 @@ class VariableGammaGas:
             return PerfectGas(self.gamma, self.R).mach_from_area_ratio(
                 area_ratio, branch=branch
             )
-        ar = np.asarray(area_ratio, dtype=np.float64)
-        out = np.interp(ar, self.table.area_ratio, self.table.M)
-        return float(out) if np.ndim(out) == 0 else out
+        return self._eval(self._M_ar, area_ratio, self.table.area_ratio[0], self.table.area_ratio[-1])
 
     def pressure_ratio(self, M: ArrayLike) -> NDArray | float:
         """p0/p."""

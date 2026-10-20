@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rockmoc"
-version = "0.6.1"
+dynamic = ["version"]
 description = "Industry-oriented Method of Characteristics (MOC) rocket nozzle design in Python — MLN, ideal, TIC, Rao, aerospike, plots, and literature-backed validation"
 readme = "README.md"
 license = "MIT"
@@ -43,22 +43,26 @@ classifiers = [
 dependencies = [
   "numpy>=1.24",
   "scipy>=1.10",
+  "tomli>=2.0; python_version < '3.11'",
 ]
 
 [project.optional-dependencies]
 plot = ["matplotlib>=3.7"]
-cli = ["typer>=0.12"]
+cli = []  # kept for compatibility: the CLI now uses argparse (no dependency)
+fast = ["numba>=0.59"]
+viz = ["plotly>=5.18"]
 cea = ["RocketCEA>=1.2"]
 cantera = ["cantera>=3.0"]
 coolprop = ["CoolProp>=6.4"]
 dev = [
   "pytest>=7.4",
   "pytest-cov>=4.1",
+  "hypothesis>=6.100",
   "ruff>=0.4",
   "build>=1.2",
   "twine>=5.0",
 ]
-all = ["rockmoc[plot,cli,dev,cea,cantera,coolprop]"]
+all = ["rockmoc[plot,fast,viz,dev,cea,cantera,coolprop]"]
 
 [project.scripts]
 rockmoc = "rockmoc.cli:main"
@@ -68,12 +72,13 @@ Homepage = "https://aboutkvs.vercel.app/rockmoc.html"
 Documentation = "https://github.com/shanthoshkv/rockmoc/blob/main/docs/how_to_use.md"
 Repository = "https://github.com/shanthoshkv/rockmoc"
 Issues = "https://github.com/shanthoshkv/rockmoc/issues"
-Changelog = "https://github.com/shanthoshkv/rockmoc/releases"
+Changelog = "https://github.com/shanthoshkv/rockmoc/blob/main/CHANGELOG.md"
 "Project Website" = "https://aboutkvs.vercel.app/rockmoc.html"
 "How to Use" = "https://github.com/shanthoshkv/rockmoc/blob/main/docs/how_to_use.md"
 
-# Version for runtime: src/rockmoc/_version.py (keep in sync with [project].version)
-# Hatchling discovers packages under src/ automatically.
+# Single source of truth for the version: src/rockmoc/_version.py
+[tool.hatch.version]
+path = "src/rockmoc/_version.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -85,6 +90,7 @@ include = [
   "LICENSE",
   "pyproject.toml",
   "PUBLISH.md",
+  "CHANGELOG.md",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -93,6 +99,8 @@ packages = ["src/rockmoc"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+markers = ["slow: long-running validation / convergence tests (run with -m slow)"]
+addopts = "-m 'not slow'"
 
 [tool.ruff]
 line-length = 100

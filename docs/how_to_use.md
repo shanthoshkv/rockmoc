@@ -42,7 +42,7 @@ If you want validation methodology, see [validation_deep.md](validation_deep.md)
 | **OS** | Windows, macOS, or Linux |
 | **Core packages** | NumPy, SciPy (installed automatically) |
 | **Optional plots** | Matplotlib via `rockmoc[plot]` |
-| **Optional CLI** | Typer via `rockmoc[cli]` |
+| **CLI** | built in (`argparse`): `rockmoc design …`, `rockmoc run spec.toml` |
 | **Optional chemistry** | RocketCEA, Cantera, or CoolProp |
 
 You do **not** need CFD, MATLAB, or a GPU.

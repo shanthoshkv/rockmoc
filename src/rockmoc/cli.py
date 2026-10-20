@@ -1,183 +1,78 @@
-"""Command-line interface for rockmoc.
+"""Command-line interface (standard-library ``argparse``; no extra dependency).
 
-Entry point (console script)::
+Examples::
 
-    rockmoc = rockmoc.cli:main
+    rockmoc design --type ideal --Me 3 --gamma 1.2 --Rt 0.05 --export csv,dxf --units mm
+    rockmoc design --type rao --area-ratio 25 --length 0.8 --export openfoam
+    rockmoc run nozzle.toml
+    rockmoc --version
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Optional
 
 from rockmoc._version import __version__
-from rockmoc.designers import DesignSpec, design_ideal, design_mln, design_tic
-from rockmoc.thermo import PerfectGas
-
-try:
-    import typer
-except ImportError:  # pragma: no cover
-    typer = None  # type: ignore
+from rockmoc.spec_io import FORMATS, KINDS, build_design, export_design, load_spec
 
 
-def _run_design(
-    kind: str,
-    gamma: float,
-    R: float,
-    Rt: float,
-    Me: Optional[float],
-    area_ratio: Optional[float],
-    n: int,
-    truncate: float,
-    output: Path,
-    json_meta: Optional[Path],
-) -> None:
-    gas = PerfectGas(gamma=gamma, R=R)
-    spec = DesignSpec(
-        gas=gas,
-        throat_radius=Rt,
-        exit_mach=Me,
-        area_ratio=area_ratio,
-        n_characteristics=n,
-        truncate_fraction=truncate if kind == "tic" else None,
-    )
-    designers = {"mln": design_mln, "ideal": design_ideal, "tic": design_tic}
-    if kind not in designers:
-        raise SystemExit(f"Unknown design kind {kind!r}; choose mln|ideal|tic")
-    result = designers[kind](spec)
-    result.export_csv(str(output))
-    summary = result.summary()
-    print(json.dumps(summary, indent=2))
-    if json_meta is not None:
-        json_meta.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+def _parser() -> argparse.ArgumentParser:
+    ap = argparse.ArgumentParser(prog="rockmoc", description="MOC rocket nozzle design.")
+    ap.add_argument("-V", "--version", action="version", version=f"rockmoc {__version__}")
+    sub = ap.add_subparsers(dest="cmd")
+
+    d = sub.add_parser("design", help="design a nozzle from command-line options")
+    d.add_argument("-t", "--type", choices=KINDS, default="mln")
+    d.add_argument("-g", "--gamma", type=float, default=1.4)
+    d.add_argument("--R", type=float, default=287.05, help="gas constant [J/(kg K)]")
+    d.add_argument("--Rt", type=float, default=0.05, help="throat radius [m]")
+    exp = d.add_mutually_exclusive_group()
+    exp.add_argument("--Me", type=float, help="design exit Mach")
+    exp.add_argument("-e", "--area-ratio", type=float, help="design A_e/A*")
+    d.add_argument("-n", "--n", type=int, default=40, help="number of characteristics")
+    d.add_argument("--rc", type=float, default=1.5, help="throat Rc/Rt (ideal/tic)")
+    d.add_argument("--truncate", type=float, default=0.8, help="TIC length fraction of ideal")
+    d.add_argument("--length", type=float, default=0.8, help="Rao length fraction of 15° cone")
+    d.add_argument("--export", default="csv", help=f"comma list of {','.join(FORMATS)}")
+    d.add_argument("--units", choices=("m", "mm", "in"), default="mm")
+    d.add_argument("-o", "--out-dir", default=".")
+    d.add_argument("--name", default="nozzle")
+
+    r = sub.add_parser("run", help="design from a TOML spec file")
+    r.add_argument("spec", type=Path)
+    return ap
 
 
-def _run_fallback(argv: list[str] | None = None) -> None:
-    """Minimal CLI when typer is not installed."""
-    argv = list(sys.argv[1:] if argv is None else argv)
-    if not argv or argv[0] in {"-h", "--help"}:
-        print(
-            "Usage: rockmoc design --type mln|ideal|tic --Me 2.5 --Rt 0.05 -o wall.csv\n"
-            "Install full CLI: pip install rockmoc[cli]"
-        )
-        return
-    if argv[0] in {"--version", "-V"}:
-        print(f"rockmoc {__version__}")
-        return
-    kind = "mln"
-    gamma = 1.4
-    R = 287.05
-    Rt = 0.05
-    Me: float | None = 2.5
-    area_ratio: float | None = None
-    n = 40
-    truncate = 0.8
-    output = Path("nozzle_wall.csv")
-    json_meta = None
-    args = argv[1:] if argv[0] == "design" else argv
-    i = 0
-    while i < len(args):
-        a = args[i]
-        if a in {"--type", "-t"}:
-            kind = args[i + 1]
-            i += 2
-        elif a in {"--gamma", "-g"}:
-            gamma = float(args[i + 1])
-            i += 2
-        elif a == "--R":
-            R = float(args[i + 1])
-            i += 2
-        elif a == "--Rt":
-            Rt = float(args[i + 1])
-            i += 2
-        elif a == "--Me":
-            Me = float(args[i + 1])
-            area_ratio = None
-            i += 2
-        elif a in {"--area-ratio", "-e"}:
-            area_ratio = float(args[i + 1])
-            Me = None
-            i += 2
-        elif a == "--n":
-            n = int(args[i + 1])
-            i += 2
-        elif a == "--truncate":
-            truncate = float(args[i + 1])
-            i += 2
-        elif a in {"--output", "-o"}:
-            output = Path(args[i + 1])
-            i += 2
-        elif a == "--json":
-            json_meta = Path(args[i + 1])
-            i += 2
-        else:
-            print(f"Unknown arg: {a}", file=sys.stderr)
-            raise SystemExit(2)
-    _run_design(kind, gamma, R, Rt, Me, area_ratio, n, truncate, output, json_meta)
-
-
-if typer is not None:
-    app = typer.Typer(
-        name="rockmoc",
-        help="MOC rocket nozzle design — MLN, ideal, TIC, and more.",
-        add_completion=False,
-        no_args_is_help=False,
-        invoke_without_command=True,
-    )
-
-    @app.callback(invoke_without_command=True)
-    def _root(
-        ctx: typer.Context,
-        version: bool = typer.Option(
-            False, "--version", "-V", help="Show version and exit."
-        ),
-    ) -> None:
-        if version:
-            typer.echo(f"rockmoc {__version__}")
-            raise typer.Exit()
-        if ctx.invoked_subcommand is None:
-            typer.echo(ctx.get_help())
-            raise typer.Exit()
-
-    @app.command("design")
-    def design_cmd(
-        type: str = typer.Option("mln", "--type", "-t", help="mln | ideal | tic"),
-        gamma: float = typer.Option(1.4, "--gamma", "-g"),
-        R: float = typer.Option(287.05, "--R", help="Specific gas constant [J/(kg·K)]"),
-        Rt: float = typer.Option(0.05, "--Rt", help="Throat radius [m]"),
-        Me: Optional[float] = typer.Option(None, "--Me", help="Design exit Mach"),
-        area_ratio: Optional[float] = typer.Option(
-            None, "--area-ratio", "-e", help="Design A_e/A*"
-        ),
-        n: int = typer.Option(40, "--n", help="Number of characteristics"),
-        truncate: float = typer.Option(
-            0.8, "--truncate", help="TIC length fraction of ideal"
-        ),
-        output: Path = typer.Option(Path("nozzle_wall.csv"), "--output", "-o"),
-        json_meta: Optional[Path] = typer.Option(
-            None, "--json", help="Optional path for JSON summary"
-        ),
-    ) -> None:
-        """Design a nozzle contour and write wall CSV."""
-        if Me is None and area_ratio is None:
-            Me = 2.5
-        _run_design(
-            type.lower(), gamma, R, Rt, Me, area_ratio, n, truncate, output, json_meta
-        )
-
-else:  # pragma: no cover
-    app = None  # type: ignore[assignment]
-
-
-def main() -> None:
-    """Console-script entry point used by ``pip install`` / PyPI."""
-    if typer is not None and app is not None:
-        app()
+def _spec_from_args(a: argparse.Namespace) -> dict:
+    design = {"type": a.type, "throat_radius": a.Rt, "n_characteristics": a.n,
+              "throat_rc_over_rt": a.rc, "truncate_fraction": a.truncate,
+              "length_fraction": a.length}
+    if a.area_ratio is not None:
+        design["area_ratio"] = a.area_ratio
     else:
-        _run_fallback()
+        design["exit_mach"] = a.Me if a.Me is not None else 2.5
+    return {"gas": {"gamma": a.gamma, "R": a.R}, "design": design,
+            "export": {"formats": [f.strip() for f in a.export.split(",") if f.strip()],
+                       "units": a.units, "out_dir": a.out_dir, "name": a.name}}
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Console-script entry point."""
+    args = _parser().parse_args(argv)
+    if args.cmd is None:
+        _parser().print_help()
+        return 0
+    spec = load_spec(args.spec) if args.cmd == "run" else _spec_from_args(args)
+    result = build_design(spec)
+    paths = export_design(result, spec)
+    print(json.dumps(result.summary(), indent=2, default=str))
+    for p in paths:
+        print(f"wrote {p}", file=sys.stderr)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

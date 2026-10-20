@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import math
-
-from rockmoc.exceptions import MeshError
+from rockmoc import _kernels as _core
+from rockmoc.exceptions import MeshError, ThermoError
 from rockmoc.moc.equations import (
     average_state,
     char_slope_minus,
@@ -16,11 +15,18 @@ from rockmoc.moc.types import FlowPoint, PointKind
 from rockmoc.thermo.gas_protocol import MOCGas
 
 
+def _fast_point(x: float, r: float, th: float, nu: float, g: float, kind: PointKind) -> FlowPoint:
+    if nu > _core.pm_max(g) + 1e-12:
+        raise ThermoError(f"ν exceeds maximum for γ={g}")
+    M = _core.pm_inv(nu, g)
+    return FlowPoint(x=x, r=r, theta=th, nu=nu, M=M, mu=_core.mach_angle(M), kind=kind, gamma_local=g)
+
+
 def _sync_mach(point_nu: float, gas: MOCGas) -> tuple[float, float, float]:
     """Return (M, μ, γ_local) using table-aware PM inverse when available."""
     M = float(gas.mach_from_prandtl_meyer(point_nu))
     mu = float(gas.mach_angle(M))
-    g_loc = float(getattr(gas, "gamma_at_mach", lambda _m: gas.gamma)(M))
+    g_loc = float(gas.gamma_at_mach(M))
     return M, mu, g_loc
 
 
@@ -37,6 +43,15 @@ def interior_point(
 
     A is the upstream point on the C− characteristic, B on the C+.
     """
+    g = _core.const_gamma(gas)
+    if g is not None:
+        x, r, th, nu, ok = _core.interior(
+            a.x, a.r, a.theta, a.nu, a.mu, b.x, b.r, b.theta, b.nu, b.mu,
+            g, float(delta), max_iter, tol,
+        )
+        if not ok:
+            raise MeshError("C+ and C− are parallel; cannot form interior point")
+        return _fast_point(x, r, th, nu, g, PointKind.INTERIOR)
     # Predictor: use properties at known points.
     lam_m = char_slope_minus(a.theta, a.mu)
     lam_p = char_slope_plus(b.theta, b.mu)
@@ -137,6 +152,12 @@ def axis_point(
     Symmetry: the C+ through P is the mirror of the C−, so only one independent
     compatibility equation is required: (θ+ν)_P = (θ+ν)_B + S−·Δx.
     """
+    g = _core.const_gamma(gas)
+    if g is not None:
+        x, nu, ok = _core.axis(b.x, b.r, b.theta, b.nu, b.mu, g, float(delta), max_iter, tol)
+        if not ok:
+            raise MeshError("Cannot reach axis: C− is horizontal")
+        return _fast_point(x, 0.0, 0.0, nu, g, PointKind.AXIS)
     # C− from B: r_P = 0 = r_B + tan(θ_B−μ_B)*(x_P − x_B)
     lam_p = char_slope_minus(b.theta, b.mu)
     if abs(lam_p) < 1e-16:
@@ -201,232 +222,3 @@ def wall_point(
     # wall point W. This function uses a pure C− + known wall angle form
     # with position closed by intersection with line from a reference.
     raise MeshError("Use wall_point_from_previous for sequential wall marching")
-
-
-def wall_point_from_previous(
-    a: FlowPoint,
-    w_prev: FlowPoint,
-    gas: MOCGas,
-    *,
-    wall_theta: float | None = None,
-    delta: float = 1.0,
-    max_iter: int = 40,
-    tol: float = 1e-10,
-) -> FlowPoint:
-    """Next wall point from C− through A and wall streamline through W_prev.
-
-    If ``wall_theta`` is None, the wall angle is unknown and determined by
-    the canceling condition for a simple-wave residual: for pure canceling
-    of the remaining C+ waves, θ_wall = θ along the last interior relation.
-
-    Standard **canceling wall** for MLN: the wall is a streamline, and the
-    flow angle at the wall equals the wall geometric angle. The C− from the
-    interior determines (θ, ν) with the streamline constraint
-    ``dr/dx = tan(θ)``.
-    """
-    # Unknown wall angle: use θ at the wall equal to flow angle (streamline).
-    # Unit process: C− from A + streamline from W_prev with slope tan(θ_P).
-    theta_guess = a.theta if wall_theta is None else wall_theta
-    nu_guess = a.nu
-    M, mu, g_loc = _sync_mach(max(nu_guess, 0.0), gas)
-    p = FlowPoint(
-        x=w_prev.x + 1e-6,
-        r=w_prev.r,
-        theta=theta_guess,
-        nu=nu_guess,
-        M=M,
-        mu=mu,
-        kind=PointKind.WALL,
-    )
-
-    for _ in range(max_iter):
-        th_am, mu_am, r_am, _ = average_state(a, p)
-        r_am = max(r_am, 1e-14)
-
-        lam_m = char_slope_minus(th_am, mu_am)
-        # Streamline slope uses wall flow angle
-        if wall_theta is None:
-            lam_w = math.tan(p.theta)
-        else:
-            lam_w = math.tan(wall_theta)
-
-        denom = lam_m - lam_w
-        if abs(denom) < 1e-16:
-            # Nearly parallel: step in x slightly using C− only
-            dx = max(1e-6 * (abs(a.x) + 1.0), 1e-8)
-            x_new = a.x + dx
-            r_new = a.r + lam_m * dx
-        else:
-            x_new = (w_prev.r - a.r - lam_w * w_prev.x + lam_m * a.x) / denom
-            r_new = a.r + lam_m * (x_new - a.x)
-
-        if r_new < 0.0:
-            r_new = 0.0
-
-        sm = source_minus(th_am, mu_am, r_am, delta=delta)
-        # (θ + ν)_P = (θ + ν)_A + S−*(x_P - x_A)
-        km = (a.theta + a.nu) + sm * (x_new - a.x)
-
-        if wall_theta is None:
-            # Streamline: flow angle is free but wall is streamline.
-            # Second relation from remaining simple-wave intent is not
-            # unique without C+; for canceling wall of MLN the standard
-            # approach uses the fact that along the wall after the last
-            # expansion, C+ invariants determine ν from θ.
-            # Use: on canceling characteristic network, wall point also
-            # satisfies C+ from a neighbor when available. Here A alone:
-            # assume dθ = dν along wall for last simple wave cancel
-            # → θ + ν = const from corner last ray... For sequential
-            # interior-fed wall: θ_P is unknown, need another equation.
-            #
-            # Correct unit process for wall as streamline with C− only
-            # requires known wall shape. For design (unknown wall), the
-            # wall is determined by making the last family cancel:
-            # θ_P = ν_e - ν_P  (planar) generalized with axisym sources.
-            #
-            # Engineering MLN wall construction: each wall point is the
-            # streamline through previous wall with C− from interior
-            # point on the last fan/characteristic of that "layer", and
-            # θ_wall = θ_flow from solving C− with the design constraint
-            # that residual turning equals remaining ν to reach axial
-            # exit. For the classic construction, interior net is built
-            # first; wall is the streamline of the outermost points.
-            #
-            # Practical approach used here: wall points track the
-            # outermost characteristic points' streamline — caller should
-            # pass wall_theta = theta of the design wall at this station
-            # OR we set θ_P from C− by also using invariant from fan.
-            #
-            # For design wall (unknown shape), use:
-            #   θ_P + ν_P = θ_last + ν_last  (along C+ from outer fan)
-            # when a C+ partner is not supplied, fall back to θ_P = a.theta
-            # for a first-order wall march of the outer streamline.
-            theta_new = a.theta
-            nu_new = km - theta_new  # from km = θ + ν
-        else:
-            theta_new = wall_theta
-            nu_new = km - theta_new
-
-        if nu_new < 0.0:
-            nu_new = 0.0
-
-        if (
-            abs(x_new - p.x) < tol
-            and abs(r_new - p.r) < tol
-            and abs(theta_new - p.theta) < tol
-            and abs(nu_new - p.nu) < tol
-        ):
-            M, mu, g_loc = _sync_mach(nu_new, gas)
-            return FlowPoint(
-                x=x_new,
-                r=r_new,
-                theta=theta_new,
-                nu=nu_new,
-                M=M,
-                mu=mu,
-                kind=PointKind.WALL,
-            )
-
-        M, mu, g_loc = _sync_mach(nu_new, gas)
-        p = FlowPoint(
-            x=x_new,
-            r=r_new,
-            theta=theta_new,
-            nu=nu_new,
-            M=M,
-            mu=mu,
-            kind=PointKind.WALL,
-        )
-
-    return p
-
-
-def wall_point_canceling(
-    a: FlowPoint,
-    w_prev: FlowPoint,
-    b_plus: FlowPoint,
-    gas: MOCGas,
-    *,
-    delta: float = 1.0,
-    max_iter: int = 40,
-    tol: float = 1e-10,
-) -> FlowPoint:
-    """Wall point using C− from A, C+ from B_plus, constrained to streamline.
-
-    The wall location is the intersection of the streamline through
-    ``w_prev`` (slope tan θ_P) with the characteristic solution from A and
-    B. This is the standard design unit process for an unknown wall.
-    """
-    # Initial guess from interior of A and B
-    p = interior_point(a, b_plus, gas, delta=delta, max_iter=max_iter, tol=tol)
-    p.kind = PointKind.WALL
-
-    for _ in range(max_iter):
-        # Streamline from w_prev with slope tan(θ_P)
-        lam_w = math.tan(p.theta)
-        th_am, mu_am, r_am, _ = average_state(a, p)
-        th_bp, mu_bp, r_bp, _ = average_state(b_plus, p)
-        r_am = max(r_am, 1e-14)
-        r_bp = max(r_bp, 1e-14)
-
-        lam_m = char_slope_minus(th_am, mu_am)
-        lam_p = char_slope_plus(th_bp, mu_bp)
-
-        # Intersect C− from A with streamline from w_prev
-        denom = lam_m - lam_w
-        if abs(denom) < 1e-16:
-            x_new = p.x
-            r_new = p.r
-        else:
-            x_new = (w_prev.r - a.r - lam_w * w_prev.x + lam_m * a.x) / denom
-            r_new = a.r + lam_m * (x_new - a.x)
-        if r_new < 0.0:
-            r_new = abs(r_new)
-
-        sm = source_minus(th_am, mu_am, r_am, delta=delta)
-        sp = source_plus(th_bp, mu_bp, r_bp, delta=delta)
-        km = (a.theta + a.nu) + sm * (x_new - a.x)
-        kp = (b_plus.theta - b_plus.nu) + sp * (x_new - b_plus.x)
-        theta_new = 0.5 * (km + kp)
-        nu_new = 0.5 * (km - kp)
-        if nu_new < 0.0:
-            nu_new = 0.0
-
-        # Recompute streamline slope consistency: wall angle = flow angle
-        lam_w2 = math.tan(theta_new)
-        denom2 = lam_m - lam_w2
-        if abs(denom2) > 1e-16:
-            x_new = (w_prev.r - a.r - lam_w2 * w_prev.x + lam_m * a.x) / denom2
-            r_new = a.r + lam_m * (x_new - a.x)
-
-        if (
-            abs(x_new - p.x) < tol
-            and abs(r_new - p.r) < tol
-            and abs(theta_new - p.theta) < tol
-            and abs(nu_new - p.nu) < tol
-        ):
-            M, mu, g_loc = _sync_mach(nu_new, gas)
-            return FlowPoint(
-                x=x_new,
-                r=max(r_new, 0.0),
-                theta=theta_new,
-                nu=nu_new,
-                M=M,
-                mu=mu,
-                kind=PointKind.WALL,
-            )
-
-        M, mu, g_loc = _sync_mach(nu_new, gas)
-        p = FlowPoint(
-            x=x_new,
-            r=max(r_new, 0.0),
-            theta=theta_new,
-            nu=nu_new,
-            M=M,
-            mu=mu,
-            kind=PointKind.WALL,
-        )
-        # silence unused lam_p (kept for future C+ intersection variant)
-        _ = lam_p
-
-    return p

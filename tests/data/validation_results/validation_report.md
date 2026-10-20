@@ -1,6 +1,6 @@
 # rockmoc deep multi-regime validation (10+ cited sources)
 
-**Generated (UTC):** 2026-10-19T19:09:16.930759+00:00
+**Generated (UTC):** 2026-10-20T05:23:36.209688+00:00
 
 ## Summary
 
@@ -277,9 +277,9 @@
 | Metric | Reference | Solver | Error % | Tol % | Pass | Unit | Note |
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
 | area_ratio | 3.420533 | 3.420533 | 2.59661e-14 | 0.05 | Y | - | ε_geom vs A/A*(Me) |
-| theta_max_below_half_nu_e_deg | — | 15.039363 | 0 | — | Y | deg | axisym sources ⇒ θ_max < ν_e/2 = 24.23° (planar limit) |
+| theta_max_below_half_nu_e_deg | — | 15.0412 | 0 | — | Y | deg | axisym sources ⇒ θ_max < ν_e/2 = 24.23° (planar limit) |
 | theta_exit_deg | 0 | 0 | 0 | — | Y | deg | axial exit design |
-| L_over_Rt | — | 6.378339 | 0 | — | Y | - | band [1.2, 25.0] |
+| L_over_Rt | — | 6.378348 | 0 | — | Y | - | band [1.2, 25.0] |
 | exit_radius_m | 0.092473 | 0.092473 | 0 | 0.05 | Y | m |  |
 | Cf_vac_1d | — | 1.579038 | — | — | Y | - |  |
 | diverging | 1 | 1 | 0 | — | Y |  | Re > Rt |
@@ -293,9 +293,9 @@
 | Metric | Reference | Solver | Error % | Tol % | Pass | Unit | Note |
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
 | area_ratio | 5.831867 | 5.831867 | 0 | 0.05 | Y | - | ε_geom vs A/A*(Me) |
-| theta_max_below_half_nu_e_deg | — | 18.374266 | 0 | — | Y | deg | axisym sources ⇒ θ_max < ν_e/2 = 29.71° (planar limit) |
+| theta_max_below_half_nu_e_deg | — | 18.376899 | 0 | — | Y | deg | axisym sources ⇒ θ_max < ν_e/2 = 29.71° (planar limit) |
 | theta_exit_deg | 0 | 0 | 0 | — | Y | deg | axial exit design |
-| L_over_Rt | — | 9.754865 | 0 | — | Y | - | band [1.2, 25.0] |
+| L_over_Rt | — | 9.754962 | 0 | — | Y | - | band [1.2, 25.0] |
 | exit_radius_m | 0.120746 | 0.120746 | 0 | 0.05 | Y | m |  |
 | Cf_vac_1d | — | 1.648728 | — | — | Y | - |  |
 | diverging | 1 | 1 | 0 | — | Y |  | Re > Rt |
@@ -309,9 +309,9 @@
 | Metric | Reference | Solver | Error % | Tol % | Pass | Unit | Note |
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
 | area_ratio | 9.109847 | 9.109847 | 0 | 0.05 | Y | - | ε_geom vs A/A*(Me) |
-| theta_max_below_half_nu_e_deg | — | 20.443484 | 0 | — | Y | deg | axisym sources ⇒ θ_max < ν_e/2 = 33.16° (planar limit) |
+| theta_max_below_half_nu_e_deg | — | 20.445441 | 0 | — | Y | deg | axisym sources ⇒ θ_max < ν_e/2 = 33.16° (planar limit) |
 | theta_exit_deg | 0 | 0 | 0 | — | Y | deg | axial exit design |
-| L_over_Rt | — | 13.85884 | 0 | — | Y | - | band [1.2, 25.0] |
+| L_over_Rt | — | 13.85911 | 0 | — | Y | - | band [1.2, 25.0] |
 | exit_radius_m | 0.150913 | 0.150913 | 0 | 0.05 | Y | m |  |
 | Cf_vac_1d | — | 1.680032 | — | — | Y | - |  |
 | diverging | 1 | 1 | 0 | — | Y |  | Re > Rt |
@@ -325,7 +325,7 @@
 | Metric | Reference | Solver | Error % | Tol % | Pass | Unit | Note |
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
 | area_ratio | 1.6875 | 1.6875 | 1.31582e-14 | 0.05 | Y | - | ε_geom vs A/A*(Me) |
-| theta_max_below_half_nu_e_deg | — | 8.199369 | 0 | — | Y | deg | axisym sources ⇒ θ_max < ν_e/2 = 13.19° (planar limit) |
+| theta_max_below_half_nu_e_deg | — | 8.199958 | 0 | — | Y | deg | axisym sources ⇒ θ_max < ν_e/2 = 13.19° (planar limit) |
 | theta_exit_deg | 0 | 0 | 0 | — | Y | deg | axial exit design |
 | L_over_Rt | — | 3.576154 | 0 | — | Y | - | band [1.2, 25.0] |
 | exit_radius_m | 0.064952 | 0.064952 | 0 | 0.05 | Y | m |  |
@@ -341,9 +341,9 @@
 | Metric | Reference | Solver | Error % | Tol % | Pass | Unit | Note |
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
 | area_ratio | 4.234568 | 4.234568 | 2.09745e-14 | 0.05 | Y | - | ε_geom vs A/A*(Me) |
-| theta_max_below_half_nu_e_deg | — | 15.424353 | 0 | — | Y | deg | axisym sources ⇒ θ_max < ν_e/2 = 24.88° (planar limit) |
+| theta_max_below_half_nu_e_deg | — | 15.426645 | 0 | — | Y | deg | axisym sources ⇒ θ_max < ν_e/2 = 24.88° (planar limit) |
 | theta_exit_deg | 0 | 0 | 0 | — | Y | deg | axial exit design |
-| L_over_Rt | — | 8.368669 | 0 | — | Y | - | band [1.2, 25.0] |
+| L_over_Rt | — | 8.368706 | 0 | — | Y | - | band [1.2, 25.0] |
 | exit_radius_m | 0.10289 | 0.10289 | 0 | 0.05 | Y | m |  |
 | Cf_vac_1d | — | 1.567815 | — | — | Y | - |  |
 | diverging | 1 | 1 | 0 | — | Y |  | Re > Rt |
@@ -357,9 +357,9 @@
 | Metric | Reference | Solver | Error % | Tol % | Pass | Unit | Note |
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
 | area_ratio | 10.71875 | 10.71875 | 1.65724e-14 | 0.05 | Y | - | ε_geom vs A/A*(Me) |
-| theta_max_below_half_nu_e_deg | — | 20.254278 | 0 | — | Y | deg | axisym sources ⇒ θ_max < ν_e/2 = 32.89° (planar limit) |
+| theta_max_below_half_nu_e_deg | — | 20.257804 | 0 | — | Y | deg | axisym sources ⇒ θ_max < ν_e/2 = 32.89° (planar limit) |
 | theta_exit_deg | 0 | 0 | 0 | — | Y | deg | axial exit design |
-| L_over_Rt | — | 16.864633 | 0 | — | Y | - | band [1.2, 25.0] |
+| L_over_Rt | — | 16.865006 | 0 | — | Y | - | band [1.2, 25.0] |
 | exit_radius_m | 0.163698 | 0.163698 | 0 | 0.05 | Y | m |  |
 | Cf_vac_1d | — | 1.651914 | — | — | Y | - |  |
 | diverging | 1 | 1 | 0 | — | Y |  | Re > Rt |
@@ -563,7 +563,7 @@
 
 | Metric | Reference | Solver | Error % | Tol % | Pass | Unit | Note |
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
-| M_min_supersonic | 1.01 | 1.041985 | 0 | — | Y | - | IVL slightly supersonic |
+| M_min_supersonic | 1.01 | 1.02 | 0 | — | Y | - | IVL slightly supersonic |
 | theta_axis_near_zero | 0 | 0 | 0 | — | Y | rad | axisymmetry on centerline |
 
 ### `family_ordering_mln_tic_ideal_rao` — **PASS**
@@ -574,7 +574,7 @@
 
 | Metric | Reference | Solver | Error % | Tol % | Pass | Unit | Note |
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
-| L_mln_m | — | 0.487716 | — | — | Y | m |  |
+| L_mln_m | — | 0.487727 | — | — | Y | m |  |
 | L_tic_m | — | 0.420172 | — | — | Y | m |  |
 | L_ideal_m | — | 0.525215 | — | — | Y | m |  |
 | L_rao_m | — | 0.211223 | — | — | Y | m |  |

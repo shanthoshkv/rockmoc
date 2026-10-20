@@ -18,7 +18,7 @@ from rockmoc import (
     sauer_throat_ivl,
     sensitivity_one_at_a_time,
 )
-from rockmoc.thermo import VariableGammaGas, build_multi_gamma_table, build_perfect_gas_table
+from rockmoc.thermo import VariableGammaGas, build_multi_gamma_table
 
 
 def test_production_pipeline_mln():
@@ -111,7 +111,8 @@ def test_sauer_hall_ivl():
     gas = PerfectGas(1.3)
     ivl = sauer_throat_ivl(gas, throat_radius=0.05, rc_over_rt=1.5, n_points=21)
     assert float(ivl.M.min()) > 1.0
-    assert "hall" in str(ivl.meta.get("model", "sauer")).lower() or ivl.meta.get("A", 0) > 0
+    assert ivl.meta["model"] == "sauer"
+    assert float(ivl.M[-1]) > float(ivl.M[0])  # wall accelerates faster than the axis
 
 
 def test_uq_and_certificate():

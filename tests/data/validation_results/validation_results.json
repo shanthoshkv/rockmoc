@@ -1,6 +1,6 @@
 {
   "title": "rockmoc deep multi-regime validation (10+ cited sources)",
-  "generated_utc": "2026-10-19T19:09:16.930759+00:00",
+  "generated_utc": "2026-10-20T05:23:36.209688+00:00",
   "catalog_title": "rockmoc deep validation catalog (10+ cited sources)",
   "sources": {
     "anderson_compressible": {
@@ -1145,7 +1145,7 @@
         {
           "name": "theta_max_below_half_nu_e_deg",
           "reference": null,
-          "solver": 15.039363190777536,
+          "solver": 15.041199940321336,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
@@ -1167,7 +1167,7 @@
         {
           "name": "L_over_Rt",
           "reference": null,
-          "solver": 6.378338981014672,
+          "solver": 6.37834789820302,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
@@ -1239,7 +1239,7 @@
         {
           "name": "theta_max_below_half_nu_e_deg",
           "reference": null,
-          "solver": 18.37426649388171,
+          "solver": 18.376899245066916,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
@@ -1261,7 +1261,7 @@
         {
           "name": "L_over_Rt",
           "reference": null,
-          "solver": 9.754864639332288,
+          "solver": 9.75496246734084,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
@@ -1333,7 +1333,7 @@
         {
           "name": "theta_max_below_half_nu_e_deg",
           "reference": null,
-          "solver": 20.44348379496832,
+          "solver": 20.445440922202632,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
@@ -1355,7 +1355,7 @@
         {
           "name": "L_over_Rt",
           "reference": null,
-          "solver": 13.858839720125937,
+          "solver": 13.859110074285859,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
@@ -1427,7 +1427,7 @@
         {
           "name": "theta_max_below_half_nu_e_deg",
           "reference": null,
-          "solver": 8.199369261313633,
+          "solver": 8.199957907329342,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
@@ -1449,7 +1449,7 @@
         {
           "name": "L_over_Rt",
           "reference": null,
-          "solver": 3.5761539235275035,
+          "solver": 3.5761544125884313,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
@@ -1521,7 +1521,7 @@
         {
           "name": "theta_max_below_half_nu_e_deg",
           "reference": null,
-          "solver": 15.424352821008691,
+          "solver": 15.426644763011828,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
@@ -1543,7 +1543,7 @@
         {
           "name": "L_over_Rt",
           "reference": null,
-          "solver": 8.368668661955867,
+          "solver": 8.36870639924501,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
@@ -1615,7 +1615,7 @@
         {
           "name": "theta_max_below_half_nu_e_deg",
           "reference": null,
-          "solver": 20.254278430455717,
+          "solver": 20.2578038753729,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
@@ -1637,7 +1637,7 @@
         {
           "name": "L_over_Rt",
           "reference": null,
-          "solver": 16.864633095008593,
+          "solver": 16.86500647145774,
           "error_percent": 0.0,
           "abs_error": null,
           "tol_percent": null,
@@ -2557,9 +2557,9 @@
         {
           "name": "R_corrected_ge_inviscid",
           "reference": 0.12074629226895493,
-          "solver": 0.1232665835300393,
+          "solver": 0.12326663583562739,
           "error_percent": 0.0,
-          "abs_error": 0.0025202912610843703,
+          "abs_error": 0.0025203435666724533,
           "tol_percent": null,
           "passed": true,
           "unit": "m",
@@ -2586,9 +2586,9 @@
         {
           "name": "M_min_supersonic",
           "reference": 1.01,
-          "solver": 1.0419847124585904,
+          "solver": 1.02,
           "error_percent": 0.0,
-          "abs_error": 0.03198471245859036,
+          "abs_error": 0.010000000000000009,
           "tol_percent": null,
           "passed": true,
           "unit": "-",
@@ -2609,18 +2609,17 @@
       "meta": {
         "ivl": {
           "n_points": 41,
-          "M_axis": 1.0419847124585904,
-          "M_wall": 1.4318584871481845,
-          "x_mean": 0.0025000000000000005,
-          "model": "sauer_hall_kliegel_first_order",
+          "M_axis": 1.02,
+          "M_wall": 1.4438697659772166,
+          "x_mean": 0.011976157837577509,
+          "model": "sauer",
           "Rc_over_Rt": 1.5,
-          "eps_Rt_over_Rc": 0.6666666666666666,
-          "x_over_Rt": 0.05000000000000001,
+          "x_over_Rt": 0.23952315675155017,
+          "sonic_point_offset_over_Rt": 0.21650635094610965,
+          "alpha_per_m": 15.39600717839002,
+          "wall_angle_deg": 9.188444918097643,
           "gamma": 1.25,
-          "alpha": 1.7146428199482244,
-          "beta": 0.9644865862208762,
-          "hall_factor": 1.4,
-          "references": "Sauer; Hall; Kliegel & Levine 1969"
+          "references": "Sauer 1947; Mendelson NASA TM X-53084 Eq. 2.6"
         }
       }
     },
@@ -2640,7 +2639,7 @@
         {
           "name": "L_mln_m",
           "reference": null,
-          "solver": 0.4877158778116762,
+          "solver": 0.48772721509883277,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -2651,7 +2650,7 @@
         {
           "name": "L_tic_m",
           "reference": null,
-          "solver": 0.42017163064694146,
+          "solver": 0.4201716306469419,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -2662,7 +2661,7 @@
         {
           "name": "L_ideal_m",
           "reference": null,
-          "solver": 0.5252145383086768,
+          "solver": 0.5252145383086774,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -2719,42 +2718,42 @@
         "comparison": [
           {
             "kind": "mln",
-            "L_m": 0.4877158778116762,
-            "L_over_Rt": 9.754317556233524,
+            "L_m": 0.48772721509883277,
+            "L_over_Rt": 9.754544301976654,
             "area_ratio": 5.831866838679954,
             "Cf_vac": 1.6487280085113096,
             "Isp_vac_s": 237.0834627639599,
             "eta_n": 1.0,
             "eta_div": 1.0,
-            "theta_max_deg": 18.369088065122686,
+            "theta_max_deg": 18.372068609765364,
             "theta_exit_deg": 0.0,
             "exit_radius_m": 0.12074629226895493
           },
           {
             "kind": "ideal",
-            "L_m": 0.5252145383086768,
-            "L_over_Rt": 10.504290766173536,
+            "L_m": 0.5252145383086774,
+            "L_over_Rt": 10.504290766173547,
             "area_ratio": 5.831866838679954,
             "Cf_vac": 1.6487280085113096,
             "Isp_vac_s": 237.0834627639599,
             "eta_n": 1.0,
             "eta_div": 1.0,
-            "theta_max_deg": 17.618376560283508,
+            "theta_max_deg": 17.62148677963905,
             "theta_exit_deg": 0.0,
             "exit_radius_m": 0.12074629226895493
           },
           {
             "kind": "tic",
-            "L_m": 0.42017163064694146,
-            "L_over_Rt": 8.403432612938829,
-            "area_ratio": 5.686297009637156,
-            "Cf_vac": 1.6442604758583876,
-            "Isp_vac_s": 236.44104139069643,
-            "eta_n": 0.9993265844311843,
-            "eta_div": 0.9997756314902233,
-            "theta_max_deg": 17.618376560283508,
-            "theta_exit_deg": 1.7165237686268096,
-            "exit_radius_m": 0.1192297887446459
+            "L_m": 0.4201716306469419,
+            "L_over_Rt": 8.403432612938838,
+            "area_ratio": 5.686641373594136,
+            "Cf_vac": 1.6442682326673939,
+            "Isp_vac_s": 236.44215680277756,
+            "eta_n": 0.9993264718724307,
+            "eta_div": 0.9997755939791716,
+            "theta_max_deg": 17.62148677963905,
+            "theta_exit_deg": 1.7166672618861059,
+            "exit_radius_m": 0.11923339898696733
           },
           {
             "kind": "rao",

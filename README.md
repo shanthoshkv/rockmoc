@@ -172,7 +172,9 @@ result.export_json("wall.json")
 
 ```bash
 pip install rockmoc
-pip install "rockmoc[plot,cli]"   # figures + CLI
+pip install "rockmoc[plot]"       # figures (CLI needs no extra)
+pip install "rockmoc[fast]"       # Numba-compiled MOC kernels
+pip install "rockmoc[viz]"        # interactive Plotly field
 pip install "rockmoc[all]"        # all optional extras
 ```
 
@@ -187,7 +189,7 @@ pip install "git+https://github.com/shanthoshkv/rockmoc.git"
 ```bash
 git clone https://github.com/shanthoshkv/rockmoc.git
 cd rockmoc
-pip install -e ".[plot,cli,dev]"
+pip install -e ".[plot,dev]"
 
 # Optional chemistry stacks
 pip install -e ".[cea]"
@@ -467,14 +469,19 @@ rockmoc/
 
 ## CLI
 
-```bash
-pip install -e ".[cli]"
+No extra dependency (standard-library `argparse`):
 
-rockmoc design --type mln   --Me 2.5 --gamma 1.25 --Rt 0.05 -o wall.csv
-rockmoc design --type ideal --area-ratio 25 --Rt 0.04 -o ideal.csv
-rockmoc design --type tic   --Me 4.0 --truncate 0.8 -o tic.csv
-rockmoc design --type rao   --Me 3.0 --gamma 1.25 --Rt 0.05 -o rao.csv
+```bash
+rockmoc design --type mln   --Me 2.5 --gamma 1.25 --Rt 0.05 --export csv,dxf --units mm -o out
+rockmoc design --type ideal --area-ratio 25 --Rt 0.04 --export csv,openfoam -o out
+rockmoc design --type tic   --Me 4.0 --truncate 0.8 -o out
+rockmoc design --type rao   --Me 3.0 --gamma 1.25 --length 0.8 --export cad -o out
+rockmoc run nozzle.toml          # reproducible TOML spec (see rockmoc/spec_io.py)
 ```
+
+Export formats: `csv` (x, r, θ, M), `cad` (header-less `x y z` for SolidWorks/CATIA
+curve-through-points), `dxf` (R12 polyline), `openfoam` (axisymmetric wedge
+`system/blockMeshDict`, checked with `blockMesh`/`checkMesh`), `json` (summary).
 
 ---
 
@@ -498,7 +505,7 @@ See `refs/README.md` and `docs/` for mapping from papers → modules.
 
 ```bash
 # 1. Install
-pip install -e ".[plot,cli,dev]"
+pip install -e ".[plot,dev]"
 
 # 2. Tests
 pytest -q

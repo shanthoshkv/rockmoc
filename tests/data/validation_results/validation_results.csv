@@ -63,44 +63,44 @@ naca_planar_M4.0_dnu0.5,planar_mln_naca,naca_rm_e8j12,ye_over_ht,10.718750000000
 naca_planar_M4.0_dnu0.5,planar_mln_naca,naca_rm_e8j12,area_ratio,10.718750000000002,10.718750000000002,0.0,0.0,0.01,True,-,,True
 naca_planar_M4.0_dnu0.5,planar_mln_naca,naca_rm_e8j12,L_over_ht,,33.2772638751704,,,,True,-,solver length,True
 axisym_mln_g1.2_M2.5,axisym_mln,zucrow_hoffman,area_ratio,3.420532586514756,3.420532586514757,2.596608560905735e-14,8.881784197001252e-16,0.05,True,-,ε_geom vs A/A*(Me),True
-axisym_mln_g1.2_M2.5,axisym_mln,zucrow_hoffman,theta_max_below_half_nu_e_deg,,15.039363190777536,0.0,,,True,deg,axisym sources ⇒ θ_max < ν_e/2 = 24.23° (planar limit),True
+axisym_mln_g1.2_M2.5,axisym_mln,zucrow_hoffman,theta_max_below_half_nu_e_deg,,15.041199940321336,0.0,,,True,deg,axisym sources ⇒ θ_max < ν_e/2 = 24.23° (planar limit),True
 axisym_mln_g1.2_M2.5,axisym_mln,zucrow_hoffman,theta_exit_deg,0.0,0.0,0.0,0.0,,True,deg,axial exit design,True
-axisym_mln_g1.2_M2.5,axisym_mln,zucrow_hoffman,L_over_Rt,,6.378338981014672,0.0,,,True,-,"band [1.2, 25.0]",True
+axisym_mln_g1.2_M2.5,axisym_mln,zucrow_hoffman,L_over_Rt,,6.37834789820302,0.0,,,True,-,"band [1.2, 25.0]",True
 axisym_mln_g1.2_M2.5,axisym_mln,zucrow_hoffman,exit_radius_m,0.09247340950936594,0.09247340950936594,0.0,0.0,0.05,True,m,,True
 axisym_mln_g1.2_M2.5,axisym_mln,zucrow_hoffman,Cf_vac_1d,,1.5790375799113345,,,,True,-,,True
 axisym_mln_g1.2_M2.5,axisym_mln,zucrow_hoffman,diverging,1.0,1.0,0.0,0.0,,True,,Re > Rt,True
 axisym_mln_g1.25_M3.0,axisym_mln,zucrow_hoffman,area_ratio,5.831866838679954,5.831866838679954,0.0,0.0,0.05,True,-,ε_geom vs A/A*(Me),True
-axisym_mln_g1.25_M3.0,axisym_mln,zucrow_hoffman,theta_max_below_half_nu_e_deg,,18.37426649388171,0.0,,,True,deg,axisym sources ⇒ θ_max < ν_e/2 = 29.71° (planar limit),True
+axisym_mln_g1.25_M3.0,axisym_mln,zucrow_hoffman,theta_max_below_half_nu_e_deg,,18.376899245066916,0.0,,,True,deg,axisym sources ⇒ θ_max < ν_e/2 = 29.71° (planar limit),True
 axisym_mln_g1.25_M3.0,axisym_mln,zucrow_hoffman,theta_exit_deg,0.0,0.0,0.0,0.0,,True,deg,axial exit design,True
-axisym_mln_g1.25_M3.0,axisym_mln,zucrow_hoffman,L_over_Rt,,9.754864639332288,0.0,,,True,-,"band [1.2, 25.0]",True
+axisym_mln_g1.25_M3.0,axisym_mln,zucrow_hoffman,L_over_Rt,,9.75496246734084,0.0,,,True,-,"band [1.2, 25.0]",True
 axisym_mln_g1.25_M3.0,axisym_mln,zucrow_hoffman,exit_radius_m,0.12074629226895493,0.12074629226895493,0.0,0.0,0.05,True,m,,True
 axisym_mln_g1.25_M3.0,axisym_mln,zucrow_hoffman,Cf_vac_1d,,1.6487280085113096,,,,True,-,,True
 axisym_mln_g1.25_M3.0,axisym_mln,zucrow_hoffman,diverging,1.0,1.0,0.0,0.0,,True,,Re > Rt,True
 axisym_mln_g1.3_M3.5,axisym_mln,zucrow_hoffman,area_ratio,9.109846727575363,9.109846727575363,0.0,0.0,0.05,True,-,ε_geom vs A/A*(Me),True
-axisym_mln_g1.3_M3.5,axisym_mln,zucrow_hoffman,theta_max_below_half_nu_e_deg,,20.44348379496832,0.0,,,True,deg,axisym sources ⇒ θ_max < ν_e/2 = 33.16° (planar limit),True
+axisym_mln_g1.3_M3.5,axisym_mln,zucrow_hoffman,theta_max_below_half_nu_e_deg,,20.445440922202632,0.0,,,True,deg,axisym sources ⇒ θ_max < ν_e/2 = 33.16° (planar limit),True
 axisym_mln_g1.3_M3.5,axisym_mln,zucrow_hoffman,theta_exit_deg,0.0,0.0,0.0,0.0,,True,deg,axial exit design,True
-axisym_mln_g1.3_M3.5,axisym_mln,zucrow_hoffman,L_over_Rt,,13.858839720125937,0.0,,,True,-,"band [1.2, 25.0]",True
+axisym_mln_g1.3_M3.5,axisym_mln,zucrow_hoffman,L_over_Rt,,13.859110074285859,0.0,,,True,-,"band [1.2, 25.0]",True
 axisym_mln_g1.3_M3.5,axisym_mln,zucrow_hoffman,exit_radius_m,0.1509126131870309,0.1509126131870309,0.0,0.0,0.05,True,m,,True
 axisym_mln_g1.3_M3.5,axisym_mln,zucrow_hoffman,Cf_vac_1d,,1.6800323454285433,,,,True,-,,True
 axisym_mln_g1.3_M3.5,axisym_mln,zucrow_hoffman,diverging,1.0,1.0,0.0,0.0,,True,,Re > Rt,True
 axisym_mln_g1.4_M2.0,axisym_mln,zucrow_hoffman,area_ratio,1.6875000000000002,1.6875,1.3158198810372224e-14,2.220446049250313e-16,0.05,True,-,ε_geom vs A/A*(Me),True
-axisym_mln_g1.4_M2.0,axisym_mln,zucrow_hoffman,theta_max_below_half_nu_e_deg,,8.199369261313633,0.0,,,True,deg,axisym sources ⇒ θ_max < ν_e/2 = 13.19° (planar limit),True
+axisym_mln_g1.4_M2.0,axisym_mln,zucrow_hoffman,theta_max_below_half_nu_e_deg,,8.199957907329342,0.0,,,True,deg,axisym sources ⇒ θ_max < ν_e/2 = 13.19° (planar limit),True
 axisym_mln_g1.4_M2.0,axisym_mln,zucrow_hoffman,theta_exit_deg,0.0,0.0,0.0,0.0,,True,deg,axial exit design,True
-axisym_mln_g1.4_M2.0,axisym_mln,zucrow_hoffman,L_over_Rt,,3.5761539235275035,0.0,,,True,-,"band [1.2, 25.0]",True
+axisym_mln_g1.4_M2.0,axisym_mln,zucrow_hoffman,L_over_Rt,,3.5761544125884313,0.0,,,True,-,"band [1.2, 25.0]",True
 axisym_mln_g1.4_M2.0,axisym_mln,zucrow_hoffman,exit_radius_m,0.0649519052838329,0.0649519052838329,0.0,0.0,0.05,True,m,,True
 axisym_mln_g1.4_M2.0,axisym_mln,zucrow_hoffman,Cf_vac_1d,,1.423422902343616,,,,True,-,,True
 axisym_mln_g1.4_M2.0,axisym_mln,zucrow_hoffman,diverging,1.0,1.0,0.0,0.0,,True,,Re > Rt,True
 axisym_mln_g1.4_M3.0,axisym_mln,zucrow_hoffman,area_ratio,4.23456790123457,4.234567901234569,2.0974475800498576e-14,8.881784197001252e-16,0.05,True,-,ε_geom vs A/A*(Me),True
-axisym_mln_g1.4_M3.0,axisym_mln,zucrow_hoffman,theta_max_below_half_nu_e_deg,,15.424352821008691,0.0,,,True,deg,axisym sources ⇒ θ_max < ν_e/2 = 24.88° (planar limit),True
+axisym_mln_g1.4_M3.0,axisym_mln,zucrow_hoffman,theta_max_below_half_nu_e_deg,,15.426644763011828,0.0,,,True,deg,axisym sources ⇒ θ_max < ν_e/2 = 24.88° (planar limit),True
 axisym_mln_g1.4_M3.0,axisym_mln,zucrow_hoffman,theta_exit_deg,0.0,0.0,0.0,0.0,,True,deg,axial exit design,True
-axisym_mln_g1.4_M3.0,axisym_mln,zucrow_hoffman,L_over_Rt,,8.368668661955867,0.0,,,True,-,"band [1.2, 25.0]",True
+axisym_mln_g1.4_M3.0,axisym_mln,zucrow_hoffman,L_over_Rt,,8.36870639924501,0.0,,,True,-,"band [1.2, 25.0]",True
 axisym_mln_g1.4_M3.0,axisym_mln,zucrow_hoffman,exit_radius_m,0.10289032876362299,0.10289032876362299,0.0,0.0,0.05,True,m,,True
 axisym_mln_g1.4_M3.0,axisym_mln,zucrow_hoffman,Cf_vac_1d,,1.5678153054540658,,,,True,-,,True
 axisym_mln_g1.4_M3.0,axisym_mln,zucrow_hoffman,diverging,1.0,1.0,0.0,0.0,,True,,Re > Rt,True
 axisym_mln_g1.4_M4.0,axisym_mln,zucrow_hoffman,area_ratio,10.718750000000002,10.718750000000004,1.657242532385073e-14,1.7763568394002505e-15,0.05,True,-,ε_geom vs A/A*(Me),True
-axisym_mln_g1.4_M4.0,axisym_mln,zucrow_hoffman,theta_max_below_half_nu_e_deg,,20.254278430455717,0.0,,,True,deg,axisym sources ⇒ θ_max < ν_e/2 = 32.89° (planar limit),True
+axisym_mln_g1.4_M4.0,axisym_mln,zucrow_hoffman,theta_max_below_half_nu_e_deg,,20.2578038753729,0.0,,,True,deg,axisym sources ⇒ θ_max < ν_e/2 = 32.89° (planar limit),True
 axisym_mln_g1.4_M4.0,axisym_mln,zucrow_hoffman,theta_exit_deg,0.0,0.0,0.0,0.0,,True,deg,axial exit design,True
-axisym_mln_g1.4_M4.0,axisym_mln,zucrow_hoffman,L_over_Rt,,16.864633095008593,0.0,,,True,-,"band [1.2, 25.0]",True
+axisym_mln_g1.4_M4.0,axisym_mln,zucrow_hoffman,L_over_Rt,,16.86500647145774,0.0,,,True,-,"band [1.2, 25.0]",True
 axisym_mln_g1.4_M4.0,axisym_mln,zucrow_hoffman,exit_radius_m,0.16369751067135996,0.16369751067135996,0.0,0.0,0.05,True,m,,True
 axisym_mln_g1.4_M4.0,axisym_mln,zucrow_hoffman,Cf_vac_1d,,1.6519141859805901,,,,True,-,,True
 axisym_mln_g1.4_M4.0,axisym_mln,zucrow_hoffman,diverging,1.0,1.0,0.0,0.0,,True,,Re > Rt,True
@@ -159,12 +159,12 @@ cf_1d_g1.2_M4.0_pa0.0,performance_1d,sutton_biblarz,Cf,1.8541503000570418,1.8541
 cf_1d_g1.2_M4.0_pa0.0,performance_1d,sutton_biblarz,pe_pc,0.0032371282973906778,0.0032371282973906778,0.0,0.0,1e-09,True,-,,True
 cf_1d_g1.2_M4.0_pa0.0,performance_1d,sutton_biblarz,area_ratio,28.355261324888836,28.355261324888836,0.0,0.0,1e-09,True,-,,True
 bl_tm_x_2343_delta_star,bl_tm_x_2343,nasa_tm_x_2343,delta_star_exit_positive,1.0,1.0,0.0,0.0,,True,-,δ*_e=2.520e-03 m,True
-bl_tm_x_2343_delta_star,bl_tm_x_2343,nasa_tm_x_2343,R_corrected_ge_inviscid,0.12074629226895493,0.1232665835300393,0.0,0.0025202912610843703,,True,m,r_corr = r_inv + δ* (radial approx),True
-throat_ivl_sauer,throat_ivl_sauer,sauer_kliegel,M_min_supersonic,1.01,1.0419847124585904,0.0,0.03198471245859036,,True,-,IVL slightly supersonic,True
+bl_tm_x_2343_delta_star,bl_tm_x_2343,nasa_tm_x_2343,R_corrected_ge_inviscid,0.12074629226895493,0.12326663583562739,0.0,0.0025203435666724533,,True,m,r_corr = r_inv + δ* (radial approx),True
+throat_ivl_sauer,throat_ivl_sauer,sauer_kliegel,M_min_supersonic,1.01,1.02,0.0,0.010000000000000009,,True,-,IVL slightly supersonic,True
 throat_ivl_sauer,throat_ivl_sauer,sauer_kliegel,theta_axis_near_zero,0.0,0.0,0.0,0.0,,True,rad,axisymmetry on centerline,True
-family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_mln_m,,0.4877158778116762,,,,True,m,,True
-family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_tic_m,,0.42017163064694146,,,,True,m,,True
-family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_ideal_m,,0.5252145383086768,,,,True,m,,True
+family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_mln_m,,0.48772721509883277,,,,True,m,,True
+family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_tic_m,,0.4201716306469419,,,,True,m,,True
+family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_ideal_m,,0.5252145383086774,,,,True,m,,True
 family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_rao_m,,0.21122300575588568,,,,True,m,,True
 family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,ideal_gt_mln,1.0,1.0,0.0,0.0,,True,,ideal longer than MLN,True
 family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,tic_lt_ideal,1.0,1.0,0.0,0.0,,True,,TIC shorter than ideal,True

@@ -6,7 +6,6 @@ import csv
 from pathlib import Path
 from typing import Any, Sequence
 
-
 _DEFAULT_COLUMNS = (
     ("kind", "kind"),
     ("L_over_Rt", "L/Rt"),

@@ -283,6 +283,31 @@ class DesignResult:
             extra_notes=extra_notes,
         )
 
+    def with_boundary_layer(
+        self, *, pc: float = 5.0e6, Tc: float = 3000.0, turbulent: bool = True
+    ) -> DesignResult:
+        """Copy of this design with the wall offset outward by the displacement thickness δ*.
+
+        Uses :func:`rockmoc.analysis.correct_wall_bl` (integral BL, Eckert
+        reference temperature); δ* exit/max values are added to ``meta``.
+        """
+        from rockmoc.analysis.boundary_layer import correct_wall_bl
+        from rockmoc.performance.metrics import compute_metrics
+
+        bl = correct_wall_bl(
+            self.contour, self.spec.gas, throat_radius=self.spec.throat_radius,
+            pc=pc, Tc=Tc, turbulent=turbulent, axisymmetric=self.spec.delta == 1.0,
+        )
+        metrics = compute_metrics(
+            bl.corrected, self.spec.gas, throat_radius=self.spec.throat_radius,
+            exit_mach_design=self.exit_mach_design,
+        )
+        return DesignResult(
+            kind=self.kind, spec=self.spec, exit_mach_design=self.exit_mach_design,
+            contour=bl.corrected, metrics=metrics, net=self.net,
+            meta={**self.meta, "boundary_layer": bl.summary()},
+        )
+
     def explain(self) -> str:
         """Printable mini-explainer for this nozzle kind."""
         from rockmoc.student.explainers import explainer

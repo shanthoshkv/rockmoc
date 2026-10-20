@@ -1,24 +1,10 @@
-"""Transonic throat IVL — Sauer / Hall / Kliegel first-order theory.
+"""Transonic throat initial-value line (IVL) from Sauer's solution.
 
-References (see ``refs/``)
---------------------------
-* Sauer — small-disturbance throat solution
-* Hall — higher-order axisymmetric series
-* Kliegel & Levine (1969) — confirms first-order throat conditions match
-  Sauer/Hall; useful for small throat radius of curvature
-* Dutton (1980) DTIC — review of Hall-type series for nozzle throats
-
-First-order axisymmetric form (engineering)
--------------------------------------------
-With ε = R_t / R_c (throat radius / wall curvature radius) and local sonic
-speed as reference, the leading-order expansion of the velocity field near
-the geometric throat gives a weakly supersonic data line for MOC start::
-
-    M²(x, r) − 1 ≈ α · (x / R_t) + β · (r / R_t)²
-
-where α, β depend on γ and ε (Hall factor improves α for moderate ε).
-
-This is **not** CFD — it seeds MOC downstream of the sonic line.
+The velocity field near a circular-arc throat is Sauer's small-perturbation
+solution (see :mod:`rockmoc.moc.transonic` for equations and references).
+The IVL is the vertical line where the axis Mach equals ``axis_mach``; it is
+weakly supersonic everywhere and spacelike, so MOC can march from it.
+Sauer is accurate for Rc/Rt ≳ 2. This is **not** CFD.
 """
 
 from __future__ import annotations
@@ -30,6 +16,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from rockmoc.exceptions import DesignError
+from rockmoc.moc.transonic import sauer_alpha, sauer_line, sauer_offset
 from rockmoc.moc.types import FlowPoint, PointKind
 from rockmoc.thermo.perfect_gas import PerfectGas
 
@@ -55,103 +42,55 @@ class ThroatIVL:
         }
 
 
-def _sauer_hall_coefficients(gamma: float, eps: float) -> tuple[float, float, float]:
-    """Return (α, β, hall) for M²−1 = α(x/Rt) + β(r/Rt)².
-
-    First-order Sauer/Kliegel axisymmetric grouping with Hall correction
-    on the axial coefficient for finite ε = Rt/Rc.
-    """
-    g = float(gamma)
-    # Leading axial acceleration (order √ε)
-    # Classical: α ~ √((γ+1) ε)  (dimensionless x/Rt scaling)
-    hall = 1.0 + 0.5 * eps + 0.15 * eps**2  # mild Hall-style series
-    alpha = math.sqrt(max((g + 1.0) * eps, 1e-16)) * hall
-    # Radial: from continuity / irrotational constraint at first order
-    # β = α * (γ+1)/4   is a common Hall/Sauer radial coupling sign/magnitude
-    # Positive β ⇒ M increases slightly toward wall on a fixed-x plane
-    beta = alpha * (g + 1.0) / 4.0
-    return alpha, beta, hall
-
-
 def sauer_throat_ivl(
     gas: PerfectGas,
     *,
     throat_radius: float,
     rc_over_rt: float = 1.5,
     n_points: int = 41,
-    x_over_rt: float = 0.05,
-    min_supersonic: float = 0.02,
+    axis_mach: float = 1.02,
+    delta: float = 1.0,
 ) -> ThroatIVL:
-    """Build a Sauer/Hall/Kliegel slightly-supersonic IVL on x = const.
-
-    Parameters
-    ----------
-    min_supersonic:
-        Minimum (M²−1) enforced on the IVL so MOC stays hyperbolic.
-    """
+    """Sauer IVL on the vertical line where the axis Mach is ``axis_mach``."""
     if throat_radius <= 0 or rc_over_rt <= 0:
         raise DesignError("throat_radius and rc_over_rt must be positive")
     if n_points < 5:
         raise DesignError("n_points must be ≥ 5")
+    if axis_mach <= 1.0:
+        raise DesignError("axis_mach must be > 1")
 
     Rt = float(throat_radius)
     Rc = rc_over_rt * Rt
-    g = gas.gamma
-    eps = Rt / Rc
-    alpha, beta, hall = _sauer_hall_coefficients(g, eps)
-
-    x0 = x_over_rt * Rt
-    # Ensure weakly supersonic everywhere on the plane
-    for _ in range(12):
-        m2m1_axis = alpha * (x0 / Rt)
-        m2m1_wall = alpha * (x0 / Rt) + beta * 1.0
-        if min(m2m1_axis, m2m1_wall) >= min_supersonic:
-            break
-        x0 *= 1.35
-    x0 = max(x0, 0.02 * Rt)
-
-    r_wall = Rt  # first-order: cylindrical section at geometric throat radius
-    r = np.linspace(0.0, r_wall, n_points)
-    x = np.full(n_points, x0)
-    M2m1 = alpha * (x0 / Rt) + beta * (r / Rt) ** 2
-    M2m1 = np.maximum(M2m1, min_supersonic)
-    M = np.sqrt(1.0 + M2m1)
-
-    # Flow angle: from irrotationality / wall slope consistency
-    # At wall, circular arc past throat: φ ≈ arcsin(x/Rc) ≈ x/Rc for small x
-    phi_w = math.asin(min(1.0, x0 / max(Rc, 1e-12)))
-    # Linear θ(r) from axis (0) to wall (φ_w) — leading-order Sauer
-    theta = phi_w * (r / max(r_wall, 1e-12))
-
-    points: list[FlowPoint] = []
-    for i in range(n_points):
-        points.append(
-            FlowPoint.from_mach_theta(
-                float(x[i]),
-                float(r[i]),
-                float(M[i]),
-                float(theta[i]),
-                gas,
-                kind=PointKind.THROAT if i == n_points - 1 else PointKind.INTERIOR,
-            )
+    g = float(gas.gamma)
+    try:
+        x0, phi_w, line = sauer_line(g, Rt, Rc, axis_mach=axis_mach, n=n_points - 1, delta=delta)
+    except ValueError as exc:
+        raise DesignError(str(exc)) from exc
+    r = np.array([p[0] for p in line])
+    M = np.array([p[1] for p in line])
+    theta = np.array([p[2] for p in line])
+    points = [
+        FlowPoint.from_mach_theta(
+            x0, float(r[i]), float(M[i]), float(theta[i]), gas,
+            kind=PointKind.THROAT if i == n_points - 1 else PointKind.INTERIOR,
         )
-
+        for i in range(n_points)
+    ]
     return ThroatIVL(
-        x=x,
+        x=np.full(n_points, x0),
         r=r,
         M=M,
         theta=theta,
         points=points,
         meta={
-            "model": "sauer_hall_kliegel_first_order",
+            "model": "sauer",
             "Rc_over_Rt": rc_over_rt,
-            "eps_Rt_over_Rc": eps,
-            "x_over_Rt": float(x0 / Rt),
+            "x_over_Rt": x0 / Rt,
+            "sonic_point_offset_over_Rt": sauer_offset(g, Rt, Rc, delta) / Rt,
+            "alpha_per_m": sauer_alpha(g, Rt, Rc, delta),
+            "wall_angle_deg": math.degrees(phi_w),
             "gamma": g,
-            "alpha": alpha,
-            "beta": beta,
-            "hall_factor": hall,
-            "references": "Sauer; Hall; Kliegel & Levine 1969",
+            "references": "Sauer 1947; Mendelson NASA TM X-53084 Eq. 2.6",
         },
     )
 

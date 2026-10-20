@@ -10,8 +10,6 @@ No CFD.
 
 from __future__ import annotations
 
-import math
-
 from rockmoc.designers.base import DesignResult, DesignSpec
 from rockmoc.designers.ideal import design_ideal
 from rockmoc.designers.rao import design_rao_top
@@ -54,7 +52,6 @@ def design_rao_toc(
     L_now = contour.length
     if L_now > 1e-12:
         scale = L_target / L_now
-        import numpy as np
         from rockmoc.geometry.contour import Contour
 
         x0 = float(contour.x[0])

@@ -1136,8 +1136,8 @@ def _to_markdown(report: dict[str, Any]) -> str:
         "",
         "## Summary",
         "",
-        f"| Cases | Passed | Failed | Metrics | Cited sources | Max err % | Mean err % | Median err % |",
-        f"|------:|-------:|-------:|--------:|--------------:|----------:|-----------:|-------------:|",
+        "| Cases | Passed | Failed | Metrics | Cited sources | Max err % | Mean err % | Median err % |",
+        "|------:|-------:|-------:|--------:|--------------:|----------:|-----------:|-------------:|",
         f"| {s['n_cases']} | {s['n_passed']} | {s['n_failed']} | {s['n_metrics']} | "
         f"{s.get('n_cited_sources', '—')} | "
         f"{_fmt(s['max_error_percent'])} | {_fmt(s['mean_error_percent'])} | {_fmt(s['median_error_percent'])} |",

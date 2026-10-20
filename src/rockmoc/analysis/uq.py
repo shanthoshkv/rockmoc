@@ -6,7 +6,7 @@ Monte Carlo / one-at-a-time sensitivity on γ, mesh density, and optional BL.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 

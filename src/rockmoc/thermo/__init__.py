@@ -1,5 +1,10 @@
 """Thermodynamic relations for perfect-gas and chemistry-backed nozzle design."""
 
+from rockmoc.thermo.expansion_table import (
+    ExpansionTable,
+    build_multi_gamma_table,
+    build_perfect_gas_table,
+)
 from rockmoc.thermo.perfect_gas import (
     PerfectGas,
     area_ratio,
@@ -7,11 +12,6 @@ from rockmoc.thermo.perfect_gas import (
     mach_from_area_ratio,
     mach_from_prandtl_meyer,
     prandtl_meyer,
-)
-from rockmoc.thermo.expansion_table import (
-    ExpansionTable,
-    build_multi_gamma_table,
-    build_perfect_gas_table,
 )
 from rockmoc.thermo.protocol import GasModel
 from rockmoc.thermo.variable_gamma import VariableGammaGas

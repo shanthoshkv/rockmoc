@@ -12,6 +12,7 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
+from rockmoc import _kernels as _core
 from rockmoc.exceptions import ThermoError
 from rockmoc.thermo.solve import bracketed_newton
 
@@ -106,6 +107,8 @@ class PerfectGas:
 
     def area_ratio(self, M: ArrayLike) -> FloatArray:
         """A/A* for given Mach number(s) (isentropic)."""
+        if isinstance(M, float) and M > 0.0:
+            return _core.area_ratio(M, self.gamma)
         M = _validate_mach(M)
         g = self.gamma
         expo = 0.5 * (g + 1.0) / (g - 1.0)
@@ -125,7 +128,6 @@ class PerfectGas:
         if branch not in {"supersonic", "subsonic"}:
             raise ThermoError("branch must be 'supersonic' or 'subsonic'")
 
-        g = self.gamma
         out = np.empty_like(ar, dtype=np.float64)
 
         def solve_one(eps: float) -> float:
@@ -166,6 +168,8 @@ class PerfectGas:
 
     def prandtl_meyer(self, M: ArrayLike) -> FloatArray:
         """Prandtl–Meyer function ν(M) [radians]."""
+        if isinstance(M, float) and M >= 1.0:
+            return _core.pm(M, self.gamma)
         M = _validate_mach(M, allow_subsonic=False)
         g = self.gamma
         gp = np.sqrt((g + 1.0) / (g - 1.0))
@@ -176,6 +180,8 @@ class PerfectGas:
 
     def mach_from_prandtl_meyer(self, nu: ArrayLike) -> FloatArray:
         """Invert ν(M) → M (supersonic). ν in radians."""
+        if isinstance(nu, float) and 0.0 <= nu <= _core.pm_max(self.gamma) + 1e-12:
+            return _core.pm_inv(nu, self.gamma)
         nu_arr = _as_float_array(nu)
         if np.any(nu_arr < -1e-15):
             raise ThermoError("Prandtl–Meyer angle must be ≥ 0")
@@ -222,14 +228,18 @@ class PerfectGas:
             out[idx] = solve_one(float(val))
         return out if out.shape else float(out)
 
+    def gamma_at_mach(self, M: float) -> float:
+        """Constant γ (satisfies :class:`~rockmoc.thermo.gas_protocol.MOCGas`)."""
+        return self.gamma
+
     def prandtl_meyer_max(self) -> float:
         """Maximum Prandtl–Meyer angle [radians] as M→∞."""
-        g = self.gamma
-        gp = np.sqrt((g + 1.0) / (g - 1.0))
-        return float(0.5 * np.pi * (gp - 1.0))
+        return _core.pm_max(self.gamma)
 
     def mach_angle(self, M: ArrayLike) -> FloatArray:
         """Mach angle μ = arcsin(1/M) [radians]."""
+        if isinstance(M, float) and M >= 1.0:
+            return math.asin(1.0 / M)
         M = _validate_mach(M, allow_subsonic=False)
         return np.arcsin(1.0 / M)
 

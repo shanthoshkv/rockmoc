@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from rockmoc import DesignSpec, PerfectGas, design_ideal, design_mln, design_tic
 from rockmoc.moc.axisym_hf import design_axisym_mln_hf, mesh_convergence_axisym

@@ -8,8 +8,10 @@ from rockmoc.geometry.contour import Contour
 from rockmoc.moc.types import CharNet
 from rockmoc.plot.moc_field import plot_moc_field
 from rockmoc.plot.performance_plots import plot_nozzle_contour
+from rockmoc.plot.theme import themed
 
 
+@themed
 def plot_contour(
     contour: Contour,
     *,
