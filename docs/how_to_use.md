@@ -592,9 +592,13 @@ prod = design_production(
     Tc=3200.0,
     n_chars_min=80,                     # raise for publication quality
     certificate=True,
+    bl_method="integral",               # momentum integral; "empirical" = flat-plate
+    wall_temperature=800.0,             # K; None = adiabatic wall
+    eta_chemical=0.97,                  # finite-rate loss (see kinetic_efficiency_bounds)
 )
 
 print(prod.summary())
+print(prod.bl.meta["method"], prod.bl.delta_cf_friction)   # friction ΔCf already subtracted
 
 # Pieces you will use
 wall_inviscid = prod.design.contour

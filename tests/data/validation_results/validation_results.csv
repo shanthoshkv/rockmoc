@@ -158,13 +158,13 @@ cf_1d_g1.25_M3.0_pa0.01,performance_1d,sutton_biblarz,area_ratio,5.8318668386799
 cf_1d_g1.2_M4.0_pa0.0,performance_1d,sutton_biblarz,Cf,1.8541503000570418,1.8541503000570418,0.0,0.0,0.05,True,-,Sutton ideal Cf,True
 cf_1d_g1.2_M4.0_pa0.0,performance_1d,sutton_biblarz,pe_pc,0.0032371282973906778,0.0032371282973906778,0.0,0.0,1e-09,True,-,,True
 cf_1d_g1.2_M4.0_pa0.0,performance_1d,sutton_biblarz,area_ratio,28.355261324888836,28.355261324888836,0.0,0.0,1e-09,True,-,,True
-bl_tm_x_2343_delta_star,bl_tm_x_2343,nasa_tm_x_2343,delta_star_exit_positive,1.0,1.0,0.0,0.0,,True,-,δ*_e=2.520e-03 m,True
-bl_tm_x_2343_delta_star,bl_tm_x_2343,nasa_tm_x_2343,R_corrected_ge_inviscid,0.12074629226895493,0.12326663583562739,0.0,0.0025203435666724533,,True,m,r_corr = r_inv + δ* (radial approx),True
+bl_tm_x_2343_delta_star,bl_tm_x_2343,nasa_tm_x_2343,delta_star_exit_positive,1.0,1.0,0.0,0.0,,True,-,δ*_e=2.098e-03 m,True
+bl_tm_x_2343_delta_star,bl_tm_x_2343,nasa_tm_x_2343,R_corrected_ge_inviscid,0.12074629226895493,0.12284386827552782,0.0,0.002097576006572885,,True,m,r_corr = r_inv + δ* (radial approx),True
 throat_ivl_sauer,throat_ivl_sauer,sauer_kliegel,M_min_supersonic,1.01,1.02,0.0,0.010000000000000009,,True,-,IVL slightly supersonic,True
 throat_ivl_sauer,throat_ivl_sauer,sauer_kliegel,theta_axis_near_zero,0.0,0.0,0.0,0.0,,True,rad,axisymmetry on centerline,True
 family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_mln_m,,0.48772721509883277,,,,True,m,,True
-family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_tic_m,,0.4201716306469419,,,,True,m,,True
-family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_ideal_m,,0.5252145383086774,,,,True,m,,True
+family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_tic_m,,0.4202994631277136,,,,True,m,,True
+family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_ideal_m,,0.525374328909642,,,,True,m,,True
 family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_rao_m,,0.21122300575588568,,,,True,m,,True
 family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,ideal_gt_mln,1.0,1.0,0.0,0.0,,True,,ideal longer than MLN,True
 family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,tic_lt_ideal,1.0,1.0,0.0,0.0,,True,,TIC shorter than ideal,True

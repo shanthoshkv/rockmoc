@@ -11,7 +11,6 @@ from typing import Any, Literal
 
 from rockmoc.analysis.boundary_layer import BLCorrectionResult, correct_wall_bl
 from rockmoc.analysis.throat import sauer_throat_ivl
-from rockmoc.analysis.uq import mesh_certificate
 from rockmoc.designers.base import DesignResult, DesignSpec
 from rockmoc.designers.ideal import design_ideal
 from rockmoc.designers.mln import design_mln
@@ -105,6 +104,9 @@ def design_production(
     altitude_points: list[float] | None = None,
     rao_length_fraction: float = 0.80,
     store_net: bool = True,
+    bl_method: Literal["integral", "empirical"] = "integral",
+    wall_temperature: float | None = None,
+    eta_chemical: float = 1.0,
 ) -> ProductionResult:
     """Run the production accuracy pipeline.
 
@@ -114,7 +116,12 @@ def design_production(
         Optional (γ_c, γ_t, γ_e) for variable-γ table. If None, constant-γ
         table from ``spec.gas``.
     apply_bl:
-        Apply integral BL displacement correction to the wall.
+        Apply BL displacement correction to the wall and subtract the
+        skin-friction ΔCf from field and altitude performance.
+    bl_method, wall_temperature:
+        Forwarded to :func:`~rockmoc.analysis.correct_wall_bl`.
+    eta_chemical:
+        Finite-rate chemistry efficiency applied to Cf (1.0 = none).
     """
     spec.validate()
     # Fine mesh
@@ -183,10 +190,16 @@ def design_production(
             Tc=Tc,
             turbulent=True,
             axisymmetric=(design_spec.delta == 1.0),
+            method=bl_method,
+            wall_temperature=wall_temperature,
         )
         contour_for_perf = bl_res.corrected
     else:
         contour_for_perf = contour
+    losses = {
+        "delta_cf_friction": bl_res.delta_cf_friction if bl_res is not None else 0.0,
+        "eta_chemical": eta_chemical,
+    }
 
     field = field_integrated_cf(
         contour_for_perf,
@@ -197,10 +210,13 @@ def design_production(
         Tc=Tc,
         pa=pa,
         net=design.net,
+        **losses,
     )
 
     cert: dict = {"skipped": True}
     if certificate and kind in ("mln", "ideal", "tic"):
+        from rockmoc.analysis.uq import mesh_certificate  # uq imports designers: avoid cycle
+
         try:
             cert = mesh_certificate(
                 throat_radius=design_spec.throat_radius,
@@ -223,6 +239,7 @@ def design_production(
         pc=pc,
         Tc=Tc,
         altitudes_m=altitude_points,
+        **losses,
     )
 
     # Attach field metrics into design meta

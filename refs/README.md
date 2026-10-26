@@ -13,6 +13,10 @@ over secondary blogs when changing physics.
 | `Korte_1997_aerospike.pdf` | Korte, multidisciplinary aerospike (1997) | Aerospike design context |
 | `Spike_Contour_Algorithm.pdf` | Vernacchia / Lee plug contour notes | Annular aerospike |
 | `IJERT_MLN_MOC.pdf` | MLN MOC design case study | Cross-check MLN procedure |
+| `NASA-TN-D-5377_nozzle_BL.pdf` | Boldman et al., turbulent BL in M 4.4 cooled conical nozzle (1969) | `validate/experimental.py`: θ, δ*, wall p, throat p |
+| `Cuffel_Back_Massier_1969_transonic.pdf` | Cuffel, Back & Massier, Rc/Rt = 0.625 transonic data (AIAA J. 1969, © AIAA) | Hall divergence guard, Sauer check |
+| `NASA-TM-107285_nozzle_performance.pdf` | Arrington et al., Rao-code bell wall points (1996) | Rao TOC contour validation |
+| `Aspire_TOP_nozzle_Rao_chart.pdf` | Newlands, TOP note reproducing SP-8120 θ_N/θ_e chart (2017) | Rao angle validation |
 | `Kliegel_Levine_1969.pdf` | Transonic throat (Kliegel & Levine) | Sauer/Hall throat IVL |
 | `Seitzman_Nozzle_Geometries.pdf` | GaTech nozzle geometry notes | Rao / MOC overview |
 

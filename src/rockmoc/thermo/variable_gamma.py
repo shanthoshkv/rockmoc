@@ -128,6 +128,9 @@ class VariableGammaGas:
         return float(self.table.nu[-1])
 
     def characteristic_velocity(self, T0: float) -> float:
+        cs = self.table.meta.get("cstar_m_s")
+        if cs is not None:  # integrated isentrope: ratios depend on γ(M) only, c* ∝ √T0
+            return float(cs) * math.sqrt(T0 / self.table.Tc)
         g = self.gamma
         return float(
             np.sqrt(self.R * T0 / g)
@@ -142,7 +145,11 @@ class VariableGammaGas:
         area_ratio: float | None = None,
         exit_mach: float | None = None,
     ) -> float:
-        g = self.gamma
+        """Cf = ṁV_e/(p_c A*) + ε (p_e − p_a)/p_c with the table's own state.
+
+        ρV² = γ p M² for any ideal gas, so the momentum term is
+        (A_e/A*)(M_e) · (p_e/p_c) · γ_e M_e² — exact for variable γ.
+        """
         if exit_mach is None:
             if area_ratio is None:
                 raise ThermoError("Provide area_ratio or exit_mach")
@@ -151,9 +158,9 @@ class VariableGammaGas:
             Me = float(exit_mach)
             if area_ratio is None:
                 area_ratio = float(self.area_ratio(Me))
-        term = (2.0 * g**2 / (g - 1.0)) * (2.0 / (g + 1.0)) ** ((g + 1.0) / (g - 1.0))
-        pe_term = 1.0 - pe_pc ** ((g - 1.0) / g)
-        return float(np.sqrt(term * pe_term) + area_ratio * (pe_pc - pa_pc))
+        pe_tab = float(self.pe_pc_from_mach(Me))
+        momentum = float(self.area_ratio(Me)) * pe_tab * self.gamma_at_mach(Me) * Me * Me
+        return float(momentum + area_ratio * (pe_pc - pa_pc))
 
     def as_perfect_gas(self) -> PerfectGas:
         return PerfectGas(gamma=self.gamma, R=self.R)

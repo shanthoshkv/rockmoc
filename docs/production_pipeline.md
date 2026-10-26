@@ -4,11 +4,11 @@
 
 | Step | Feature | Module |
 |------|---------|--------|
-| A | Fine mesh + expansion table + BL + altitude | `designers/production.py` |
+| A | Fine mesh + expansion table + momentum-integral BL (empirical fallback) + friction ΔCf / η_chem loss stack + altitude | `designers/production.py`, `analysis/boundary_layer.py` |
 | B | Strict canceling wall (default, with fallback) | `moc/axisym_hf.py` + `moc/strict_wall.py` |
 | C | Field-integrated Cf | `performance/field_cf.py` |
 | D | Variable-γ tables + `VariableGammaGas` | `thermo/expansion_table.py`, `variable_gamma.py` |
-| E | Rao TOC (ideal-MOC length) + Sauer/Hall throat | `designers/rao_toc.py`, `analysis/throat.py` |
+| E | Rao TOC (ideal-MOC length) + Hall (axisym) / Sauer (planar) throat | `designers/rao_toc.py`, `analysis/throat.py` |
 | F | UQ + mesh certificate + expanded validation | `analysis/uq.py`, `validate/cases.py` |
 
 ## Not included (by request)

@@ -1,6 +1,6 @@
 # rockmoc deep multi-regime validation (10+ cited sources)
 
-**Generated (UTC):** 2026-10-20T05:23:36.209688+00:00
+**Generated (UTC):** 2026-10-26T16:36:54.512560+00:00
 
 ## Summary
 
@@ -552,8 +552,8 @@
 
 | Metric | Reference | Solver | Error % | Tol % | Pass | Unit | Note |
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
-| delta_star_exit_positive | 1 | 1 | 0 | — | Y | - | δ*_e=2.520e-03 m |
-| R_corrected_ge_inviscid | 0.120746 | 0.123267 | 0 | — | Y | m | r_corr = r_inv + δ* (radial approx) |
+| delta_star_exit_positive | 1 | 1 | 0 | — | Y | - | δ*_e=2.098e-03 m |
+| R_corrected_ge_inviscid | 0.120746 | 0.122844 | 0 | — | Y | m | r_corr = r_inv + δ* (radial approx) |
 
 ### `throat_ivl_sauer` — **PASS**
 
@@ -575,8 +575,8 @@
 | Metric | Reference | Solver | Error % | Tol % | Pass | Unit | Note |
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
 | L_mln_m | — | 0.487727 | — | — | Y | m |  |
-| L_tic_m | — | 0.420172 | — | — | Y | m |  |
-| L_ideal_m | — | 0.525215 | — | — | Y | m |  |
+| L_tic_m | — | 0.420299 | — | — | Y | m |  |
+| L_ideal_m | — | 0.525374 | — | — | Y | m |  |
 | L_rao_m | — | 0.211223 | — | — | Y | m |  |
 | ideal_gt_mln | 1 | 1 | 0 | — | Y |  | ideal longer than MLN |
 | tic_lt_ideal | 1 | 1 | 0 | — | Y |  | TIC shorter than ideal |

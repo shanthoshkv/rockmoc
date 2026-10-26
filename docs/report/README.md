@@ -1,59 +1,28 @@
 # rockmoc Technical Report (LaTeX)
 
-Industry-style technical report covering the entire **rockmoc** project: governing equations, contour designers, performance, architecture, multi-source validation, and bibliography.
+All-in-one reference: purpose, install, CLI/TOML, theory, every public function, examples,
+every project figure, validation, limits, changelog.
 
 | File | Description |
 |------|-------------|
-| [`rockmoc_technical_report.tex`](rockmoc_technical_report.tex) | Full report source (self-contained; no external `.bib`) |
+| [`rockmoc_technical_report.tex`](rockmoc_technical_report.tex) | Source (self-contained bibliography) |
+| [`rockmoc_technical_report.pdf`](rockmoc_technical_report.pdf) | Built report (15 pp) |
 
-## Contents (outline)
+Outline: 1 Overview · 2 Theory (thermo, multi-γ isentrope, MOC, Hall/Sauer throat, families,
+integral BL, loss stack) · 3 API reference · 4 Examples · 5 Figures (all 52 PNGs) ·
+6 Validation · 7 Limits · 8 Changelog · References.
 
-1. Introduction & scope  
-2. Flow assumptions  
-3. Thermodynamics (isentropic, Prandtl–Meyer, \(C_F\), multi-γ)  
-4. Method of characteristics (planar & axisymmetric)  
-5. Throat IVL (Sauer / Kliegel)  
-6. Designers (MLN, ideal, TIC, Rao, conical, aerospike)  
-7. Boundary-layer \(\delta^*\) correction  
-8. Performance metrics & field \(C_F\)  
-9. Software architecture & API  
-10. Validation (43 cases, 12 sources)  
-11. Limits & recommended use  
-12. References + appendices (module map, equation sheet)
+Aligned with **0.7.0 + v0.8 accuracy upgrades (unreleased)**.
 
-Aligned with package version **0.6.1**.
+## Build
 
-## Build PDF
-
-Requires a full TeX distribution (TeX Live, MiKTeX, or MacTeX) with common packages: `amsmath`, `booktabs`, `hyperref`, `siunitx`, `natbib`, `listings`, etc.
-
-```bash
-cd docs/report
-pdflatex rockmoc_technical_report.tex
-pdflatex rockmoc_technical_report.tex
-```
-
-Or:
-
-```bash
-latexmk -pdf rockmoc_technical_report.tex
-```
-
-Output: `rockmoc_technical_report.pdf` in this folder.
-
-### Windows (MiKTeX / TeX Live)
+Figures load from `../../website/{img,assets,linkedin}`. Regenerate them first if needed:
 
 ```powershell
+py -3.12 website\make_images.py; py -3.12 website\make_images_extra.py; py -3.12 website\make_assets.py
 cd docs\report
-pdflatex rockmoc_technical_report.tex
-pdflatex rockmoc_technical_report.tex
+pdflatex rockmoc_technical_report.tex; pdflatex rockmoc_technical_report.tex
 ```
 
-If a package is missing, MiKTeX will usually prompt to install it on first build.
-
-## Notes
-
-- Bibliography is embedded (`thebibliography`); no BibTeX run required.  
-- Primary literature PDFs for offline audit live in repo `refs/`.  
-- Validation numbers quoted in the report match the stored campaign under `tests/data/validation_results/`.  
-- This document is **not** a flight-qualification report; it documents the library for education and preliminary design.
+MiKTeX / TeX Live with `amsmath`, `booktabs`, `longtable`, `subcaption`, `listings`, `natbib`,
+`hyperref`. Not a flight-qualification document.

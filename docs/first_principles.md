@@ -23,7 +23,10 @@ supersonic flow of a perfect gas (or table-based isentropic expansion). Gravity 
 and \(d\nu=\sqrt{M^2-1}\,dV/V\) along an isentrope.
 
 ### Variable γ (along the nozzle)
-Expansion tables integrate local \(d\nu/dM\) with \(\gamma(M)\) (multi-γ or CEA frozen samples).  
+`build_multi_gamma_table` integrates the thermally perfect isentrope from stagnation
+(\(dh=c_p dT\), \(d\ln p=c_p dT/RT\), \(V^2=2\Delta h\), \(A/A^*=(\rho V)^*/\rho V\),
+\(d\nu=\sqrt{M^2-1}\,dV/V\)) with \(\gamma(M)\) blended \(\gamma_c\to\gamma_t\to\gamma_e\);
+constant γ reproduces perfect gas to 1e-7. CEA frozen samples via `build_cea_frozen_table`.  
 `VariableGammaGas` feeds the **same** PM inverse into every MOC unit process, so  
 \(\gamma=\gamma(M)\) varies along characteristics and along the wall.  
 
@@ -52,11 +55,12 @@ See `thermo/expansion_table.py`, `variable_gamma.py`, `moc/mesh.py` (`_sync_mach
 
 ### Axisymmetric (δ=1)
 \[
-\frac{d(\theta+\nu)}{dx}=-\frac{\sin\theta\sin\mu}{r\cos(\theta+\mu)}
+\frac{d(\theta-\nu)}{dx}=-\frac{\sin\theta\sin\mu}{r\cos(\theta+\mu)}
 \quad\text{on C+},\qquad
-\frac{d(\theta-\nu)}{dx}=-\frac{\sin\theta\sin\mu}{r\cos(\theta-\mu)}
+\frac{d(\theta+\nu)}{dx}=+\frac{\sin\theta\sin\mu}{r\cos(\theta-\mu)}
 \quad\text{on C-}
 \]
+(signs verified against exact conical source flow, v0.7).
 Implemented in `moc/equations.py` with predictor–corrector averages (`moc/mesh.py`).
 
 ### Planar MLN (NASA TM-X-1502)
@@ -67,24 +71,37 @@ Implemented in `moc/equations.py` with predictor–corrector averages (`moc/mesh
 ### Axisymmetric MLN / ideal / TIC
 Kernel + canceling wall; strict unit-process wall preferred (`strict_wall.py`).
 
-## 4. Throat (Sauer / Hall / Kliegel)
+## 4. Throat (Hall / Sauer)
 
-First-order axisymmetric small-disturbance field near the geometric throat
-(\(\varepsilon=R_t/R_c\)):
+Small-disturbance series in \(\varepsilon=R_t/R_c\) on the vertical line where the axis
+reaches `throat_mach`:
+- **Hall (1962) 2nd order** — default for axisymmetric \(R_c/R_t\ge1.5\) (`moc/transonic.hall_line`).
+  Residual \(\propto\varepsilon^{3.4}\); wall \(p/p_0\) at \(R_c/R_t=2\) within 0.3 % of NASA TN D-5377.
+  Diverges for tight throats (axis M 1.30 at 0.625 vs 0.8 measured, Cuffel 1969).
+- **Kliegel–Levine (1969)** — Hall's 3rd order re-expanded in \(1/(1+R)\), for \(0.4\le R_c/R_t<1.5\)
+  (`kl_line`, `discharge_coefficient`); Cuffel R = 0.625: axis M 0.79 vs 0.8, Cd 0.982 vs 0.985.
+- **2-D Euler throat solver** (`moc/transonic_euler`) below 0.4 or for steep inlets.
+- **Sauer (1947) 1st order** — planar, and fallback (\(\propto\varepsilon^{2.5}\)).
+- Uniform near-sonic line — last fallback (warned).
+Kliegel–Levine not implemented. Not a CFD throat.
+
+## 5. Boundary layer (momentum integral, NASA TM-X-2343 geometry rule)
+
+`correct_wall_bl(method="integral")` (default) solves
 \[
-M^2-1 \approx \alpha\frac{x}{R_t}+\beta\left(\frac{r}{R_t}\right)^2
+\frac{d\theta}{ds}=\frac{C_f}{2}-\theta\Big[\frac{2+H-M^2}{1+\frac{\gamma-1}{2}M^2}\frac{1}{M}\frac{dM}{ds}+\frac{\delta}{r}\frac{dr}{ds}\Big]
 \]
-with \(\alpha\sim\sqrt{(\gamma+1)\varepsilon}\) and Hall factor for finite \(\varepsilon\).
-Seeds MOC on a weakly supersonic IVL — not a full CFD throat.
-
-## 5. Boundary layer (NASA TM-X-2343)
-
-Ideal MOC contour is **grown by displacement thickness** \(\delta^*\):
+with Eckert/Sommer–Short reference temperature \(C_f\) (0.0256 Re_θ^{-1/4} turbulent,
+0.441/Re_θ laminar), Crocco–Busemann \(H=H_iT_w/T_e+r\frac{\gamma-1}{2}M^2\), Bartz
+\(\mu\propto\mathcal M^{0.5}T^{0.6}\), \(Pr=4\gamma/(9\gamma-5)\), adiabatic or prescribed
+`wall_temperature`. If the ODE fails → flat-plate closed form of the same closure
+(`method="empirical"`, warned); both agree at zero pressure gradient. \(C_f\) within 3 % of
+Van Driest II (M ≤ 5). The wall is grown by \(\delta^*=H\theta\):
 \[
 \mathbf{r}_{\mathrm{final}}=\mathbf{r}_{\mathrm{ideal}}+\delta^*\mathbf{n}
 \]
-TM-X-2343 uses Cohen–Reshotko (laminar) and Sasman–Cresci (turbulent).
-rockmoc uses a compressible integral estimate of \(\delta^*\) with the same geometric rule.
+Friction loss \(\Delta C_F=\int\tau_w\cos\alpha\,dA/(p_cA_t)\) → `bl.delta_cf_friction`,
+subtracted in `integrated_performance` / `field_integrated_cf` / `design_production`.
 
 ## 6. Rao optimum thrust
 
@@ -93,7 +110,10 @@ via control surface on a C+ characteristic (calculus of variations + MOC).
 
 rockmoc provides:
 - **TOP** engineering parabola with \(\theta_n,\theta_e\) correlations
-- **TOC** length referenced to MOC ideal length (`design_rao_toc`)
+- **TOC-length TOP** (`design_rao_toc`): TOP parabola scaled to the MOC ideal length
+- **TOC by MOC control surface** (`design_rao_control`); \((\theta,M)\) on DE from a 2×2 Newton
+  (the θ = μ crossing near L/L15 ≈ 0.8 is regular). Matches the Rao-code bell of NASA
+  TM-107285 within 0.37 % of \(r_e\) and SP-8120 chart angles within ~1°.
 - **Control-surface TOC** (`design_rao_control`): Rao exit-angle condition  
   \(\tan\theta_e = \sin\mu\cos\mu\big/\big[(\gamma M^2)/(\gamma M^2-1)-\sin^2\mu\big]\)  
   plus MOC kernel + circular arc / Hermite wall (Rao 1958 engineering form)

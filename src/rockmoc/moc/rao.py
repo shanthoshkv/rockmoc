@@ -62,25 +62,42 @@ def _control_surface(
     if D.theta <= 1e-6 or D.r <= 0.0:
         return None
 
-    def _state(M: float, th_ref: float) -> tuple[float, float, float, float] | None:
-        # λ-condition: cos(θ − μ) = λ cos μ / M*. θ − μ cannot change sign along
-        # DE (that needs a tangency c = 1), so the branch is fixed by D.
+    def _res(th: float, M: float, r: float) -> tuple[float, float]:
+        # λ- and K-conditions as smooth functions of (θ, M). Eliminating θ via
+        # θ = μ ± acos(λ cos μ / M*) is singular at θ = μ, which the optimum
+        # DE crosses for L/L15 ≈ 0.8 bells; the 2×2 Jacobian is regular there.
         mu = math.asin(1.0 / M)
         ms = mstar_from_mach(M, float(g_of(M)))
-        c = lam * math.cos(mu) / ms
-        if not -1.0 <= c <= 1.0:
-            return None
-        th = mu + branch * math.acos(c)
-        return th, mu, ms, float(gas.area_ratio(M))
+        e1 = ms * math.cos(th - mu) / math.cos(mu) - lam
+        e2 = (r if not planar else 1.0) * ms * ms / float(gas.area_ratio(M)) \
+            * math.sin(th) ** 2 * math.tan(mu) / K - 1.0
+        return e1, e2
 
-    def _resid(M: float, r: float) -> float:
-        st = _state(M, th)
-        if st is None:
-            return math.nan
-        t_, m_, ms, ar = st
-        return (r if not planar else 1.0) * ms * ms / ar * math.sin(t_) ** 2 * math.tan(m_) - K
+    def _solve(th: float, M: float, r: float) -> tuple[float, float] | None:
+        for _ in range(40):
+            f1, f2 = _res(th, M, r)
+            if abs(f1) < 1e-13 and abs(f2) < 1e-13:
+                return th, M
+            ht, hm = 1e-7, 1e-7 * M
+            a1, a2 = _res(th + ht, M, r)
+            b1, b2 = _res(th, M + hm, r)
+            j11, j21 = (a1 - f1) / ht, (a2 - f2) / ht
+            j12, j22 = (b1 - f1) / hm, (b2 - f2) / hm
+            det = j11 * j22 - j12 * j21
+            if det == 0.0 or not math.isfinite(det):
+                return None
+            dth = (f1 * j22 - f2 * j12) / det
+            dM = (j11 * f2 - j21 * f1) / det
+            lim = 1.0
+            while M - lim * dM <= 1.0 + 1e-9 or not 0.0 < th - lim * dth < 0.5 * math.pi:
+                lim *= 0.5
+                if lim < 1e-6:
+                    return None
+            th, M = th - lim * dth, M - lim * dM
+            if abs(dth) < 1e-14 and abs(dM) < 1e-14 * M:
+                return th, M
+        return None
 
-    branch = 1.0 if D.theta >= D.mu else -1.0
     ms_d = mstar_from_mach(D.M, float(g_of(D.M)))
     lam = ms_d * math.cos(D.theta - D.mu) / math.cos(D.mu)
     K = (D.r if not planar else 1.0) * ms_d * ms_d / float(gas.area_ratio(D.M)) \
@@ -91,33 +108,17 @@ def _control_surface(
     th, mu = D.theta, D.mu
     ar = float(gas.area_ratio(M))
     dr = Rt / n_steps * 4.0
+    dth_prev = dM_prev = 0.0
     for _ in range(50 * n_steps):
         r_new = r + dr
-        # Newton on M for the K-condition (λ-condition gives θ(M))
-        M_new = M
-        for _ in range(40):
-            f0 = _resid(M_new, r_new)
-            if math.isnan(f0):
-                return None
-            h = 1e-6 * M_new
-            f1 = _resid(M_new + h, r_new)
-            if math.isnan(f1) or f1 == f0:
-                return None
-            step = f0 * h / (f1 - f0)
-            for _ in range(30):  # backtrack out of the λ-forbidden band (c > 1)
-                M_try = max(M_new - step, 1.0 + 1e-9)
-                if not math.isnan(_resid(M_try, r_new)):
-                    break
-                step *= 0.5
-            else:
-                return None
-            M_new = M_try
-            if abs(step) < 1e-12 * M_new:
-                break
-        st = _state(M_new, th)
+        # Newton on (θ, M) from a linear extrapolation of the last step
+        st = _solve(min(max(th + dth_prev, 1e-6), 1.5), max(M + dM_prev, 1.0 + 1e-6), r_new)
         if st is None:
             return None
-        th_n, mu_n, _, ar_n = st
+        th_n, M_new = st
+        dth_prev, dM_prev = th_n - th, M_new - M
+        mu_n = math.asin(1.0 / M_new)
+        ar_n = float(gas.area_ratio(M_new))
         phi = 0.5 * (th + mu + th_n + mu_n)
         if math.sin(phi) <= 0.0 or math.tan(phi) <= 0.0:
             return None
@@ -127,11 +128,10 @@ def _control_surface(
         if m_acc + dm >= m_target:
             f = (m_target - m_acc) / dm
             x_e, r_e = x + f * (x_new - x), r + f * dr
-            M_e = M + f * (M_new - M)
-            st_e = _state(M_e, th)
+            st_e = _solve(th + f * (th_n - th), M + f * (M_new - M), r_e)
             if st_e is None:
                 return None
-            pts.append(_fp(x_e, r_e, st_e[0], float(gas.prandtl_meyer(M_e)), gas, PointKind.INTERIOR))
+            pts.append(_fp(x_e, r_e, st_e[0], float(gas.prandtl_meyer(st_e[1])), gas, PointKind.INTERIOR))
             return pts
         m_acc += dm
         x, r, M, th, mu, ar = x_new, r_new, M_new, th_n, mu_n, ar_n
@@ -148,7 +148,7 @@ def _thin(pts: list[FlowPoint], n: int) -> list[FlowPoint]:
 
 def _lattice(gas: MOCGas, *, Rt: float, Rc: float, theta_n: float, n_chars: int,
              throat_mach: float, delta: float) -> tuple[dict, str]:
-    for start in ("sauer", "uniform"):
+    for start in ("hall", "sauer", "uniform"):
         lat: dict = {}
         try:
             build_ideal_nets(gas, Rt=Rt, Rc=Rc, theta_attach=theta_n, n_chars=n_chars,

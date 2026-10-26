@@ -284,12 +284,14 @@ class DesignResult:
         )
 
     def with_boundary_layer(
-        self, *, pc: float = 5.0e6, Tc: float = 3000.0, turbulent: bool = True
+        self, *, pc: float = 5.0e6, Tc: float = 3000.0, turbulent: bool = True, **bl_kwargs: Any
     ) -> DesignResult:
         """Copy of this design with the wall offset outward by the displacement thickness δ*.
 
-        Uses :func:`rockmoc.analysis.correct_wall_bl` (integral BL, Eckert
-        reference temperature); δ* exit/max values are added to ``meta``.
+        Uses :func:`rockmoc.analysis.correct_wall_bl` (momentum-integral BL
+        with empirical fallback); extra keywords (``method``,
+        ``wall_temperature``, …) are forwarded. δ*, friction ΔCf and the
+        method actually used are added to ``meta["boundary_layer"]``.
         """
         from rockmoc.analysis.boundary_layer import correct_wall_bl
         from rockmoc.performance.metrics import compute_metrics
@@ -297,6 +299,7 @@ class DesignResult:
         bl = correct_wall_bl(
             self.contour, self.spec.gas, throat_radius=self.spec.throat_radius,
             pc=pc, Tc=Tc, turbulent=turbulent, axisymmetric=self.spec.delta == 1.0,
+            **bl_kwargs,
         )
         metrics = compute_metrics(
             bl.corrected, self.spec.gas, throat_radius=self.spec.throat_radius,

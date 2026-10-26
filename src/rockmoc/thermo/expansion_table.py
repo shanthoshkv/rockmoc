@@ -119,42 +119,77 @@ def build_multi_gamma_table(
     M_max: float = 8.0,
     n: int = 400,
 ) -> ExpansionTable:
-    """Piecewise-γ model: γ(M) blends chamber → throat → exit values.
+    """Thermally perfect isentrope with γ(M) blended chamber → throat → exit.
 
-    Industry multi-γ approach: use γ_t for nozzle expansion MOC (dominant),
-    with smooth blend toward γ_e at high M for thermo ratios.
+    γ is linear in M from γ_c (M = 0) to γ_t (M = 1) and from γ_t to γ_e
+    (M = M_max). The expansion is integrated in T from stagnation with
+    c_p = γR/(γ−1) (frozen composition, calorically imperfect)::
+
+        dh = c_p dT,   d ln p = c_p dT / (R T),   V² = 2 (h_c − h)
+        a² = γ R T,    A/A* = (ρV)* / (ρV),       dν = √(M² − 1) dV / V
+
+    (ρV peaks exactly at M = 1 for any such gas). This is consistent where the
+    old local-γ closed forms were not; for γ_c = γ_t = γ_e it reproduces the
+    perfect-gas relations.
     """
     if min(gamma_c, gamma_t, gamma_e) <= 1.0:
         raise ThermoError("all gamma values must be > 1")
+    if M_max <= 1.0 or n < 20:
+        raise ThermoError("M_max > 1 and n ≥ 20 required")
+
+    def g_of(m: float) -> float:
+        if m <= 1.0:
+            return gamma_c + (gamma_t - gamma_c) * m
+        return gamma_t + (gamma_e - gamma_t) * min((m - 1.0) / (M_max - 1.0), 1.0)
+
+    # Integrate in t = T/Tc (R = 1 per unit Tc; ratios do not depend on R, Tc)
+    g_min = min(gamma_c, gamma_t, gamma_e)
+    t_end = 0.5 / (1.0 + 0.5 * (g_min - 1.0) * M_max**2)
+    n_int = 40 * n
+    ts = np.geomspace(1.0, t_end, n_int)
+    h = np.zeros(n_int)  # (h_c − h) / (R Tc)
+    lnp = np.zeros(n_int)
+    Ms = np.zeros(n_int)
+    gs = np.full(n_int, gamma_c)
+    for i in range(1, n_int):
+        dt = ts[i] - ts[i - 1]
+        cp0 = gs[i - 1] / (gs[i - 1] - 1.0)
+        g1 = gs[i - 1]
+        for _ in range(2):  # predictor–corrector on γ at the new station
+            cp = 0.5 * (cp0 + g1 / (g1 - 1.0))
+            h_i = h[i - 1] - cp * dt
+            m_i = math.sqrt(2.0 * h_i / (g1 * ts[i]))
+            g1 = g_of(m_i)
+        h[i], Ms[i], gs[i] = h_i, m_i, g1
+        lnp[i] = lnp[i - 1] + cp * math.log(ts[i] / ts[i - 1])
+        if m_i > M_max:
+            break
+    k = i + 1
+    ts, h, lnp, Ms, gs = ts[:k], h[:k], lnp[:k], Ms[:k], gs[:k]
+    if Ms[-1] < M_max:
+        raise ThermoError("isentrope integration did not reach M_max")
+    p_r = np.exp(lnp)
+    V = np.sqrt(2.0 * h)
+    G = p_r / ts * V  # ρV / (ρ_c √(R Tc))
+
     M = np.linspace(1.0, M_max, n)
-    # blend: M=1 → γ_t, M→M_max → γ_e
-    w = (M - 1.0) / (M_max - 1.0)
-    gamma = gamma_t * (1.0 - w) + gamma_e * w
-    # Local isentropic with variable γ: approximate using local γ for ratios
-    T_ratio = np.ones_like(M)
-    p_ratio = np.ones_like(M)
-    rho_ratio = np.ones_like(M)
-    for i, (m, g) in enumerate(zip(M, gamma)):
-        T_ratio[i] = 1.0 / (1.0 + 0.5 * (g - 1.0) * m**2)
-        p_ratio[i] = T_ratio[i] ** (g / (g - 1.0))
-        rho_ratio[i] = T_ratio[i] ** (1.0 / (g - 1.0))
-    T = Tc * T_ratio
-    a = np.sqrt(gamma * R * T)
-    # Generalized PM: integrate dν = sqrt(M^2-1)/M * dM / (1 + 0.5(γ-1)M^2) * ...
-    # Standard dν/dM = sqrt(M²-1) / M / (1 + 0.5(γ-1)M²)
-    nu = np.zeros_like(M)
-    for i in range(1, n):
-        m1, m2 = M[i - 1], M[i]
-        g1, g2 = gamma[i - 1], gamma[i]
-        def dnu_dm(m: float, g: float) -> float:
-            return math.sqrt(max(m * m - 1.0, 0.0)) / m / (1.0 + 0.5 * (g - 1.0) * m * m)
-        nu[i] = nu[i - 1] + 0.5 * (dnu_dm(m1, g1) + dnu_dm(m2, g2)) * (m2 - m1)
-    # Area ratio using local γ and M
-    ar = np.ones_like(M)
-    for i, (m, g) in enumerate(zip(M, gamma)):
-        expo = 0.5 * (g + 1.0) / (g - 1.0)
-        term = (2.0 / (g + 1.0)) * (1.0 + 0.5 * (g - 1.0) * m**2)
-        ar[i] = (1.0 / m) * term**expo
+    T_ratio = np.interp(M, Ms, ts)
+    p_ratio = np.exp(np.interp(M, Ms, lnp))
+    rho_ratio = p_ratio / T_ratio
+    gamma = np.array([g_of(float(m)) for m in M])
+    a = np.sqrt(gamma * R * Tc * T_ratio)
+    G_star = float(np.interp(1.0, Ms, G))
+    ar = G_star / np.interp(M, Ms, G)
+    ar[0] = 1.0
+    sup = Ms >= 1.0
+    Vs, Msup = V[sup], Ms[sup]
+    dnu = np.sqrt(np.maximum(Msup**2 - 1.0, 0.0)) / Vs
+    # first supersonic sample sits within ~1e-4 of M = 1, so ν(it) ≈ 0
+    nu_s = np.concatenate([[0.0], np.cumsum(0.5 * (dnu[1:] + dnu[:-1]) * np.diff(Vs))])
+    nu = np.maximum(np.interp(M, Msup, nu_s), 0.0)
+    nu[0] = 0.0
+    # c* = p_c A* / ṁ = p_c / (ρV)* in absolute units
+    cstar = float(math.sqrt(R * Tc) / G_star)
 
     return ExpansionTable(
         gamma_ref=gamma_t,
@@ -171,6 +206,7 @@ def build_multi_gamma_table(
         area_ratio=ar,
         mode="multi_gamma",
         meta={
+            "cstar_m_s": cstar,
             "gamma_c": gamma_c,
             "gamma_t": gamma_t,
             "gamma_e": gamma_e,

@@ -253,9 +253,9 @@ def design_axisym_ideal_hf(
     nu_e = float(gas.prandtl_meyer(Me))
 
     net = net_lo = None
-    for start in ("sauer", "uniform"):
+    for start in ("hall", "sauer", "uniform"):
         if start == "uniform":
-            warn_fallback("Sauer start not usable (small Rc / low Me); uniform near-sonic start used")
+            warn_fallback("Hall/Sauer start not usable (small Rc / low Me); uniform near-sonic start used")
         try:
             kw = dict(gas=gas, Rt=Rt, Rc=Rc, nu_target=nu_e, n_chars=n_chars,
                       throat_mach=throat_mach, delta=delta, initial_line=start)

@@ -1,5 +1,69 @@
 # Changelog
 
+## 0.8.0 — accuracy upgrades and known-limitation fixes
+
+### Added
+- **Kliegel–Levine transonic series** (`moc.transonic.kl_uv`, `kl_line`, `discharge_coefficient`):
+  Hall's 3rd order re-expanded in 1/(1+R); used for 0.4 ≤ Rc/Rt < 1.5 (Hall above). Cuffel 1969
+  Rc/Rt = 0.625: axis M 0.79 (0.8), Cd 0.982 (0.985). Axial scaling fixed by irrotationality.
+- **2-D Euler throat solver** (`moc.transonic_euler`, Richardson-extrapolated first-order Rusanov FV)
+  for Rc/Rt < 0.4 / steep inlets; matches KL at Rc/Rt = 2 (Cd 0.9970 vs 0.9962) and Cuffel at 0.625.
+- **Bartz two-thickness boundary layer**: energy-integral equation (n = 0), H from two-layer 1/7
+  profiles (`two_layer_thicknesses`), chamber-inlet start (`theta0`, `phi0`, subsonic contours),
+  K_ax relaminarization switch (TN D-4788). TN D-5377 cooled-inlet θ now inside the measured band
+  (was −38 to −43 %); adiabatic δ* +14 % worst (was +27 %).
+- **Separation** (`analysis.separation`): Summerfield, Kalt–Badal, Schilling, Schmucker, Stark,
+  Morrisette–Goldberg; truncated-nozzle or Kalt–Badal-recovery Cf (matches RocketCEA to 1e-6);
+  TP-1207 full-flow/end-effect flags; `integrated_performance(..., separation="schmucker")`.
+- **Internal-shock detector** (`moc.analysis.analyze_wall`): direct MOC on a given wall, cell-Jacobian
+  sign test; flags TOP parabolas and arc-throat cones, not ideal contours.
+- **Finite-rate kinetics** (`thermo.kinetics.kinetic_nozzle`, Cantera): quasi-1-D reacting nozzle;
+  zero-rate → frozen, fast-rate → shifting equilibrium; equilibrium Isp within 0.1 % of CEA.
+- **Two-phase lag model** (`performance.two_phase.two_phase_nozzle`): gas–particle velocity/thermal lag.
+- **Validation**: Zebbiche axisymmetric MLN table (L/r* within 0.03 %), plus rows for all of the above;
+  74/74 gated checks.
+
+### Fixed
+- Circular-import-safe lazy load kept; `correct_wall_bl` friction loss now integrates the divergent
+  wall only (convergent friction belongs to c*).
+
+## 0.8.0 (earlier items) — accuracy upgrades
+
+Accuracy upgrades; numerical results change for BL-corrected, multi-γ and Rao designs.
+
+### Added
+- **Momentum-integral boundary layer** (`correct_wall_bl(method="integral")`, default):
+  compressible von Kármán equation with pressure-gradient and axisymmetric divergence
+  terms; Eckert/Sommer–Short reference-temperature Cf (within 3 % of Van Driest II,
+  M ≤ 5); Crocco–Busemann shape factor `H = H_i T_w/T_e + r(γ−1)/2 M²`. Falls back to
+  the flat-plate correlation (`method="empirical"`) with a `MOCFallbackWarning` if the
+  ODE fails; the two agree exactly at zero pressure gradient.
+- `wall_temperature` (cooled walls), `viscosity`, `theta0` options; Bartz transport
+  defaults `μ = 1.184e-7 𝓜^0.5 T^0.6`, `Pr = 4γ/(9γ−5)` replace air Sutherland.
+- **Skin-friction thrust loss** `BLCorrectionResult.delta_cf_friction`, and a JANNAF-style
+  loss stack in `integrated_performance` / `field_integrated_cf`
+  (`delta_cf_friction`, `eta_chemical`, `eta_two_phase`); production pipeline applies it.
+- `rocketcea_backend.kinetic_efficiency_bounds`: frozen-at-throat / shifting-equilibrium
+  bounds on η_chem.
+- **Hall 2nd-order transonic initial line** (axisymmetric default, Sauer for planar).
+
+- **Validation against published data** (`rockmoc.validate.experimental`,
+  `docs/validation_experimental.md`, slow test): NASA TN D-5377 BL/wall pressure, Cuffel 1969
+  transonic, NASA TM-107285 Rao-code bell, SP-8120 Rao chart, Angelino plug; 30/30 gated pass, 11 known-limit rows.
+- **Website rebuilt** (`website/index.html`, `rockmoc.html`): heat-tint theme, live contour switcher and
+  validation charts from real library output (`website/make_site_data.py` injects the data).
+
+### Fixed
+- **Hall throat series** restricted to Rc/Rt ≥ 1.5 (diverges below; Cuffel 1969 data). Sauer used
+  for tighter throats, including the Rao default 0.382.
+- **Circular import**: `from rockmoc import monte_carlo_mln` in a fresh interpreter.
+- **Rao TOC control surface**: θ was eliminated through `acos`, singular at θ = μ, which
+  the optimum DE crosses near L/L15 ≈ 0.8, so feasible lengths raised "not reachable" on
+  some lattices (e.g. n = 20, 30, 60). Now a 2×2 Newton on (θ, M); converges monotonically in N.
+- **Multi-γ table** now integrates the thermally perfect isentrope (h, p, V, ρV, ν) instead
+  of applying constant-γ closed forms at the local γ; `VariableGammaGas` c* and Cf use the
+  table state.
+
 ## 0.7.0
 
 Physics fixes change numerical results for axisymmetric designs. Planar

@@ -28,6 +28,37 @@ def _require_rocketcea():
     return CEA_Obj
 
 
+def kinetic_efficiency_bounds(
+    ox: str, fuel: str, of_ratio: float, Pc_psia: float, eps: float
+) -> dict:
+    """Bound the finite-rate chemistry efficiency η_chem = Isp_kinetic / Isp_equilibrium.
+
+    Real (finite-rate) expansion lies between shifting equilibrium (infinitely
+    fast chemistry, η = 1) and composition frozen at the throat (infinitely
+    slow), so ``eta_lower = Isp_frozen / Isp_shifting ≤ η_chem ≤ 1``. Both
+    share the chamber-to-throat equilibrium, hence the same c*, so the Isp
+    ratio equals the Cf ratio and can be passed as ``eta_chemical``.
+    """
+    CEA_Obj = _require_rocketcea()
+    cea = CEA_Obj(oxName=ox, fuelName=fuel)
+    try:
+        isp_eq = float(cea.get_Isp(Pc=Pc_psia, MR=of_ratio, eps=eps, frozen=0))
+        isp_fr = float(cea.get_Isp(Pc=Pc_psia, MR=of_ratio, eps=eps, frozen=1, frozenAtThroat=1))
+    except Exception as exc:
+        raise ThermoError(f"RocketCEA evaluation failed: {exc}") from exc
+    if not (isp_eq > 0.0 and isp_fr > 0.0):
+        raise ThermoError("RocketCEA returned non-positive Isp")
+    lower = min(isp_fr / isp_eq, 1.0)
+    return {
+        "Isp_vac_shifting_s": isp_eq,
+        "Isp_vac_frozen_throat_s": isp_fr,
+        "eta_lower": lower,
+        "eta_upper": 1.0,
+        # ponytail: midpoint of the bounds; a 1-D kinetics (ODK) solve pins it properly
+        "eta_estimate": 0.5 * (1.0 + lower),
+    }
+
+
 @dataclass(slots=True)
 class RocketCEAGas:
     """Frozen perfect-gas surrogate built from a RocketCEA chamber solution.
@@ -134,6 +165,13 @@ class RocketCEAGas:
             self.solve()
         assert self._summary is not None
         return dict(self._summary)
+
+    def kinetic_efficiency_bounds(self) -> dict:
+        """Frozen-at-throat vs shifting-equilibrium bounds on η_chem.
+
+        See :func:`kinetic_efficiency_bounds`.
+        """
+        return kinetic_efficiency_bounds(self.ox, self.fuel, self.of_ratio, self.Pc_psia, self.eps)
 
     # Delegate MOC-facing methods to PerfectGas
     def prandtl_meyer(self, M):

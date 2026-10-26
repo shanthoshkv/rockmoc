@@ -1,6 +1,6 @@
 {
   "title": "rockmoc deep multi-regime validation (10+ cited sources)",
-  "generated_utc": "2026-10-20T05:23:36.209688+00:00",
+  "generated_utc": "2026-10-26T16:36:54.512560+00:00",
   "catalog_title": "rockmoc deep validation catalog (10+ cited sources)",
   "sources": {
     "anderson_compressible": {
@@ -2552,14 +2552,14 @@
           "tol_percent": null,
           "passed": true,
           "unit": "-",
-          "note": "\u03b4*_e=2.520e-03 m"
+          "note": "\u03b4*_e=2.098e-03 m"
         },
         {
           "name": "R_corrected_ge_inviscid",
           "reference": 0.12074629226895493,
-          "solver": 0.12326663583562739,
+          "solver": 0.12284386827552782,
           "error_percent": 0.0,
-          "abs_error": 0.0025203435666724533,
+          "abs_error": 0.002097576006572885,
           "tol_percent": null,
           "passed": true,
           "unit": "m",
@@ -2650,7 +2650,7 @@
         {
           "name": "L_tic_m",
           "reference": null,
-          "solver": 0.4201716306469419,
+          "solver": 0.4202994631277136,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -2661,7 +2661,7 @@
         {
           "name": "L_ideal_m",
           "reference": null,
-          "solver": 0.5252145383086774,
+          "solver": 0.525374328909642,
           "error_percent": null,
           "abs_error": null,
           "tol_percent": null,
@@ -2731,29 +2731,29 @@
           },
           {
             "kind": "ideal",
-            "L_m": 0.5252145383086774,
-            "L_over_Rt": 10.504290766173547,
+            "L_m": 0.525374328909642,
+            "L_over_Rt": 10.50748657819284,
             "area_ratio": 5.831866838679954,
             "Cf_vac": 1.6487280085113096,
             "Isp_vac_s": 237.0834627639599,
             "eta_n": 1.0,
             "eta_div": 1.0,
-            "theta_max_deg": 17.62148677963905,
+            "theta_max_deg": 17.561796426643124,
             "theta_exit_deg": 0.0,
             "exit_radius_m": 0.12074629226895493
           },
           {
             "kind": "tic",
-            "L_m": 0.4201716306469419,
-            "L_over_Rt": 8.403432612938838,
-            "area_ratio": 5.686641373594136,
-            "Cf_vac": 1.6442682326673939,
-            "Isp_vac_s": 236.44215680277756,
-            "eta_n": 0.9993264718724307,
-            "eta_div": 0.9997755939791716,
-            "theta_max_deg": 17.62148677963905,
-            "theta_exit_deg": 1.7166672618861059,
-            "exit_radius_m": 0.11923339898696733
+            "L_m": 0.4202994631277136,
+            "L_over_Rt": 8.405989262554272,
+            "area_ratio": 5.700195916305275,
+            "Cf_vac": 1.6445801906725477,
+            "Isp_vac_s": 236.4870156780541,
+            "eta_n": 0.9993260779966803,
+            "eta_div": 0.999775462717091,
+            "theta_max_deg": 17.561796426643124,
+            "theta_exit_deg": 1.7171692921736044,
+            "exit_radius_m": 0.11937541535325935
           },
           {
             "kind": "rao",
@@ -2762,7 +2762,7 @@
             "area_ratio": 5.831866838679954,
             "Cf_vac": 1.6001877670258366,
             "Isp_vac_s": 230.1034827579395,
-            "eta_n": 0.9705589756255179,
+            "eta_n": 0.9705589756255177,
             "eta_div": 0.9900915114330394,
             "theta_max_deg": 25.814349964178767,
             "theta_exit_deg": 11.42552473066339,
@@ -2775,7 +2775,7 @@
             "area_ratio": 5.831866838679954,
             "Cf_vac": 1.5658845839771165,
             "Isp_vac_s": 225.1707604538162,
-            "eta_n": 0.9497531284077625,
+            "eta_n": 0.9497531284077626,
             "eta_div": 0.9829629131445341,
             "theta_max_deg": 14.999999999999998,
             "theta_exit_deg": 14.999999999999998,

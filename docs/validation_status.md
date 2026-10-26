@@ -43,7 +43,7 @@ See generated **`docs/validation_report.md`** from `rockmoc.validate.validation_
   11.8° vs 24.9° planar for Me = 3, γ = 1.4); corner region and transition region (Goursat
   problem to the uniform exit C+) are solved, wall = streamline carrying the throat mass flow.
   Kernel mass conservation → 0.998 πRt² at N = 64; exit wall angle → 0 with N.
-- Ideal contour: real MOC lattice from a Sauer transonic initial line along a circular-arc throat
+- Ideal contour: real MOC lattice from a Hall (2nd-order) transonic initial line along a circular-arc throat
   (uniform near-sonic start as fallback for small Rc / low Me), attachment chosen so the axis
   reaches Me, same transition + mass-flow wall. Exit ε reflects the discharge coefficient.
 - Known limits: axisym MLN wall angle rises a few degrees past the corner before turning back

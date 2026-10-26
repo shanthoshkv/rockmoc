@@ -120,8 +120,15 @@ def field_integrated_cf(
     Tc: float = 3000.0,
     pa: float = 0.0,
     net: CharNet | None = None,
+    delta_cf_friction: float = 0.0,
+    eta_chemical: float = 1.0,
+    eta_two_phase: float = 1.0,
 ) -> FieldCfResult:
     """Integrate thrust on the nozzle exit plane (axisymmetric).
+
+    Non-geometric losses are applied after the integral, as in
+    :func:`~rockmoc.performance.integrated.integrated_performance`:
+    ``Cf = Cf_field · η_chem · η_2φ − ΔCf_friction``.
 
     Exit-plane integrals (absolute pressure form)::
 
@@ -198,6 +205,15 @@ def field_integrated_cf(
         Cf_vac = F_vac / (pc * At) if pc * At > 0 else float("nan")
         Cf_amb = F / (pc * At) if pc * At > 0 else float("nan")
 
+    Cf_field_vac = Cf_vac
+    eta_mult = eta_chemical * eta_two_phase
+    if eta_mult != 1.0 or delta_cf_friction != 0.0:
+        # Cf ∝ F at fixed ṁ c* (or pc At): scale forces consistently
+        f_vac = (Cf_vac * eta_mult - delta_cf_friction) / Cf_vac
+        f_amb = (Cf_amb * eta_mult - delta_cf_friction) / Cf_amb
+        Cf_vac, Cf_amb = Cf_vac * f_vac, Cf_amb * f_amb
+        F_vac, F = F_vac * f_vac, F * f_amb
+
     if m_dot > 1e-12:
         Isp_vac = F_vac / (m_dot * G0)
         Isp_amb = F / (m_dot * G0)
@@ -231,6 +247,12 @@ def field_integrated_cf(
             "mass_error_vs_1d": float(mass_error),
             "exit_mach_design": exit_mach_design,
             "eta_div_contour": divergence_efficiency(contour),
+            "Cf_vac_inviscid": float(Cf_field_vac),
+            "loss_stack": {
+                "eta_chemical": eta_chemical,
+                "eta_two_phase": eta_two_phase,
+                "delta_cf_friction": delta_cf_friction,
+            },
         },
     )
 

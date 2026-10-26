@@ -32,7 +32,7 @@ py -3.12 -m rockmoc.validate.benchmark --out tests/data/validation_results
 | `sutton_biblarz` | Sutton & Biblarz — ideal 1-D Cf |
 | `zucrow_hoffman` | Zucrow & Hoffman — axisymmetric MOC unit processes |
 | `huzel_huang` | Huzel & Huang — conical nozzle practice (15° baseline) |
-| `sauer_kliegel` | Sauer/Kliegel — transonic throat IVL |
+| `sauer_kliegel` | Sauer/Hall — transonic throat IVL |
 | `shapiro_gas_dynamics` | Shapiro — Prandtl–Meyer form & ν_max |
 
 Local PDFs: `refs/`.
@@ -50,7 +50,7 @@ Local PDFs: `refs/`.
 9. **Aerospike** — Lee identities  
 10. **1-D Cf** — Sutton  
 11. **BL δ\*** — TM-X-2343 spirit  
-12. **Throat IVL** — Sauer/Kliegel  
+12. **Throat IVL** — Sauer/Hall  
 13. **Family ordering** — MLN / TIC / ideal / Rao  
 
 ## Interpreting error %

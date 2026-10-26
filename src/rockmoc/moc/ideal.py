@@ -28,15 +28,17 @@ def build_ideal_nets(
     throat_mach: float = 1.01,
     delta: float = 1.0,
     transition: bool = True,
-    initial_line: Literal["sauer", "uniform"] = "sauer",
+    initial_line: Literal["hall", "sauer", "uniform"] = "hall",
     offsets: tuple[int, ...] = (0,),
     theta_attach: float | None = None,
     lattice: dict | None = None,
 ) -> list[CharNet]:
     """Ideal (uniform-exit) contour with a circular-arc throat of radius Rc.
 
-    ``initial_line="sauer"`` starts from Sauer's transonic solution on the
-    vertical line where the axis reaches throat_mach; ``"uniform"`` starts
+    ``initial_line="hall"`` (default) starts from Hall's 2nd-order transonic
+    solution (axisymmetric, Rc/Rt ≥ 1.5; otherwise Sauer), ``"sauer"`` from Sauer's
+    first-order one, both on the vertical line where the axis reaches
+    throat_mach; ``"uniform"`` starts
     from uniform θ = 0, M = throat_mach on the throat plane (cruder, but lets
     the arc end before the Sauer line for small Rc / low Me).
 
@@ -63,13 +65,18 @@ def build_ideal_nets(
     # Initial data line: Sauer's transonic solution on the vertical line where
     # the axis reaches throat_mach (a vertical line stays spacelike near M = 1),
     # or a uniform near-sonic line on the throat plane.
-    from rockmoc.moc.transonic import sauer_line
+    from rockmoc.moc.transonic import HALL_MIN_RC_RT, KL_MIN_RC_RT, hall_line, kl_line, sauer_line
 
     M0 = max(float(throat_mach), 1.0 + 1e-6)
-    if initial_line == "sauer":
+    if initial_line in ("hall", "sauer"):
+        # "hall" = best available series: Hall (R ≥ 1.5), Kliegel–Levine (0.4 ≤ R < 1.5), else Sauer
+        R = Rc / Rt
+        line_fn = sauer_line
+        if initial_line == "hall" and abs(delta) >= 0.5:
+            line_fn = hall_line if R >= HALL_MIN_RC_RT else kl_line if R >= KL_MIN_RC_RT else sauer_line
         try:
             g_t = float(gas.gamma_at_mach(1.0))  # throat γ
-            x_line, _, line = sauer_line(g_t, Rt, Rc, axis_mach=M0, n=m, delta=delta)
+            x_line, _, line = line_fn(g_t, Rt, Rc, axis_mach=M0, n=m, delta=delta)
         except ValueError as exc:
             raise MeshError(str(exc)) from exc
     else:
