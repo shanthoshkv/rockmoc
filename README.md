@@ -14,6 +14,10 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 | **Author** | [shanthoshkv](https://github.com/shanthoshkv) |
 | **Repo** | https://github.com/shanthoshkv/rockmoc |
 
+![rockmoc axisymmetric MOC characteristic net, Mach-coloured](docs/images/hero_field.png)
+
+*An axisymmetric nozzle solved by the method of characteristics: C+ / C− families, expansion fan, and the Mach field behind them.*
+
 ---
 
 ## Table of contents
@@ -21,6 +25,7 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 - [**How to use (full guide)**](https://github.com/shanthoshkv/rockmoc/blob/main/docs/how_to_use.md) ← start here if you are new
 - [**Project website**](https://aboutkvs.vercel.app/rockmoc.html) — interactive gallery, validation, API overview
 - [What rockmoc is](#what-rockmoc-is)
+- [What's new in v0.8.0](#whats-new-in-v080)
 - [Nozzle types](#nozzle-types)
 - [Capabilities](#capabilities)
 - [Install](#install)
@@ -55,6 +60,39 @@ It is built for:
 - Pipelines that export walls to **CAD / CFD** and attach **CEA / Cantera / CoolProp** γ later
 
 **Coordinate system:** SI meters; geometric throat at \(x = 0\), wall radius \(r = R_t\); API angles in **radians** (summaries often print degrees).
+
+---
+
+## What's new in v0.8.0
+
+v0.7.0 got the core MOC physics right (C− sign, a real axisymmetric MLN, MOC-built ideal and Rao contours). v0.8.0 is about the parts around the contour: the throat, the boundary layer, and the losses you subtract at the end. It also swaps "trust me" for a gated comparison against published data.
+
+![Same design, v0.7.0 vs v0.8.0](docs/images/v07_vs_v08.png)
+
+*Same Mach-3 design run through both releases. The wall contour barely moves. The boundary layer and the wall state at the throat do.*
+
+### v0.7.0 → v0.8.0 at a glance
+
+| Area | v0.7.0 | v0.8.0 |
+|------|--------|--------|
+| **Boundary layer** | Flat-plate style estimate | Compressible momentum-integral (von Kármán) solve, Bartz two-thickness energy integral, chamber-inlet start, cooled walls via `wall_temperature`. Flat-plate kept as a fallback with a warning. |
+| **BL accuracy vs TN D-5377** | Cooled-inlet θ sat 38–43 % low | Cooled-inlet θ is inside the measured band. Worst adiabatic δ\* error down from +27 % to +14 %. |
+| **Transonic throat** | Sauer only, fine for Rc/Rt ≳ 2 | Hall 3rd order (Rc/Rt ≥ 1.5), Kliegel–Levine (0.4 ≤ Rc/Rt < 1.5), and a 2-D Euler solver for tighter throats. |
+| **Tight-throat check** | None, no reference | Cuffel 1969 at Rc/Rt = 0.625: axis Mach 0.79 vs 0.8 measured, Cd 0.982 vs 0.985. |
+| **Losses** | 1-D Cf and field Cf | Adds friction loss, chemical efficiency bounds, two-phase loss, and flow separation checks (Summerfield, Kalt–Badal, Schmucker and others). |
+| **Kinetics** | Frozen γ only | Quasi-1-D finite-rate nozzle via Cantera. Zero rate lands on frozen, fast rate on shifting equilibrium. |
+| **Internal shocks** | Not detected | Wall detector flags TOP parabolas and arc-throat cones, stays quiet on ideal contours. |
+| **Variable γ** | Closed forms at local γ | Integrates the thermally perfect isentrope. |
+| **Validation** | Self-consistency and identities | **74 gated checks against published data**, 123 tests total. |
+
+### The two plots that show the change
+
+| Boundary layer (δ\* wall offset) | Transonic data line by Rc/Rt |
+|:--:|:--:|
+| ![Boundary layer wall offset](docs/images/boundary_layer.png) | ![Sauer throat initial line](docs/images/throat_ivl.png) |
+| δ\* now starts from the chamber inlet instead of zero at the throat, so the wall offset already has a physical value where the flow goes sonic. | The throat initial line depends strongly on Rc/Rt. This is why one method cannot cover the whole range, and why v0.8.0 picks Hall, Kliegel–Levine or Euler by curvature. |
+
+Full list of changes: [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -329,7 +367,52 @@ Saving is always optional (`save_dir=None` → display only).
 
 ## Validation
 
-rockmoc ships an offline, literature-anchored validation campaign.
+rockmoc ships an offline, literature-anchored validation campaign. There are two layers:
+
+1. **Identity and consistency checks** (the "deep" campaign below): PM and isentropic tables, mass conservation, closed-form Cf. These prove the equations are coded right.
+2. **Comparison against published data** (new in v0.8.0): wall pressures, boundary-layer thicknesses, contour angles and tabulated nozzle geometries from NASA reports. These prove the physics lands where real nozzles land.
+
+The second layer is the one that matters for trust, so it is spelled out first.
+
+### Against published data: 74 gated checks, all passing
+
+Every row has a reference value, a tolerance and a source. Tolerances are set from the reference's own uncertainty (chart-read error, measurement band), not tuned until things pass. Full table with every number: [docs/validation_experimental.md](docs/validation_experimental.md).
+
+| Nozzle / model | Checks | Reference | What it shows |
+|----------------|-------:|-----------|---------------|
+| **Axisymmetric MLN** | 27 | Zebbiche tables 5.42–5.47, γ = 1.402, Me = 1.5 … 6 | Length L/r\* within **0.03 %** across the whole Mach range, exit radius r_e/r\* exact to the printed digits, corner angle within 0.05°, max wall angle within 0.05°. Plus 3 mass-conservation rows at γ = 1.2 / 1.4. |
+| **Conical, boundary layer** | 11 | NASA TN D-5377, adiabatic and cooled inlets, three stations each | Momentum thickness θ and displacement thickness δ\* against measured profiles. Errors run 1–30 %, inside the tolerance set by each measured band. |
+| **Rao TOC (MOC)** | 10 | NASA SP-8120 chart and TM-107285 Rao-code bell | Nozzle-inlet and exit wall angles within 1.1° of the chart at ε = 10, 20, 40, 70. Whole 46-point wall of the TM-107285 bell within 0.4 % of r_e. |
+| **Aerospike** | 6 | Angelino centred-fan plug, γ = 1.2 and 1.4 | Plug length L/r_e matches to the printed digits, wall radius matches to ~1e-6. |
+| **Throat** | 8 | TN D-5377 (Hall), Cuffel 1969 (Kliegel–Levine, 2-D Euler) | Wall pressure within 1.2 % (Hall, Rc/Rt = 2.01). At Rc/Rt = 0.625: axis Mach 0.79 (KL) and 0.82 (Euler) vs 0.8, Cd 0.982 vs 0.985. |
+| **Conical, wall pressure** | 3 | TN D-5377 Table I | 1-D p_w/p0 within 1–17 % along the cone. |
+| **Kinetics** | 3 | NASA CEA via RocketCEA | Shifting-equilibrium Isp 468.4 s vs 468 s. Zero-rate limit equals frozen, fast-rate limit equals shifting. |
+| **Separation** | 3 | RocketCEA separated Cf | Kalt–Badal recovery Cf matches to 1e-6 for three (γ, ε, p0/pa) cases. |
+| **Internal shocks** | 2 | Frey et al., EUCASS 2017 | Shock detected in the TOP parabola, correctly absent in the ideal contour. |
+| **Two-phase** | 1 | Equilibrium-mixture limit | With particle diameter → 0 the lag model returns Isp ratio 1.000. |
+
+![Wall properties along the ideal nozzle](docs/images/wall_properties.png)
+
+#### Where it does not match, and why that is in the table
+
+Eight additional rows are **informational**: they are printed, compared and explained, but they do not gate the build, because the mismatch is a known limit of the model and not a bug.
+
+- **Sauer, tight throat.** At Rc/Rt = 0.625 first-order Sauer reads axis Mach 0.56 against 0.8 measured (−29 %). That is the whole reason Kliegel–Levine and the Euler solver exist.
+- **Sauer vs Hall at Rc/Rt = 2.01.** Sauer is 5–6 % low on wall pressure; Hall is within 1 %. The code picks Hall there.
+- **Cooled-wall δ\*.** Near the cold inlet δ\* is almost zero (thick thermal layer), so a relative error against the measured value is not meaningful.
+- **Conical near the arc/cone tangency** (ε = 1.9): 1-D theory misses the 2-D flow by about 6 %.
+- **Cuffel internal shock location.** The reference is where the shock meets the centreline; the detector finds the crossing near the axis, 14 % earlier.
+- **Two-phase loss.** 1.3 % off a typical 2–4 % rule of thumb. This is a plausibility check only; the Hermsen / SPP correlations are not verified here.
+
+Two limits worth stating plainly: the separation rows are **code-to-code** (against RocketCEA, not a hot-fire test), and the axisymmetric MLN only has a published reference for the geometry, so the three mass-conservation rows are consistency checks, not data.
+
+Regenerate the table yourself:
+
+```bash
+python -m rockmoc.validate.experimental
+```
+
+### Identity and consistency campaign
 
 ### Run it
 
@@ -366,7 +449,7 @@ py -3.12 tests/run_deep_validation.py
 | 1-D C_F (Sutton) | 5 | Closed-form C_F | ~0 |
 | Family ordering | 1 | ideal > MLN; TIC < ideal; Rao compact | structural |
 
-**Latest deep run:** **43/43 cases**, **170 metrics**, **12 cited sources**, median error ~0%, thermo table errors typically &lt; 0.02% (max ~4% only on documented axisym θ_max vs planar ν_e/2).
+**Latest deep run:** **43/43 cases**, **170 metrics**, **12 cited sources**, median error ~0%, thermo table errors typically &lt; 0.02% (max ~4% only on documented axisym θ_max vs planar ν_e/2). That campaign predates v0.7.0's axisymmetric rebuild; the published-data table above is the current reference for axisymmetric MLN accuracy.
 
 ### Primary literature anchors (12)
 
