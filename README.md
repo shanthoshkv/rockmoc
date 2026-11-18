@@ -7,7 +7,7 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 | | |
 |--|--|
 | **Website** | **[aboutkvs.vercel.app/rockmoc.html](https://aboutkvs.vercel.app/rockmoc.html)** — full portfolio showcase |
-| **Version** | see `src/rockmoc/_version.py` |
+| **Version** | 0.9.0 (`src/rockmoc/_version.py`) · [PyPI](https://pypi.org/project/rockmoc/) |
 | **Python** | ≥ 3.10 |
 | **Core deps** | NumPy, SciPy |
 | **License** | MIT |
@@ -25,6 +25,7 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 - [**How to use (full guide)**](https://github.com/shanthoshkv/rockmoc/blob/main/docs/how_to_use.md) ← start here if you are new
 - [**Project website**](https://aboutkvs.vercel.app/rockmoc.html) — interactive gallery, validation, API overview
 - [What rockmoc is](#what-rockmoc-is)
+- [What's new in v0.9.0](#whats-new-in-v090)
 - [What's new in v0.8.0](#whats-new-in-v080)
 - [Nozzle types](#nozzle-types)
 - [Capabilities](#capabilities)
@@ -60,6 +61,55 @@ It is built for:
 - Pipelines that export walls to **CAD / CFD** and attach **CEA / Cantera / CoolProp** γ later
 
 **Coordinate system:** SI meters; geometric throat at \(x = 0\), wall radius \(r = R_t\); API angles in **radians** (summaries often print degrees).
+
+---
+
+## What's new in v0.9.0
+
+v0.8.0 fixed the physics around the contour. v0.9.0 makes the **gas real**, adds **batch sweeps**, and finishes the **units and export** story.
+
+### Real-gas nozzle flow
+
+A constant-γ gas cannot follow a LOX/RP-1 expansion: γ goes from about 1.14 at the throat to 1.2–1.3 at the exit, and the molecular weight changes with it. `--propellants LOX/RP1 --of 2.4 --pc 7e6` now builds an expansion table straight from RocketCEA (equilibrium by default, `--gas-model frozen` for composition frozen at the throat). γ, T, ρ, a and the Prandtl–Meyer angle all come from that table, and the MOC, area ratio, Cf and Isp all see the same gas.
+
+Same design (ε = 25, LOX/RP-1, 70 bar, O/F 2.4, 80 characteristics):
+
+| Gas model | Exit Mach | L / R<sub>t</sub> | Isp vac |
+|-----------|----------:|------------------:|--------:|
+| constant γ (throat value, 1.142) | 3.656 | 23.3 | 350.1 s |
+| **equilibrium** (real gas) | 3.785 | 24.0 | **346.4 s** (RocketCEA: 346.4 s) |
+| frozen at throat | 4.042 | 25.5 | 332.8 s |
+
+The constant-γ gas overstates equilibrium Isp by about 1 % and puts the exit Mach and the wall length in the wrong place. Real engines sit between frozen and equilibrium, so `--vary gas_model=frozen,equilibrium` gives the bracket.
+
+How it was checked: exit Mach, Isp (within 0.1 %) and c\* (1e-5) reproduce RocketCEA's own numbers, and an independent Cantera expansion of LOX/LH2 agrees on exit temperature (within 0.5 %) and exit velocity (within 0.15 %).
+
+### Batch sweeps
+
+```bash
+rockmoc sweep --propellants LOX/RP1 --of 2.4 --vary of=2:3:6 --vary pc_bar=30:100:8 \
+              --vary pe_pc=0.005,0.01 --vary gas_model=frozen,equilibrium --jobs 4 --out sweep.csv
+```
+
+Cartesian grid over exit Mach, area ratio, pe/pc, exit pressure, chamber pressure, T<sub>c</sub>, ambient pressure or altitude, O/F, gas model, γ, R, R<sub>t</sub>, characteristics, R<sub>c</sub>/R<sub>t</sub>, nozzle type and more. One CSV row per case (geometry, C<sub>F</sub>, Isp, thrust, mass flow, γ at throat and exit); a failing case is recorded in an `error` column and the rest of the grid still runs. A `[sweep]` table in a TOML spec does the same through `rockmoc run`.
+
+### Units, export, and the rest of the CLI
+
+- **Units** `m, cm, mm, in, ft` on input (`--in-units`) and output (`--units`); the solver stays SI.
+- **Export** with a chosen point count (`--points`, `export_contour(path, n=, units=)`) to `csv` / `txt`, plus `sldcrv` (SolidWorks), `shell` (inner + outer wall for jacket CAD), DXF, OpenFOAM (`blockMeshDict` in your units) and `--stdout`.
+- **Performance** from any design: `result.performance(pc, Tc, pa)` returns C<sub>F</sub>, Isp, thrust and mass flow.
+- `rockmoc validate spec.toml` checks a spec without solving; `rockmoc compare a.csv b.csv` reports the wall deviation between two files.
+
+### Fixed
+
+- **2-D Euler throat solver converges** (residual 3e-2 → 1e-7, about 2.5× faster). The old subsonic inflow condition was unstable; the Cuffel and Kliegel–Levine results still land inside the published tolerances.
+- RocketCEA returns temperatures in °R; three places used them as K (T<sub>c</sub> was 1.8× too high).
+
+### Checked and left alone
+
+The axisymmetric MLN wall peaks near 15.5° while the corner angle is about 11.7° (γ = 1.4, M<sub>e</sub> = 3). That is physics, not overshoot: it is mesh-converged and the source terms match the exact conical source flow. `theta_max_rad` is the corner angle and `max_wall_angle_rad` is the peak.
+
+Tests: 145 fast and 3 slow tests pass. See [CHANGELOG.md](CHANGELOG.md) for the full list.
 
 ---
 
@@ -150,7 +200,8 @@ cmp.to_csv("compare.csv")
 |---------|---------|------|
 | `PerfectGas` | core | Constant-γ isentropic / PM |
 | `VariableGammaGas` + expansion tables | core | Multi-γ along M (chamber → throat → exit) |
-| RocketCEA | `pip install rockmoc[cea]` | Frozen chamber/throat γ, R, Tc from propellants |
+| **Real gas** (`build_cea_table`) | `pip install rocketcea` | Equilibrium / frozen γ(T), ρ, a, ν(M) from RocketCEA; default with `--propellants` |
+| RocketCEA (constant-γ) | `pip install rockmoc[cea]` | Single frozen throat γ, R, Tc (`--gas-model perfect`) |
 | Cantera | `pip install rockmoc[cantera]` | Equilibrium / frozen mixtures |
 | CoolProp | `pip install rockmoc[coolprop]` | Pure-fluid properties |
 
@@ -199,6 +250,8 @@ result.plot(show=False, save_dir="out")    # optional PNG save
 ```python
 result.export_csv("wall.csv")
 result.export_json("wall.json")
+result.export_contour("wall.txt", n=200, units="mm")   # .csv or .txt, chosen point count
+result.performance(pc=7e6, Tc=3600.0, pa=0.0)          # Cf, Isp, thrust, mdot
 # Contour also: result.contour.export_csv / export_json
 ```
 
@@ -206,7 +259,7 @@ result.export_json("wall.json")
 
 ## Install
 
-### From PyPI (when published)
+### From PyPI
 
 ```bash
 pip install rockmoc
@@ -483,7 +536,7 @@ Local PDFs: `refs/*.pdf`.
 ```text
 rockmoc
 ├── DesignSpec / DesignResult / ProductionResult
-├── PerfectGas / VariableGammaGas
+├── PerfectGas / VariableGammaGas / build_cea_table (real gas)
 ├── design_mln | design_ideal | design_tic
 ├── design_rao | design_rao_toc | design_rao_control
 ├── design_production
@@ -491,7 +544,8 @@ rockmoc
 ├── design_spike | design_spike_truncated | design_spike_with_cowl
 ├── correct_wall_bl | sauer_throat_ivl
 ├── integrated_performance | field_integrated_cf | off_design_altitude_sweep
-├── compare_nozzle_designs
+├── compare_nozzle_designs | compare_contours
+├── sweep.run_sweep | export_contour | separated_cf
 ├── monte_carlo_mln | mesh_certificate | sensitivity_one_at_a_time
 ├── run_all_validation | run_deep_validation | write_validation_outputs
 └── plot.*  (optional matplotlib dark theme)
@@ -511,7 +565,8 @@ Import surface is re-exported from the top-level `rockmoc` package for the main 
 | Aerospike | Lee/Vernacchia constant-γ isentropic annular model; needs ν_e &lt; π/2 |
 | BL module | Integral compressible estimate (not full Cohen–Reshotko ODE suite) |
 | Performance | Exit-station / 1-D edge models — validate with CFD before hardware |
-| Chemistry | Frozen-γ surrogates for MOC; not multi-phase reacting CFD |
+| Chemistry | Equilibrium and frozen-at-throat real-gas tables (RocketCEA); finite-rate kinetics and two-phase flow are not in the MOC path |
+| Boundary layer | Edge states are real-gas; the integral equations still use the throat γ |
 
 **Always:** mesh-converge → export wall → CFD / thermal / structural before flight hardware.
 
