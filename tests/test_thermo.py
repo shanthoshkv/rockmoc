@@ -71,7 +71,7 @@ def test_module_level_helpers():
 
 def test_from_molecular_weight():
     gas = PerfectGas.from_molecular_weight(1.25, 22.0)
-    assert gas.R == pytest.approx(8314.462618 / 22.0)
+    assert pytest.approx(8314.462618 / 22.0) == gas.R
 
 
 def test_thrust_coefficient_positive():

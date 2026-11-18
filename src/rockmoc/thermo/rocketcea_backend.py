@@ -104,7 +104,7 @@ class RocketCEAGas:
             else:
                 g_use, mw_use = float(gamma), float(mw)
 
-            Tc = float(cea.get_Tcomb(Pc, ofr))
+            Tc = float(cea.get_Tcomb(Pc, ofr)) / 1.8  # CEA returns °R
             try:
                 cstar = float(cea.get_Cstar(Pc, ofr))
             except Exception:

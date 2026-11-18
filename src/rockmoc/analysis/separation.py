@@ -1,7 +1,12 @@
 """Free-shock flow separation in over-expanded nozzles.
 
-Criteria give the incipient-separation pressure ratio p_sep/p_a (all from the
-cited sources; scatter is large, NASA advised a 20 % margin):
+Criteria give the incipient-separation pressure ratio p_sep/p_a. They are
+**empirical correlations** (curve fits to cold- and hot-fire data), not
+first-principles results: scatter between them is ±20-30 % in ε_sep, NASA
+advised a 20 % margin, and each is only meaningful inside its data range
+(e.g. Morrisette 2.4 ≤ M ≤ 4.5; outside it the fit is extrapolated silently).
+Use them for screening, not certification; side loads and restricted-shock
+separation are not modelled.
 
 =====================  ==========================================  =====================
 ``summerfield``        0.4                                         conical, 1950s
@@ -72,10 +77,16 @@ def separated_cf(
     recovery: Literal["none", "kalt_badal"] = "none",
     conical: bool = False,
 ) -> SeparationResult:
-    """1-D thrust coefficient of an over-expanded nozzle with free-shock separation."""
+    """1-D thrust coefficient of an over-expanded nozzle with free-shock separation.
+
+    Separation is placed where the 1-D wall pressure first falls to the
+    criterion's p_sep (bisection in ε); the result is only as good as the
+    empirical criterion (see module docstring).
+    """
     if pa <= 0.0:
         Me = float(gas.mach_from_area_ratio(area_ratio, branch="supersonic"))
-        cf = float(gas.thrust_coefficient(float(gas.pe_pc_from_mach(Me)), 0.0, exit_mach=Me, area_ratio=area_ratio))
+        pe_pc = float(gas.pe_pc_from_mach(Me))
+        cf = float(gas.thrust_coefficient(pe_pc, 0.0, exit_mach=Me, area_ratio=area_ratio))
         return SeparationResult(False, area_ratio, Me, 0.0, cf, cf, True, False, criterion)
     p0_pa = pc / pa
 
@@ -84,19 +95,22 @@ def separated_cf(
 
     def cf_at(eps: float, pa_pc: float) -> float:
         M = M_of(eps)
-        return float(gas.thrust_coefficient(float(gas.pe_pc_from_mach(M)), pa_pc, exit_mach=M, area_ratio=eps))
+        pe_pc = float(gas.pe_pc_from_mach(M))
+        return float(gas.thrust_coefficient(pe_pc, pa_pc, exit_mach=M, area_ratio=eps))
 
     def resid(eps: float) -> float:  # wall p/pa minus criterion (positive while attached)
         M = M_of(eps)
-        return float(gas.pe_pc_from_mach(M)) * p0_pa - psep_over_pa(criterion, M=M, p0_pa=p0_pa, conical=conical)
+        crit = psep_over_pa(criterion, M=M, p0_pa=p0_pa, conical=conical)
+        return float(gas.pe_pc_from_mach(M)) * p0_pa - crit
 
     Me = M_of(area_ratio)
     cf_att = cf_at(area_ratio, pa / pc)
     pe_pc = float(gas.pe_pc_from_mach(Me))
     full = p0_pa >= 1.0 + 0.39 / pe_pc
     if resid(area_ratio) >= 0.0:
-        return SeparationResult(False, area_ratio, Me, psep_over_pa(criterion, M=Me, p0_pa=p0_pa, conical=conical),
-                                cf_att, cf_att, full, False, criterion)
+        crit_e = psep_over_pa(criterion, M=Me, p0_pa=p0_pa, conical=conical)
+        return SeparationResult(False, area_ratio, Me, crit_e, cf_att, cf_att, full, False,
+                                criterion)
     lo, hi = 1.0 + 1e-9, area_ratio
     if resid(lo) <= 0.0:
         raise DesignError("flow separates at the throat: p0/pa too low for a supersonic nozzle")

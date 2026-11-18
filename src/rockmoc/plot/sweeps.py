@@ -113,7 +113,7 @@ def of_ratio_sweep_rows(
                     gamma = gamma_t
                 except Exception:
                     pass
-                Tc_use = float(cea.get_Tcomb(Pc_psia, of))
+                Tc_use = float(cea.get_Tcomb(Pc_psia, of)) / 1.8  # CEA returns °R
                 R = 8314.462618 / float(mw)
                 g = float(gamma)
             except Exception:

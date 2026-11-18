@@ -135,9 +135,7 @@ def build_ideal_nets(
                 continue  # far ahead on the arc; only needed if E is not reached first
             if b_end is not None:
                 continue
-            if nu_target is not None and a - b == m and b >= m and P[(a, b)].nu >= nu_target:
-                b_end = b
-            elif theta_attach is not None and b - a == m and b > m and P[(a, b)].theta >= theta_attach:
+            if nu_target is not None and a - b == m and b >= m and P[(a, b)].nu >= nu_target or theta_attach is not None and b - a == m and b > m and P[(a, b)].theta >= theta_attach:
                 b_end = b
         if b_end is not None and (b_end + m, b_end) in P:
             break

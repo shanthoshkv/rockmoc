@@ -231,11 +231,11 @@ def correct_wall_bl(
         M_e = np.maximum(np.maximum.accumulate(M_e), 1e-3)
 
     # Isentropic edge state
-    m2 = 0.5 * (g - 1.0) * M_e**2
-    T_e = Tc / (1.0 + m2)
-    p_e = pc / (1.0 + m2) ** (g / (g - 1.0))
-    rho_e = p_e / (Rg * T_e)
-    U_e = M_e * np.sqrt(g * Rg * T_e)
+    from rockmoc.thermo.edge_state import edge_state
+
+    T_e, p_e, rho_e, a_e = edge_state(gas, M_e, Tc, pc)  # real-gas tables when gas has one
+    m2 = Tc / T_e - 1.0  # = (γ−1)/2·M² for a perfect gas
+    U_e = M_e * a_e
     mu_e = np.asarray(viscosity(T_e), dtype=np.float64)
 
     ds = np.hypot(np.diff(x), np.diff(r))
@@ -253,7 +253,7 @@ def correct_wall_bl(
         if np.any(T_w <= 0.0):
             raise DesignError("wall_temperature must be positive")
     T_ref = T_e * (1.0 + 0.032 * M_e**2 + 0.58 * (T_w / T_e - 1.0))
-    rho_ref = p_e / (Rg * T_ref)
+    rho_ref = rho_e * T_e / T_ref  # p = const across the layer
     mu_ref = np.asarray(viscosity(T_ref), dtype=np.float64)
 
     a, n_exp, H_i = _CLOSURE[bool(turbulent)]

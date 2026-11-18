@@ -53,6 +53,14 @@ class DesignSpec:
     truncate_fraction: float | None = None
 
     @classmethod
+    def from_units(cls, throat_radius: float = 0.05, units: str = "m", **kwargs: Any) -> DesignSpec:
+        """Like ``DesignSpec(...)`` but ``throat_radius`` is in ``units``
+        (m, cm, mm, in, ft); stored in metres. Solver stays SI."""
+        from rockmoc.export import to_si
+
+        return cls(throat_radius=to_si(throat_radius, units), **kwargs)
+
+    @classmethod
     def student(
         cls,
         *,
@@ -127,6 +135,13 @@ class DesignSpec:
                     tip="ε = Ae/A* is at least 1 at the throat (M=1).",
                     example="DesignSpec(..., area_ratio=25.0)",
                 )
+            tab = getattr(self.gas, "table", None)
+            if tab is not None and self.area_ratio > tab.area_ratio[-1]:
+                raise DesignError(
+                    f"area_ratio {self.area_ratio} is beyond the gas table (max "
+                    f"{tab.area_ratio[-1]:.4g})",
+                    tip="Raise [gas] eps_max (or build the table with a larger eps_max).",
+                )
             Me = float(
                 self.gas.mach_from_area_ratio(self.area_ratio, branch="supersonic")
             )
@@ -139,10 +154,23 @@ class DesignSpec:
                     tip="Use exit static pressure over chamber pressure (e.g. 0.01).",
                     example="DesignSpec(..., pressure_ratio=0.01)",
                 )
-            # pe/pc = (1 + 0.5(γ-1)M^2)^(-γ/(γ-1))
-            g = self.gas.gamma
-            T_ratio = pe_pc ** (-(g - 1.0) / g)
-            Me = math_sqrt_mach_from_temp_ratio(T_ratio, g)
+            tab = getattr(self.gas, "table", None)
+            if tab is not None:  # real/variable-γ gas: invert its own p(M)
+                from scipy.optimize import brentq
+
+                if pe_pc < float(tab.p_pc[-1]):
+                    raise DesignError(
+                        f"pressure_ratio {pe_pc:g} is beyond the gas table (min "
+                        f"{tab.p_pc[-1]:.3g})",
+                        tip="Raise [gas] eps_max (or build the table with a larger eps_max).",
+                    )
+                Me = float(brentq(lambda m: self.gas.pe_pc_from_mach(float(m)) - pe_pc,
+                                  1.0, float(tab.M[-1]), xtol=1e-12))
+            else:
+                # pe/pc = (1 + 0.5(γ-1)M^2)^(-γ/(γ-1))
+                g = self.gas.gamma
+                T_ratio = pe_pc ** (-(g - 1.0) / g)
+                Me = math_sqrt_mach_from_temp_ratio(T_ratio, g)
 
         if Me <= 1.0:
             raise DesignError(
@@ -212,6 +240,31 @@ class DesignResult:
 
     def export_csv(self, path: str) -> None:
         self.contour.export_csv(path)
+
+    def performance(
+        self, pc: float = 5e6, Tc: float = 3200.0, pa: float = 0.0, **loss: Any
+    ) -> dict[str, Any]:
+        """Cf, Isp, thrust [N] and mdot [kg/s] at chamber ``pc`` [Pa], ``Tc`` [K], ambient ``pa``.
+
+        ``loss`` → :func:`rockmoc.performance.integrated.integrated_performance`
+        (``delta_cf_friction``, ``eta_chemical``, ``separation`` ...).
+        """
+        from rockmoc.performance.integrated import integrated_performance
+
+        Rt = self.spec.throat_radius
+        p = integrated_performance(self.contour, self.spec.gas, throat_radius=Rt,
+                                   exit_mach=self.exit_mach_design, pc=pc, Tc=Tc, pa=pa, **loss)
+        At = float(np.pi * Rt**2)
+        d = p.summary()
+        d.update(thrust_vac_N=p.Cf_vac * pc * At, thrust_amb_N=p.Cf_amb * pc * At,
+                 mdot_kg_s=pc * At / d["cstar_m_s"])
+        return d
+
+    def export_contour(self, path: str, *, n: int | None = None, units: str = "mm") -> str:
+        """Write wall coords to ``.csv`` or ``.txt`` (by suffix), ``n`` points."""
+        from rockmoc.export import export_contour
+
+        return str(export_contour(self.contour, path, n=n, units=units))
 
     def export_json(self, path: str) -> None:
         self.contour.export_json(path, extra=self.summary())

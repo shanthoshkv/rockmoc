@@ -140,7 +140,6 @@ def field_integrated_cf(
     carried by θ(r) inside the integral — no extra η_div factor is applied.
     """
     Rt = throat_radius
-    g = gas.gamma
     At = math.pi * Rt**2
 
     ray = _exit_ray_from_net(net) if net is not None else None
@@ -160,10 +159,9 @@ def field_integrated_cf(
         )
 
     M = np.maximum(M, 1.01)
-    T = Tc / (1.0 + 0.5 * (g - 1.0) * M**2)
-    p = pc / (1.0 + 0.5 * (g - 1.0) * M**2) ** (g / (g - 1.0))
-    rho = p / (gas.R * T)
-    a = np.sqrt(g * gas.R * T)
+    from rockmoc.thermo.edge_state import edge_state
+
+    T, p, rho, a = edge_state(gas, M, Tc, pc)
     V = M * a
     u = V * np.cos(th)
 

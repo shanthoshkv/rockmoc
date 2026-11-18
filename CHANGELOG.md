@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.9.0 — real-gas flow, sweeps, units and export
+
+### Added
+- **Units**: `m, cm, mm, in, ft` for input (`DesignSpec.from_units`, `--in-units`, TOML
+  `[design] units`) and output (`--units`); solver stays SI. `blockMeshDict` takes `units`
+  (writes `scale` accordingly).
+- **Export**: `export_contour(path, n=, units=)` (`.csv`/`.txt`, chosen point count), `n` on
+  `export_csv`/`export_cad_points`, `sldcrv` and `shell` (inner+outer offset) formats,
+  `Contour.offset`, `Contour.from_csv`, `--stdout`.
+- **`rockmoc sweep`** / `rockmoc.sweep.run_sweep`: Cartesian grid over Me, area ratio, pe/pc, pe,
+  pc, Tc, pa, altitude, O/F, γ, R, Rt, n, Rc/Rt, type, length, truncate; parallel `--jobs`.
+- **`DesignResult.performance`** (Cf, Isp, thrust, mdot), `[performance]`/`[propellants]` TOML
+  tables, `thermo.propellant.of_props` (RocketCEA → γ, R, Tc).
+- `rockmoc validate`, `rockmoc compare` (`analysis.compare.compare_contours`), `--pe-pc`.
+- Clear ImportError on Python < 3.10; PyPI publishing via trusted publishing (OIDC).
+
+- **Real-gas nozzle flow** (`thermo.cea_table.build_cea_table`, `--gas-model`,
+  `[gas] model`): equilibrium or frozen-at-throat expansion table straight from RocketCEA, so
+  γ_s = ρa²/p, T, ρ, a, molecular weight and the generalized Prandtl–Meyer angle
+  ν = ∫√(M²−1) d ln V all vary along the nozzle (constant-γ gases cannot do this). Default model
+  whenever `[propellants]` is given. Validated: Mach, Isp (≤ 0.1 %) and c* (1e-5) reproduce CEA's
+  own; an independent Cantera (h2o2) isentropic expansion of LOX/LH2 agrees on T_e (≤ 0.5 %)
+  and V_e (≤ 0.15 %). Sweep `gas_model=frozen,equilibrium` to bracket real performance; sweep rows
+  report `gas_model`, `gamma_throat`, `gamma_exit`.
+- `VariableGammaGas` p, T now interpolated as cubic ln-p/ln-T (was linear: ~0.2 % Isp error);
+  pe/pc → M uses the gas's own p(M); designs beyond the table are rejected, not clipped.
+- Boundary layer, field-integrated Cf and Rao exit angle use the real-gas edge state
+  (`thermo.edge_state`) when the gas has a table; constant-γ results are unchanged.
+
+### Fixed
+- **Euler throat solver now converges** (residual ~1e-7, was stalled at ~3e-2): the subsonic
+  inflow BC copied interior static pressure (unstable at CFL 0.5); now characteristic (outgoing
+  Riemann invariant). Cuffel/KL results unchanged within published tolerances; ~2.5x faster.
+- RocketCEA `get_Tcomb` returns °R; it was used as K in `plot/sweeps.py`,
+  `thermo/expansion_table.py`, `thermo/rocketcea_backend.py` (Tc overstated ×1.8).
+
 ## 0.8.0 — accuracy upgrades and known-limitation fixes
 
 ### Added

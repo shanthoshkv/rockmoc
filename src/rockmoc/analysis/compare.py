@@ -121,3 +121,31 @@ def compare_nozzle_designs(
             }
         )
     return DesignComparison(rows=rows)
+
+
+def compare_contours(a: Any, b: Any) -> dict[str, float]:
+    """Deviation of wall ``b`` from wall ``a`` (both :class:`Contour`, metres).
+
+    ``b`` is interpolated onto ``a.x`` over the overlapping axial range. Throat radius
+    is taken as ``min(r)`` of each wall.
+    """
+    import numpy as np
+
+    lo, hi = max(a.x[0], b.x[0]), min(a.x[-1], b.x[-1])
+    if hi <= lo:
+        raise ValueError("contours do not overlap in x")
+    m = (a.x >= lo) & (a.x <= hi)
+    d = np.interp(a.x[m], b.x, b.r) - a.r[m]
+    Rt_a, Rt_b = float(a.r.min()), float(b.r.min())
+    return {
+        "max_abs_dr_m": float(np.max(np.abs(d))),
+        "rms_dr_m": float(np.sqrt(np.mean(d**2))),
+        "max_abs_dr_over_Rt": float(np.max(np.abs(d)) / Rt_a),
+        "length_a_m": float(a.x[-1] - a.x[0]),
+        "length_b_m": float(b.x[-1] - b.x[0]),
+        "length_diff_m": float((b.x[-1] - b.x[0]) - (a.x[-1] - a.x[0])),
+        "exit_radius_diff_m": float(b.r[-1] - a.r[-1]),
+        "area_ratio_a": float((a.r[-1] / Rt_a) ** 2),
+        "area_ratio_b": float((b.r[-1] / Rt_b) ** 2),
+        "overlap_x_m": float(hi - lo),
+    }

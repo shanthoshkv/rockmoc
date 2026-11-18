@@ -560,7 +560,27 @@ rockmoc design --type ideal --area-ratio 25 --Rt 0.04 --export csv,openfoam -o o
 rockmoc design --type tic   --Me 4.0 --truncate 0.8 -o out
 rockmoc design --type rao   --Me 3.0 --gamma 1.25 --length 0.8 --export cad -o out
 rockmoc run nozzle.toml          # reproducible TOML spec (see rockmoc/spec_io.py)
+rockmoc validate nozzle.toml     # check a spec without running the solver
+
+# units: --Rt in mm, wall out in inches, 200 points, CSV + TXT (+ SolidWorks .sldcrv, shell offset)
+rockmoc design --Me 3 --Rt 50 --in-units mm --units in --points 200 --export csv,txt,sldcrv
+rockmoc design --Me 3 --stdout > wall.csv
+
+# thrust / Isp / mdot with a real-gas (equilibrium) RocketCEA table, pip install rocketcea;
+# --gas-model frozen|perfect to change the gas model
+rockmoc design --area-ratio 25 --propellants LOX/RP1 --of 2.4 --pc 7e6 --altitude 10000
+
+# batch sweeps: Cartesian grid over Me, area_ratio, pe_pc, pe, pc(_bar/_mpa/_psia), Tc, pa,
+# altitude, of, gas_model, gamma, R, Rt, n, rc, type, length, truncate -> one CSV row per case
+rockmoc sweep --propellants LOX/RP1 --of 2.4 --vary of=2:3:6 --vary pc_bar=30:100:8 \
+              --vary pe_pc=0.005,0.01 --jobs 4 --out sweep.csv --export csv -o cases
+
+rockmoc compare a.csv b.csv --units mm   # max/RMS radial deviation, length & area-ratio diff
 ```
+
+A `[sweep]` table in the TOML (`Me = [2, 3]`, `pc_bar = "30:100:8"`) makes `rockmoc run` do the
+same. Library: `rockmoc.sweep.run_sweep`, `DesignResult.performance(pc, Tc, pa)`,
+`DesignResult.export_contour(path, n=, units=)`, `Contour.offset(t)`, `Contour.from_csv(path)`.
 
 Export formats: `csv` (x, r, θ, M), `cad` (header-less `x y z` for SolidWorks/CATIA
 curve-through-points), `dxf` (R12 polyline), `openfoam` (axisymmetric wedge

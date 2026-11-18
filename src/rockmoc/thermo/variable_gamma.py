@@ -33,6 +33,10 @@ class VariableGammaGas:
         self._M_nu = PchipInterpolator(t.nu, t.M, extrapolate=False)
         self._ar_M = PchipInterpolator(t.M, t.area_ratio, extrapolate=False)
         self._M_ar = PchipInterpolator(t.area_ratio, t.M, extrapolate=False)
+        # ln p, ln T cubic in M (p, T span decades; linear-in-M interpolation of them
+        # costs ~0.2 % in Isp near the throat)
+        self._lnp_M = PchipInterpolator(t.M, np.log(np.maximum(t.p_pc, 1e-300)))
+        self._lnT_M = PchipInterpolator(t.M, np.log(np.maximum(t.T_Tc, 1e-300)))
         # Dense samples of the PCHIP curves for fast scalar lookups (MOC calls
         # these per point): linear on 4000 nodes, error ~1e-7 relative.
         Md = np.linspace(t.M[0], t.M[-1], 4000)
@@ -107,21 +111,19 @@ class VariableGammaGas:
 
     def pressure_ratio(self, M: ArrayLike) -> NDArray | float:
         """p0/p."""
-        arr = np.asarray(M, dtype=np.float64)
-        p_pc = np.interp(arr, self.table.M, self.table.p_pc)
-        out = 1.0 / np.maximum(p_pc, 1e-30)
+        arr = np.clip(np.asarray(M, dtype=np.float64), self.table.M[0], self.table.M[-1])
+        out = np.exp(-self._lnp_M(arr))
         return float(out) if out.ndim == 0 else out
 
     def temperature_ratio(self, M: ArrayLike) -> NDArray | float:
         """T0/T."""
-        arr = np.asarray(M, dtype=np.float64)
-        T_Tc = np.interp(arr, self.table.M, self.table.T_Tc)
-        out = 1.0 / np.maximum(T_Tc, 1e-30)
+        arr = np.clip(np.asarray(M, dtype=np.float64), self.table.M[0], self.table.M[-1])
+        out = np.exp(-self._lnT_M(arr))
         return float(out) if out.ndim == 0 else out
 
     def pe_pc_from_mach(self, M: ArrayLike) -> NDArray | float:
-        arr = np.asarray(M, dtype=np.float64)
-        out = np.interp(arr, self.table.M, self.table.p_pc)
+        arr = np.clip(np.asarray(M, dtype=np.float64), self.table.M[0], self.table.M[-1])
+        out = np.exp(self._lnp_M(arr))
         return float(out) if out.ndim == 0 else out
 
     def prandtl_meyer_max(self) -> float:

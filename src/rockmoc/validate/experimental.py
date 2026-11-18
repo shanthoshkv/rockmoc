@@ -263,7 +263,7 @@ def _aerospike() -> list[Check]:
         # mass through the conical Mach-line surface: π(re²−r²) sinμ / sinα = (A/A*) A_t
         rr = np.sqrt(np.maximum(1.0 - gas.area_ratio(Ms) * np.sin(al) / (eps * np.sin(mu)), 0.0))
         xx = (1.0 - rr) / np.tan(al)
-        m = (sp.X >= xx.min()) & (sp.X <= xx.max())
+        m = (xx.min() <= sp.X) & (xx.max() >= sp.X)
         dev = float(np.max(np.abs(sp.R[m] - np.interp(sp.X[m], xx, rr))))
         out.append(Check("aerospike", f"centred-fan plug, γ={g}, ε={eps}", "L / r_e", float(xx.max()),
                          float(sp.X.max()), 1e-3, "ANGELINO"))

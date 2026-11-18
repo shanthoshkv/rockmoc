@@ -79,7 +79,7 @@ def design_rao_control_surface(
     if pa_pc > 0.0:
         meta["warnings"].append("pa_pc > 0 ignored: contour is the vacuum Rao optimum")  # input note, not a fallback
     meta.update(
-        theta_e_rao_deg=math.degrees(rao_exit_angle(exit_mach, gas.gamma, pa_pe=pa_pe)),
+        theta_e_rao_deg=math.degrees(rao_exit_angle(exit_mach, gas.gamma_at_mach(float(exit_mach)), pa_pe=pa_pe)),
         pa_pc=pa_pc,
         pa_pe=pa_pe,
         exit_mach=exit_mach,

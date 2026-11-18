@@ -12,6 +12,11 @@ Public names are imported lazily on first access (PEP 562), so
 
 from __future__ import annotations
 
+import sys
+
+if sys.version_info < (3, 10):  # noqa: UP036
+    raise ImportError("rockmoc needs Python >= 3.10 (found " + sys.version.split()[0] + ")")
+
 import importlib
 from typing import TYPE_CHECKING
 
@@ -109,6 +114,8 @@ _LAZY: dict[str, str] = {
     "comparison_to_latex": "rockmoc.student",
     "comparison_to_markdown": "rockmoc.student",
     "correct_wall_bl": "rockmoc.analysis",
+    "psep_over_pa": "rockmoc.analysis",
+    "separated_cf": "rockmoc.analysis",
     "describe_example_gases": "rockmoc.student",
     "design_conical": "rockmoc.designers",
     "design_ideal": "rockmoc.designers",
@@ -175,6 +182,8 @@ __all__ = [
     "design_primary_cowl",
     "truncated_spike_with_base",
     "correct_wall_bl",
+    "psep_over_pa",
+    "separated_cf",
     "sauer_throat_ivl",
     "compare_nozzle_designs",
     "comparison_to_markdown",

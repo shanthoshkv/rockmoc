@@ -171,3 +171,31 @@ def test_axisym_interior_point_vs_exact_source_flow(h):
     th_e, M_e = _source_state(p.x, p.r, gas)
     err = abs(p.theta - th_e) + abs(p.nu - float(gas.prandtl_meyer(M_e)))
     assert err < 0.2 * h**3
+
+
+def test_export_contour_resolution(tmp_path):
+    import numpy as np
+
+    from rockmoc.export import export_contour
+    from rockmoc.geometry.contour import Contour
+
+    x = np.linspace(0, 1, 50)
+    c = Contour(x=x, r=0.1 + 0.05 * x)
+    a = np.loadtxt(export_contour(c, tmp_path / "w.csv", n=25, units="mm"), delimiter=",", skiprows=1)
+    b = np.loadtxt(export_contour(c, tmp_path / "w.txt", n=40, units="mm"))
+    assert len(a) == 25 and len(b) == 40 and b.shape[1] == 2
+    assert abs(b[-1, 0] - 1000.0) < 1e-6
+
+
+def test_units_in_out_cli(tmp_path):
+    import numpy as np
+
+    from rockmoc.cli import main
+    from rockmoc.designers import DesignSpec
+
+    assert abs(DesignSpec.from_units(50, "mm", exit_mach=2.0).throat_radius - 0.05) < 1e-12
+    main(["design", "--Me", "2", "-n", "12", "--Rt", "50", "--in-units", "mm", "--units", "in",
+          "--points", "30", "--export", "csv,txt", "-o", str(tmp_path)])
+    c = np.loadtxt(tmp_path / "nozzle.csv", delimiter=",", skiprows=1)
+    assert len(c) == 30 and abs(c[0, 1] - 0.05 / 0.0254) < 1e-3
+    assert np.loadtxt(tmp_path / "nozzle.txt").shape == (30, 2)

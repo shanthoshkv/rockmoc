@@ -19,8 +19,9 @@ import numpy as np
 from rockmoc._version import __version__
 from rockmoc.geometry.contour import Contour
 
-_UNIT_SCALE = {"m": 1.0, "mm": 1000.0, "in": 1.0 / 0.0254}
-_DXF_INSUNITS = {"m": 6, "mm": 4, "in": 1}
+_UNIT_SCALE = {"m": 1.0, "cm": 100.0, "mm": 1000.0, "in": 1.0 / 0.0254, "ft": 1.0 / 0.3048}
+_DXF_INSUNITS = {"m": 6, "cm": 5, "mm": 4, "in": 1, "ft": 2}
+UNITS = tuple(_UNIT_SCALE)
 
 
 def _scale(units: str) -> float:
@@ -29,8 +30,40 @@ def _scale(units: str) -> float:
     return _UNIT_SCALE[units]
 
 
-def export_csv(contour: Contour, path: str | Path, *, units: str = "m") -> Path:
-    """CSV with header ``x,r,theta_rad[,M]`` in the given length units."""
+def to_si(value: float, units: str) -> float:
+    """Length ``value`` given in ``units`` → metres (the solver's internal unit)."""
+    return value / _scale(units)
+
+
+def _res(contour: Contour, n: int | None) -> Contour:
+    """Arc-length resample to ``n`` points (None = keep native points)."""
+    return contour if n is None else contour.resample(n)
+
+
+def export_contour(
+    contour: Contour, path: str | Path, *, n: int | None = None, units: str = "mm"
+) -> Path:
+    """Export wall coordinates; format by suffix: ``.csv`` (x,r,theta,M) or
+    ``.txt`` (``x r`` columns, ``#`` header). ``n`` = number of points.
+    ``units`` ∈ ``UNITS`` (m, cm, mm, in, ft)."""
+    p = Path(path)
+    ext = p.suffix.lower()
+    if ext == ".csv":
+        return export_csv(contour, p, units=units, n=n)
+    if ext == ".txt":
+        c, k = _res(contour, n), _scale(units)
+        np.savetxt(p, np.column_stack([c.x * k, c.r * k]), fmt="%.9g",
+                   header=f"x_{units} r_{units}")
+        return p
+    raise ValueError("path suffix must be .csv or .txt")
+
+
+def export_csv(
+    contour: Contour, path: str | Path, *, units: str = "m", n: int | None = None
+) -> Path:
+    """CSV with header ``x,r,theta_rad[,M]`` in the given length units.
+    ``n`` resamples to that many points (default: native)."""
+    contour = _res(contour, n)
     k = _scale(units)
     cols = [contour.x * k, contour.r * k, contour.theta]
     header = f"x_{units},r_{units},theta_rad"
@@ -42,12 +75,31 @@ def export_csv(contour: Contour, path: str | Path, *, units: str = "m") -> Path:
     return p
 
 
-def export_cad_points(contour: Contour, path: str | Path, *, units: str = "mm") -> Path:
+def export_cad_points(
+    contour: Contour, path: str | Path, *, units: str = "mm", n: int | None = None
+) -> Path:
     """Header-less ``x y z`` point list (z = 0) for CAD curve-through-points import."""
+    contour = _res(contour, n)
     k = _scale(units)
     pts = np.column_stack([contour.x * k, contour.r * k, np.zeros(len(contour.x))])
     p = Path(path)
     np.savetxt(p, pts, delimiter=" ", fmt="%.9g")
+    return p
+
+
+def export_shell(contour: Contour, path: str | Path, thickness: float, *,
+                 units: str = "mm", n: int | None = None) -> Path:
+    """Inner + outer (normal-offset) wall in one CSV: ``x_in,r_in,x_out,r_out``.
+
+    ``thickness`` is in ``units`` (shell/regen-jacket CAD sketch).
+    """
+    c = _res(contour, n)
+    k = _scale(units)
+    o = c.offset(thickness / k)
+    p = Path(path)
+    np.savetxt(p, np.column_stack([c.x * k, c.r * k, o.x * k, o.r * k]), delimiter=",",
+               header=f"x_in_{units},r_in_{units},x_out_{units},r_out_{units}",
+               comments="", fmt="%.9g")
     return p
 
 
@@ -108,6 +160,7 @@ def export_blockmesh(
     wedge_deg: float = 5.0,
     wall_grading: float = 0.1,
     n_spline: int = 120,
+    units: str = "m",
 ) -> Path:
     """Axisymmetric wedge ``blockMeshDict`` for the divergent section (throat → exit).
 
@@ -115,10 +168,13 @@ def export_blockmesh(
     ``front``/``back`` wedge patches, ``inlet`` (throat plane), ``outlet``
     (exit plane) and ``wall`` (spline edges through the contour).
     ``wall_grading`` = last/first radial cell size (< 1 clusters at the wall
-    for y⁺ control). Lengths in metres (``scale 1``).
+    for y⁺ control). ``units`` sets the coordinate unit written to the file; the
+    dict's ``scale`` converts back to metres for OpenFOAM.
     """
     if not 0.0 < wedge_deg < 10.0:
         raise ValueError("wedge_deg should be in (0, 10) degrees")
+    k = _scale(units)
+    contour = Contour(x=contour.x * k, r=contour.r * k, theta=contour.theta)
     h = math.radians(0.5 * wedge_deg)
     ch, sh = math.cos(h), math.sin(h)
     x0, x1 = float(contour.x[0]), float(contour.x[-1])
@@ -144,7 +200,7 @@ FoamFile
     object      blockMeshDict;
 }}
 
-scale 1;
+scale {1.0 / k:.9g};
 
 vertices
 (

@@ -6,10 +6,11 @@ convergent–throat–early-divergent region directly: cell-centred finite volum
 on a wall-fitted grid (r = η r_w(x)), first-order Rusanov fluxes, local time
 stepping to steady state, and Richardson extrapolation over two grids
 (:func:`solve_throat_extrapolated`). At Rc/Rt = 2 this reproduces the
-Kliegel–Levine series (axis M 0.897, Cd 0.9970 vs 0.9962); at 0.625 it gives
-axis/wall M 0.82/1.33 and Cd 0.982 against 0.8/1.4 and 0.985 measured
-(Cuffel et al. 1969). Boundaries: subsonic inflow with
-p0, T0 and grid-aligned flow angle; supersonic extrapolated outflow; slip wall;
+Kliegel–Levine series (axis M 0.900, Cd 0.9957 vs 0.9962); at 0.625 it gives
+axis/wall M 0.83/1.33 and Cd 0.981 against 0.8/1.4 and 0.985 measured
+(Cuffel et al. 1969). Residual converges to round-off at CFL 0.5. Boundaries: subsonic
+inflow with p0, T0, grid-aligned flow angle and extrapolated outgoing Riemann invariant;
+supersonic extrapolated outflow; slip wall;
 symmetry axis (zero-area face). Outputs the throat-plane Mach profile, the
 discharge coefficient and a start line for MOC at a chosen x.
 """
@@ -69,7 +70,7 @@ def solve_throat(
     area = 0.5 * np.abs((X[1:, 1:] - X[:-1, :-1]) * (R[:-1, 1:] - R[1:, :-1])
                         - (R[1:, 1:] - R[:-1, :-1]) * (X[:-1, 1:] - X[1:, :-1]))
     vol = area * rc
-    # i-faces (nx+1, nr): normal (dr, −dx) of the edge (i,j)→(i,j+1); scaled by length and face radius
+    # i-faces (nx+1, nr): normal (dr, −dx) of edge (i,j)→(i,j+1); scaled by length and face radius
     ex, er = X[:, 1:] - X[:, :-1], R[:, 1:] - R[:, :-1]
     Li = np.hypot(ex, er)
     nix, nir = er / Li, -ex / Li
@@ -87,10 +88,11 @@ def solve_throat(
     pg = PerfectGas(g)
     rwc = 0.5 * (rw[:-1] + rw[1:])
     At = float(r_wall(np.array([x_throat]))[0])
-    M1 = np.array([float(pg.mach_from_area_ratio(max((rr / At) ** 2, 1.0 + 1e-9),
-                                                  branch="subsonic" if xm < x_throat else "supersonic"))
-                   for rr, xm in zip(rwc, 0.5 * (xs[:-1] + xs[1:]))])
-    T = 1.0 / (1.0 + 0.5 * (g - 1) * M1**2)  # T/T0 ; with ρ0 = p0 = 1, T0 = 1/R → use p = ρ T scaled
+    M1 = np.array([
+        float(pg.mach_from_area_ratio(max((rr / At) ** 2, 1.0 + 1e-9),
+                                      branch="subsonic" if xm < x_throat else "supersonic"))
+        for rr, xm in zip(rwc, 0.5 * (xs[:-1] + xs[1:]), strict=True)])
+    T = 1.0 / (1.0 + 0.5 * (g - 1) * M1**2)  # T/T0; with ρ0 = p0 = 1, T0 = 1/R → p = ρ T scaled
     rho = (T ** (1 / (g - 1)))[:, None] * np.ones((1, nr))
     p = (T ** (g / (g - 1)))[:, None] * np.ones((1, nr))
     a = np.sqrt(g * p / rho)
@@ -109,7 +111,8 @@ def solve_throat(
     def flux(rho_, u_, v_, p_, nx_, nr_):
         Vn = u_ * nx_ + v_ * nr_
         E = p_ / (g - 1) + 0.5 * rho_ * (u_ * u_ + v_ * v_)
-        return np.stack([rho_ * Vn, rho_ * u_ * Vn + p_ * nx_, rho_ * v_ * Vn + p_ * nr_, (E + p_) * Vn]), Vn
+        F = [rho_ * Vn, rho_ * u_ * Vn + p_ * nx_, rho_ * v_ * Vn + p_ * nr_, (E + p_) * Vn]
+        return np.stack(F), Vn
 
     def rusanov(WL, WR, nx_, nr_):
         FL, VnL = flux(*WL, nx_, nr_)
@@ -126,15 +129,18 @@ def solve_throat(
         rho_, u_, v_, p_ = W
         # pad i (inflow/outflow) then j (axis/wall); arrays (nx+2, nr+2)
         Wp = [np.pad(q, 1, mode="edge") for q in (rho_, u_, v_, p_)]
-        # inflow: p0 = ρ0 = 1, static p extrapolated, direction along the grid line
-        pin = np.minimum(p_[0], 0.999)
-        Min = np.sqrt(2 / (g - 1) * (pin ** (-(g - 1) / g) - 1))
-        Tin = 1 / (1 + 0.5 * (g - 1) * Min**2)
-        rin = Tin ** (1 / (g - 1))
-        Vin = Min * np.sqrt(g * pin / rin)
+        # inflow: p0 = ρ0 = 1, direction along the grid line, outgoing Riemann invariant
+        # R = V − 2a/(γ−1) extrapolated. (Extrapolating static p instead couples the ghost
+        # mass flux to the interior with gain ~1/M_in and goes period-2 unstable at CFL 0.5.)
         sin_ = slope[0] * 0.5 * (eta[:-1] + eta[1:])
-        Wp[0][0, 1:-1], Wp[3][0, 1:-1] = rin, pin
-        Wp[1][0, 1:-1], Wp[2][0, 1:-1] = Vin / np.sqrt(1 + sin_**2), Vin * sin_ / np.sqrt(1 + sin_**2)
+        cs, sn = 1 / np.sqrt(1 + sin_**2), sin_ / np.sqrt(1 + sin_**2)
+        Rm = u_[0] * cs + v_[0] * sn - 2 * np.sqrt(g * p_[0] / rho_[0]) / (g - 1)
+        A, C = (g + 1) / (g - 1), 0.5 * (g - 1) * Rm**2 - g  # A a² + 2R a + C = 0, a0² = γ
+        ain = (-Rm + np.sqrt(Rm**2 - A * C)) / A
+        Vin = np.maximum(Rm + 2 * ain / (g - 1), 0.0)
+        Tin = ain**2 / g
+        Wp[0][0, 1:-1], Wp[3][0, 1:-1] = Tin ** (1 / (g - 1)), Tin ** (g / (g - 1))
+        Wp[1][0, 1:-1], Wp[2][0, 1:-1] = Vin * cs, Vin * sn
         # axis: mirror v
         Wp[2][:, 0] = -Wp[2][:, 1]
         # wall: reflect the velocity normal to the wall face
@@ -193,7 +199,8 @@ def solve_throat_extrapolated(
     _, Ma, _ = a.plane(x_throat)
     _, Mb, _ = b.plane(x_throat)
     ex = lambda fa, fb: fb + k * (fb - fa)  # noqa: E731
-    return {"M_axis": ex(Ma[0], Mb[0]), "M_wall": ex(Ma[-1], Mb[-1]), "Cd": ex(a.Cd, b.Cd), "fine": b}
+    return {"M_axis": ex(Ma[0], Mb[0]), "M_wall": ex(Ma[-1], Mb[-1]), "Cd": ex(a.Cd, b.Cd),
+            "fine": b}
 
 
 def cuffel_wall(rc_over_rt: float = 0.625, *, conv_deg: float = 45.0, div_deg: float = 15.0,
@@ -206,7 +213,8 @@ def cuffel_wall(rc_over_rt: float = 0.625, *, conv_deg: float = 45.0, div_deg: f
     def f(x: np.ndarray) -> np.ndarray:
         x = np.asarray(x, dtype=np.float64)
         arc = 1 + Rc - np.sqrt(np.maximum(Rc**2 - x**2, 0.0))
-        out = np.where(x < xc, rcv + (xc - x) * math.tan(c), np.where(x > xd, rdv + (x - xd) * math.tan(d), arc))
+        div = np.where(x > xd, rdv + (x - xd) * math.tan(d), arc)
+        out = np.where(x < xc, rcv + (xc - x) * math.tan(c), div)
         return np.minimum(out, r_inlet)
 
     return f

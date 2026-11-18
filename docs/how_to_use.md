@@ -660,9 +660,28 @@ rockmoc --version
 | `-t / --type` | `mln` \| `ideal` \| `tic` |
 | `-g / --gamma` | Ratio of specific heats |
 | `--R` | Specific gas constant [J/(kg·K)] |
-| `--Rt` | Throat radius [m] |
+| `--Rt` | Throat radius, in `--in-units` (default m) |
+| `--in-units` | Input length units: m, cm, mm, in, ft |
+| `--units` | Output length units (same set; default mm) |
+| `--points` | Resample exported wall to N points |
 | `--Me` | Exit Mach |
 | `-e / --area-ratio` | ε = Ae/A* |
+| `--pe-pc` | Exit/chamber pressure ratio |
+| `--propellants OX/FUEL`, `--of` | γ, R, Tc from RocketCEA |
+| `--pc`, `--Tc`, `--pa`, `--altitude` | Operating point → thrust, Isp, mdot in the summary |
+| `--thickness` | Outer-wall offset for the `shell` export |
+| `--stdout` | Wall CSV to stdout (summary to stderr) |
+
+Gas model: with `--propellants` the default is a **real-gas** RocketCEA table (`--gas-model
+equilibrium`; γ, T, ρ, a, ν(M) vary along the nozzle). `--gas-model frozen` freezes composition at
+the throat (lower Isp bound; real engines lie between), `perfect` keeps one constant γ/R.
+`--eps-max` (default 400) bounds the table; larger designs are rejected rather than clipped.
+
+Other commands: `rockmoc sweep` (`--vary NAME=start:stop:count` or `NAME=a,b,c`, repeatable;
+`--out`, `--jobs`, `--export`), `rockmoc validate spec.toml`, `rockmoc compare a.csv b.csv`.
+Sweepable: `Me area_ratio pe_pc pe pc Tc pa altitude of gas_model gamma R Rt n rc type length truncate`
+(pressures also as `pc_bar`, `pe_mpa`, `pa_psia`, ...). Failing cases are recorded in an
+`error` column; the rest of the grid still runs.
 | `--n` | Number of characteristics |
 | `--truncate` | TIC fraction of ideal |
 | `-o / --output` | Wall CSV path |

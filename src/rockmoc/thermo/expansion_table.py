@@ -241,7 +241,7 @@ def build_cea_frozen_table(
     eps_list = np.geomspace(1.01, eps_max, n)
 
     M_list, p_list, T_list, g_list, ar_list = [], [], [], [], []
-    Tc = float(cea.get_Tcomb(Pc, ofr))
+    Tc = float(cea.get_Tcomb(Pc, ofr)) / 1.8  # CEA returns °R
     mw, gamma_c = cea.get_Chamber_MolWt_gamma(Pc, ofr, float(eps_max))
     try:
         mw_t, gamma_t = cea.get_Throat_MolWt_gamma(Pc, ofr, float(eps_max))

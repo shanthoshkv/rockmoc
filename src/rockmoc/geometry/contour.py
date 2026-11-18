@@ -108,6 +108,26 @@ class Contour:
                 M = np.append(M, M[-1] + t * (M_next - M[-1]))
         return Contour(x=x, r=r, theta=th, M=M)
 
+    def offset(self, t: float) -> Contour:
+        """Wall displaced ``t`` [m] along the outward normal (away from the axis)."""
+        dx, dr = np.gradient(self.x), np.gradient(self.r)
+        ds = np.hypot(dx, dr)
+        return Contour(x=self.x - t * dr / ds, r=self.r + t * dx / ds, theta=self.theta, M=self.M)
+
+    @classmethod
+    def from_csv(cls, path: str | Path, *, units: str = "m") -> Contour:
+        """Read ``x,r[,...]`` (header or not; ``,``/space/tab) → Contour in metres."""
+        scale = {"m": 1.0, "cm": 1e-2, "mm": 1e-3, "in": 0.0254, "ft": 0.3048}[units]
+        pts = []
+        for ln in Path(path).read_text().splitlines():
+            f = ln.replace(",", " ").split()
+            try:
+                pts.append((float(f[0]), float(f[1])))
+            except (ValueError, IndexError):  # header / comment / blank line
+                continue
+        a = np.array(pts) * scale
+        return cls(x=a[:, 0], r=a[:, 1])
+
     def export_csv(self, path: str | Path) -> None:
         path = Path(path)
         header = "x_m,r_m,theta_rad"
