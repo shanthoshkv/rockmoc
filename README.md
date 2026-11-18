@@ -577,28 +577,44 @@ Import surface is re-exported from the top-level `rockmoc` package for the main 
 ```text
 rockmoc/
 ├── src/rockmoc/
-│   ├── thermo/          # Perfect gas, variable-γ, CEA/Cantera/CoolProp
-│   ├── moc/             # Equations, unit processes, planar NASA, axisym HF
-│   ├── designers/       # MLN, ideal, TIC, Rao, production
+│   ├── cli.py           # `rockmoc design | run | sweep | validate | compare`
+│   ├── spec_io.py       # TOML specs: gas / propellants / design / performance / export / sweep
+│   ├── sweep.py         # Cartesian batch sweeps (parallel), summary CSV
+│   ├── export.py        # CSV / TXT / CAD points / shell / DXF / OpenFOAM blockMesh, units
+│   ├── thermo/          # Gas models
+│   │   ├── perfect_gas.py, variable_gamma.py, expansion_table.py   # constant / multi-γ
+│   │   ├── cea_table.py       # real-gas (equilibrium / frozen) table from RocketCEA
+│   │   ├── edge_state.py      # isentropic T, p, ρ, a for any gas model
+│   │   ├── propellant.py      # O/F → γ, R, Tc (constant-γ stand-in)
+│   │   └── rocketcea / cantera / coolprop backends, kinetics.py
+│   ├── moc/             # Equations, unit processes, planar NASA, axisym HF,
+│   │                    #   transonic.py (Hall / Kliegel–Levine), transonic_euler.py
+│   ├── designers/       # MLN, ideal, TIC, Rao TOP/TOC, conical, production
 │   ├── aerospike/       # Lee spike, base/cowl
-│   ├── analysis/        # BL, throat IVL, atmosphere, UQ, compare
-│   ├── performance/     # Metrics, integrated & field Cf
-│   ├── geometry/        # Contour + export
+│   ├── analysis/        # BL, throat IVL, separation, atmosphere, UQ, compare
+│   ├── performance/     # Metrics, integrated & field Cf, two-phase
+│   ├── geometry/        # Contour (resample, offset, from_csv) + export
+│   ├── student/         # Reports, explainers, tables, limits
 │   ├── plot/            # Dark-themed figures
-│   ├── validate/        # Literature suite + deep benchmark
-│   └── cli.py
+│   └── validate/        # Literature suite + deep benchmark
 ├── tests/
 │   ├── data/
 │   │   ├── validation_catalog.json
 │   │   └── validation_results/   # ref vs solver + error %
 │   ├── run_deep_validation.py
 │   ├── generate_all_graphs.py
-│   └── test_*.py
+│   └── test_*.py        # incl. test_sweep, test_cea_table, test_separation, test_moc_corner
 ├── docs/
 │   ├── how_to_use.md    # Friendly end-to-end usage guide
+│   ├── report/          # Technical report (LaTeX / PDF)
 │   └── …                # Theory, validation, production notes
 ├── refs/                # Primary PDFs (NASA/NACA/Rao/…)
-├── examples/
+├── research_notes/      # Working notes
+├── reports/
+├── examples/            # quickstart.py, notebooks/
+├── .github/workflows/   # ci.yml (lint + tests), publish.yml (PyPI trusted publishing)
+├── CHANGELOG.md
+├── PUBLISH.md
 ├── pyproject.toml
 └── README.md
 ```
