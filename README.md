@@ -1,5 +1,15 @@
 # rockmoc
 
+Method of Characteristics rocket nozzle design in Python: MLN, Rao, TIC and aerospike contours with real-gas thermochemistry.
+
+![demo](docs/demo.gif)
+
+```bash
+pip install rockmoc
+```
+
+**Live demo:** [aboutkvs.vercel.app/rockmoc.html](https://aboutkvs.vercel.app/rockmoc.html)
+
 **Industry-oriented Method of Characteristics (MOC) rocket nozzle design for Python.**
 
 Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-throat MLNs**, and **annular aerospikes** from literature-faithful algorithms — with pluggable thermochemistry, boundary-layer correction, field-integrated performance, dark-themed plots, and a multi-regime validation campaign against NASA/NACA/Rao sources.

@@ -121,6 +121,7 @@ tests/graphs/
 *.svg
 !docs/**/*.png
 !docs/**/*.svg
+!docs/demo.gif
 
 # Do NOT blanket-ignore literature PDFs — they live in refs/
 # Only ignore PDF exports dropped in the working tree root
