@@ -17,7 +17,7 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 | | |
 |--|--|
 | **Website** | **[aboutkvs.vercel.app/rockmoc.html](https://aboutkvs.vercel.app/rockmoc.html)** — full portfolio showcase |
-| **Version** | 0.10.0 (`src/rockmoc/_version.py`) · [PyPI](https://pypi.org/project/rockmoc/) |
+| **Version** | 1.0.0 (`src/rockmoc/_version.py`) · [PyPI](https://pypi.org/project/rockmoc/) |
 | **Python** | ≥ 3.10 |
 | **Core deps** | NumPy, SciPy |
 | **License** | MIT |
@@ -35,7 +35,7 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 - [**How to use (full guide)**](https://github.com/shanthoshkv/rockmoc/blob/main/docs/how_to_use.md) ← start here if you are new
 - [**Project website**](https://aboutkvs.vercel.app/rockmoc.html) — interactive gallery, validation, API overview
 - [What rockmoc is](#what-rockmoc-is)
-- [What's new in v0.10.0](#whats-new-in-v0100)
+- [What's new in v1.0.0](#whats-new-in-v100)
 - [What's new in v0.9.0](#whats-new-in-v090)
 - [What's new in v0.8.0](#whats-new-in-v080)
 - [Nozzle types](#nozzle-types)
@@ -75,9 +75,9 @@ It is built for:
 
 ---
 
-## What's new in v0.10.0
+## What's new in v1.0.0
 
-v0.10.0 is the **OpenFOAM validation release**. 45 CFD cases (`cfd_validation/`) compared rockmoc against `rhoCentralFoamAxi`, and the disagreements turned into fixes:
+v1.0.0 is the **OpenFOAM validation release** (first stable release; 0.10.0 on PyPI is the same code). 45 CFD cases (`cfd_validation/`) compared rockmoc against `rhoCentralFoamAxi`, and the disagreements turned into fixes:
 
 - One geometric exit-loss factor instead of two (the divergence loss was counted twice, 1.6–3.8 % low on Isp).
 - Rao TOP angle trend corrected, true quadratic-Bézier parabola; Rao TOC built at its target length.

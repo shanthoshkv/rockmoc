@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.10.0 — fixes from the OpenFOAM validation campaign (`cfd_validation/`)
+## 1.0.0 — fixes from the OpenFOAM validation campaign (`cfd_validation/`)
 
 ### Fixed
 - **Divergence loss counted twice** (`performance.integrated`). `η_div · η_ke` modelled the
