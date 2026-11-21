@@ -31,6 +31,8 @@ import math
 from dataclasses import dataclass
 from typing import Literal
 
+import numpy as np
+
 from rockmoc.exceptions import DesignError
 from rockmoc.thermo.gas_protocol import MOCGas
 
@@ -65,6 +67,9 @@ class SeparationResult:
     full_flow_tp1207: bool
     end_effect: bool
     criterion: str
+    Cf_vac_attached: float = float(
+        "nan"
+    )  # vacuum Cf of the attached part (exit at ε_sep); Cf minus this = pressure terms
 
 
 def separated_cf(
@@ -76,13 +81,26 @@ def separated_cf(
     criterion: Criterion = "schmucker",
     recovery: Literal["none", "kalt_badal"] = "none",
     conical: bool = False,
+    wall_eps: np.ndarray | None = None,
+    wall_p_pc: np.ndarray | None = None,
+    wall_M: np.ndarray | None = None,
 ) -> SeparationResult:
     """1-D thrust coefficient of an over-expanded nozzle with free-shock separation.
 
-    Separation is placed where the 1-D wall pressure first falls to the
+    Separation is placed where the wall pressure first falls to the
     criterion's p_sep (bisection in ε); the result is only as good as the
     empirical criterion (see module docstring).
+
+    ``wall_eps``/``wall_p_pc``/``wall_M`` (e.g. from
+    :func:`rockmoc.performance.integrated.moc_thrust_efficiency`) replace the 1-D
+    wall pressure by the real one. A bell wall sits above the 1-D pressure near
+    the exit, so it separates further downstream (CFD, Rao 80 % at p0/pa≈10:
+    ε_sep 4.75 vs 4.0 from 1-D; incipient p_sep/pa 0.42 vs Schmucker 0.41).
     """
+    use_wall = wall_eps is not None and wall_p_pc is not None and wall_M is not None
+    if use_wall:
+        o = np.argsort(wall_eps)
+        we, wp, wm = (np.asarray(a, dtype=float)[o] for a in (wall_eps, wall_p_pc, wall_M))
     if pa <= 0.0:
         Me = float(gas.mach_from_area_ratio(area_ratio, branch="supersonic"))
         pe_pc = float(gas.pe_pc_from_mach(Me))
@@ -93,15 +111,21 @@ def separated_cf(
     def M_of(eps: float) -> float:
         return float(gas.mach_from_area_ratio(eps, branch="supersonic"))
 
+    def pw_of(eps: float) -> tuple[float, float]:  # wall p/pc and wall Mach at ε
+        if use_wall:
+            return float(np.interp(eps, we, wp)), float(np.interp(eps, we, wm))
+        M = M_of(eps)
+        return float(gas.pe_pc_from_mach(M)), M
+
     def cf_at(eps: float, pa_pc: float) -> float:
         M = M_of(eps)
         pe_pc = float(gas.pe_pc_from_mach(M))
         return float(gas.thrust_coefficient(pe_pc, pa_pc, exit_mach=M, area_ratio=eps))
 
     def resid(eps: float) -> float:  # wall p/pa minus criterion (positive while attached)
-        M = M_of(eps)
+        p, M = pw_of(eps)
         crit = psep_over_pa(criterion, M=M, p0_pa=p0_pa, conical=conical)
-        return float(gas.pe_pc_from_mach(M)) * p0_pa - crit
+        return p * p0_pa - crit
 
     Me = M_of(area_ratio)
     cf_att = cf_at(area_ratio, pa / pc)
@@ -110,7 +134,7 @@ def separated_cf(
     if resid(area_ratio) >= 0.0:
         crit_e = psep_over_pa(criterion, M=Me, p0_pa=p0_pa, conical=conical)
         return SeparationResult(False, area_ratio, Me, crit_e, cf_att, cf_att, full, False,
-                                criterion)
+                                criterion, cf_att + area_ratio * pa / pc)
     lo, hi = 1.0 + 1e-9, area_ratio
     if resid(lo) <= 0.0:
         raise DesignError("flow separates at the throat: p0/pa too low for a supersonic nozzle")
@@ -118,8 +142,8 @@ def separated_cf(
         mid = 0.5 * (lo + hi)
         lo, hi = (mid, hi) if resid(mid) > 0.0 else (lo, mid)
     eps_s = 0.5 * (lo + hi)
-    Ms = M_of(eps_s)
-    ps = float(gas.pe_pc_from_mach(Ms)) * pc
+    ps_pc, Ms = pw_of(eps_s)
+    ps = ps_pc * pc
     if recovery == "kalt_badal":  # RocketCEA separated_Cf.sepNozzleCf
         c = 2.4 / 1.45
         if eps_s <= area_ratio * c / (1 + c) + 1 / (1 + c):
@@ -131,4 +155,4 @@ def separated_cf(
     else:
         cf = cf_at(eps_s, pa / pc)
     return SeparationResult(True, eps_s, Ms, ps / pa, cf, cf_att, full,
-                            eps_s > 0.8 * (area_ratio - 1.0) + 1.0, criterion)
+                            eps_s > 0.8 * (area_ratio - 1.0) + 1.0, criterion, cf_at(eps_s, 0.0))

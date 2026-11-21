@@ -58,7 +58,8 @@ def test_internal_shock_detector_flags_top_not_ideal():
     spec = DesignSpec(gas=gas, throat_radius=1.0, exit_mach=3.5, n_characteristics=40)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", MOCFallbackWarning)
-        assert analyze_wall(design_rao(spec).contour, gas, rc_over_rt=1.5).has_internal_shock
+        # full-length TOP (the v0.10 Bézier parabola keeps short bells shock-free in this detector)
+        assert analyze_wall(design_rao(spec, length_fraction=1.0).contour, gas, rc_over_rt=1.5).has_internal_shock
         assert not analyze_wall(design_ideal(spec).contour, gas, rc_over_rt=1.5).has_internal_shock
 
 

@@ -253,12 +253,16 @@ def design_axisym_ideal_hf(
     nu_e = float(gas.prandtl_meyer(Me))
 
     net = net_lo = None
-    for start in ("hall", "sauer", "uniform"):
+    # KL start lines sit further downstream than Hall's did: retry the series
+    # closer to M = 1 before giving up on transonic initial data.
+    tm0 = float(throat_mach)
+    tries = [("hall", tm0)] + [("hall", m) for m in (1.02, 1.01, 1.005, 1.002) if m < tm0] + [("sauer", tm0), ("uniform", tm0)]
+    for start, tm in tries:
         if start == "uniform":
             warn_fallback("Hall/Sauer start not usable (small Rc / low Me); uniform near-sonic start used")
         try:
             kw = dict(gas=gas, Rt=Rt, Rc=Rc, nu_target=nu_e, n_chars=n_chars,
-                      throat_mach=throat_mach, delta=delta, initial_line=start)
+                      throat_mach=tm, delta=delta, initial_line=start)
             net, net_lo = build_ideal_nets(**kw, offsets=(0, 1))  # type: ignore[arg-type]
             break
         except (MeshError, ThermoError):
@@ -305,7 +309,7 @@ def design_axisym_ideal_hf(
         meta={
             "delta": delta,
             "nu_e_rad": nu_e,
-            "throat_mach": throat_mach,
+            "throat_mach": tm,
             "throat_rc_over_rt": throat_rc_over_rt,
             "theta_attach_deg": math.degrees(theta_a),
             "initial_line": start,

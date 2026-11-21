@@ -252,8 +252,19 @@ class DesignResult:
         from rockmoc.performance.integrated import integrated_performance
 
         Rt = self.spec.throat_radius
-        p = integrated_performance(self.contour, self.spec.gas, throat_radius=Rt,
-                                   exit_mach=self.exit_mach_design, pc=pc, Tc=Tc, pa=pa, **loss)
+        loss.setdefault(
+            "rc_over_rt", self.spec.throat_rc_over_rt
+        )  # MOC wall march: designer's throat arc
+        p = integrated_performance(
+            self.contour,
+            self.spec.gas,
+            throat_radius=Rt,
+            exit_mach=self.exit_mach_design,
+            pc=pc,
+            Tc=Tc,
+            pa=pa,
+            **loss,
+        )
         At = float(np.pi * Rt**2)
         d = p.summary()
         d.update(thrust_vac_N=p.Cf_vac * pc * At, thrust_amb_N=p.Cf_amb * pc * At,

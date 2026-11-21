@@ -15,7 +15,7 @@ Example ``nozzle.toml``::
     throat_radius = 0.05      # in [design] units (default m)
     units = "m"               # input length units: m | cm | mm | in | ft
     exit_mach = 3.0           # or: area_ratio = 4.9
-    n_characteristics = 60
+    n_characteristics = 80
     throat_rc_over_rt = 1.5
     truncate_fraction = 0.8   # tic
     length_fraction = 0.8     # rao (fraction of 15° cone)

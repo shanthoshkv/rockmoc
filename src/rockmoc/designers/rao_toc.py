@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from rockmoc.designers.base import DesignResult, DesignSpec
 from rockmoc.designers.ideal import design_ideal
-from rockmoc.designers.rao import design_rao_top
+from rockmoc.designers.rao import conical_length, design_rao_top
 from rockmoc.performance.metrics import compute_metrics
 
 
@@ -37,26 +37,24 @@ def design_rao_toc(
     if L_ideal <= 0:
         L_ideal = 10.0 * spec.throat_radius
 
-    # Build TOP at conical fraction first to get shape angles, then scale length
-    # to length_fraction * L_ideal
+    # TOP bell built directly at L = length_fraction · L_ideal: circular throat arc kept,
+    # Rao angles taken at the equivalent 15°-cone length fraction (clipped to the
+    # 0.6–1.0 chart range). v0.9 stretched a TOP contour in x afterwards, which
+    # left θ unscaled (stated θ_e 10.7° vs 5.6° real) and turned the Rc = 1.5 Rt
+    # throat arc into an ellipse with Rc ≈ 5.6 Rt.
+    L_target = length_fraction * L_ideal
+    eps = float(spec.gas.area_ratio(Me))
+    Lf_cone = L_target / conical_length(spec.throat_radius, eps, 15.0)
     contour, meta = design_rao_top(
         spec.gas,
         throat_radius=spec.throat_radius,
         exit_mach=Me,
-        length_fraction=min(max(length_fraction, 0.6), 1.0),
+        length_fraction=min(max(Lf_cone, 0.6), 1.0),
         rc_over_rt=spec.throat_rc_over_rt,
         n_points=max(150, spec.n_characteristics * 2),
+        length_m=L_target,
     )
-    # Scale axial coordinate so total length = Lf * L_ideal
-    L_target = length_fraction * L_ideal
-    L_now = contour.length
-    if L_now > 1e-12:
-        scale = L_target / L_now
-        from rockmoc.geometry.contour import Contour
-
-        x0 = float(contour.x[0])
-        x = x0 + scale * (contour.x - x0)
-        contour = Contour(x=x, r=contour.r.copy(), theta=contour.theta, M=contour.M)
+    meta["length_fraction_of_cone"] = Lf_cone
 
     metrics = compute_metrics(
         contour,

@@ -30,11 +30,15 @@ def _rao_angles_deg(area_ratio: float, length_fraction: float) -> tuple[float, f
     """
     eps = max(float(area_ratio), 1.5)
     Lf = float(np.clip(length_fraction, 0.60, 1.0))
-    # Base angles at Lf=0.8
-    # θ_n decreases slowly with ε; θ_e decreases with ε
+    # Base angles at Lf=0.8: θ_n rises slowly with ε, θ_e falls with ε.
+    # A shorter bell turns harder: BOTH θ_n and θ_e grow as Lf drops (Huzel & Huang
+    # Fig. 4-16: at ε≈6, 60 % ≈ +6°/+5.5°, 100 % ≈ −4°/−3° relative to 80 %).
+    # (v0.9 had θ_e falling with shorter length — inverted; CFD showed the
+    # resulting 60 % bell over-expanding and recompressing at the lip.)
     loge = math.log(eps)
-    theta_n = 22.0 + 2.5 * loge - 12.0 * (Lf - 0.8)  # ~20–30 deg
-    theta_e = 14.0 - 1.8 * loge + 10.0 * (Lf - 0.8)  # ~5–15 deg
+    d = Lf - 0.8
+    theta_n = 22.0 + 2.5 * loge - 25.0 * d + 25.0 * d * d
+    theta_e = 14.0 - 1.8 * loge - 21.25 * d + 31.25 * d * d
     theta_n = float(np.clip(theta_n, 15.0, 50.0))
     theta_e = float(np.clip(theta_e, 2.0, 25.0))
     if theta_e > theta_n - 3.0:
@@ -57,6 +61,7 @@ def design_rao_top(
     length_fraction: float = 0.80,
     rc_over_rt: float = 1.5,
     n_points: int = 200,
+    length_m: float | None = None,
 ) -> tuple[Contour, dict]:
     """Design a Rao-type TOP bell contour.
 
@@ -66,6 +71,9 @@ def design_rao_top(
         Fraction of a 15° conical nozzle length (0.6–1.0). 0.8 is common.
     rc_over_rt:
         Throat wall radius of curvature / Rt.
+    length_m:
+        Throat-to-exit length overriding ``length_fraction`` × 15° cone length
+        (angles still from the clipped ``length_fraction``). Used by TOC.
     """
     if throat_radius <= 0:
         raise DesignError("throat_radius must be positive")
@@ -83,7 +91,7 @@ def design_rao_top(
     Rc = rc_over_rt * Rt
     Lf = float(np.clip(length_fraction, 0.60, 1.0))
     L_cone = conical_length(Rt, eps, 15.0)
-    L = Lf * L_cone
+    L = Lf * L_cone if length_m is None else float(length_m)
 
     theta_n_deg, theta_e_deg = _rao_angles_deg(eps, Lf)
     theta_n = math.radians(theta_n_deg)
@@ -106,37 +114,57 @@ def design_rao_top(
     if x_e <= x_n:
         x_e = x_n + 0.5 * Rt
 
-    # Parabola from N to E with end slopes tan(θ_n), tan(θ_e)
-    # Use cubic Hermite (Bezier-like) which matches Rao parabola family well:
-    # r(t), x(t) with t in [0,1]
+    # Rao TOP parabola N→E: quadratic Bézier whose control point Q is the
+    # intersection of the tangents at N (θ_n) and E (θ_e). End slopes are exact,
+    # with no overshoot (the v0.9 cubic Hermite overshot θ_e by ~1°).
     n_par = max(30, n_points - n_arc)
-    t = np.linspace(0.0, 1.0, n_par)
-    # Control length along tangents
-    c1 = 0.40 * (x_e - x_n) / max(math.cos(theta_n), 0.2)
-    c2 = 0.40 * (x_e - x_n) / max(math.cos(theta_e), 0.2)
-    # Cubic Hermite:
-    # P(t) = (2t^3-3t^2+1)P0 + (t^3-2t^2+t)m0 + (-2t^3+3t^2)P1 + (t^3-t^2)m1
-    P0 = np.array([x_n, r_n])
-    P1 = np.array([x_e, r_e])
-    m0 = c1 * np.array([math.cos(theta_n), math.sin(theta_n)])
-    m1 = c2 * np.array([math.cos(theta_e), math.sin(theta_e)])
-    t = t.reshape(-1, 1)
-    h00 = 2 * t**3 - 3 * t**2 + 1
-    h10 = t**3 - 2 * t**2 + t
-    h01 = -2 * t**3 + 3 * t**2
-    h11 = t**3 - t**2
-    P = h00 * P0 + h10 * m0 + h01 * P1 + h11 * m1
-    x_par = P[:, 0]
-    r_par = P[:, 1]
+    t = np.linspace(0.0, 1.0, n_par).reshape(-1, 1)
+    tn, te = math.tan(theta_n), math.tan(theta_e)
+    xq = (r_e - r_n + x_n * tn - x_e * te) / (tn - te)
+    P0, P2 = np.array([x_n, r_n]), np.array([x_e, r_e])
+    shape = "quadratic_bezier"
+    if x_n < xq < x_e:
+        Q = np.array([xq, r_n + (xq - x_n) * tn])
+        P = (1 - t) ** 2 * P0 + 2 * (1 - t) * t * Q + t**2 * P2
+        dP = 2 * (1 - t) * (Q - P0) + 2 * t * (P2 - Q)
+    else:
+        # ponytail: very short / low-ε bells admit no TOP parabola for these θ_n, θ_e
+        # (tangents cross outside N–E); cubic Hermite through the same end slopes instead.
+        shape = "cubic_hermite_fallback"
+        L_ne = x_e - x_n
+        m0 = (
+            0.4
+            * L_ne
+            / max(math.cos(theta_n), 0.2)
+            * np.array([math.cos(theta_n), math.sin(theta_n)])
+        )
+        m1 = (
+            0.4
+            * L_ne
+            / max(math.cos(theta_e), 0.2)
+            * np.array([math.cos(theta_e), math.sin(theta_e)])
+        )
+        P = (
+            (2 * t**3 - 3 * t**2 + 1) * P0
+            + (t**3 - 2 * t**2 + t) * m0
+            + (-2 * t**3 + 3 * t**2) * P2
+            + (t**3 - t**2) * m1
+        )
+        dP = (
+            (6 * t**2 - 6 * t) * P0
+            + (3 * t**2 - 4 * t + 1) * m0
+            + (-6 * t**2 + 6 * t) * P2
+            + (3 * t**2 - 2 * t) * m1
+        )
+    x_par, r_par = P[:, 0], P[:, 1]
 
     # Concatenate (skip duplicate junction)
     x = np.concatenate([x_arc[:-1], x_par])
     r = np.concatenate([r_arc[:-1], r_par])
-    # Ensure end exact
     x[-1], r[-1] = x_e, r_e
-    r = np.maximum.accumulate(r)  # non-decreasing radius
-    # Wall angle
-    th = np.arctan2(np.gradient(r), np.gradient(x))
+    r = np.maximum.accumulate(r)  # non-decreasing radius (Hermite fallback can dip)
+    # analytic wall angle (arc: φ, parabola: Bézier tangent)
+    th = np.concatenate([phi[:-1], np.arctan2(dP[:, 1], dP[:, 0])])
     # Mach estimate along wall from area
     M = np.ones_like(x)
     for i in range(len(x)):
@@ -157,12 +185,15 @@ def design_rao_top(
         "area_ratio": eps,
         "exit_mach": Me,
         "rc_over_rt": rc_over_rt,
-        "reference": "Rao TOP engineering correlations / cubic Hermite bell",
+        "parabola": shape,
+        "reference": "Rao TOP engineering correlations (Huzel & Huang trends) / quadratic Bezier parabola",
     }
     return contour, meta
 
 
-def design_rao(spec: DesignSpec, *, length_fraction: float = 0.80, store_net: bool = False) -> DesignResult:
+def design_rao(
+    spec: DesignSpec, *, length_fraction: float = 0.80, store_net: bool = False
+) -> DesignResult:
     """DesignSpec-compatible Rao TOP designer."""
     spec.validate()
     Me = spec.resolved_exit_mach()

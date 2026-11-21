@@ -54,7 +54,7 @@ def _base() -> argparse.ArgumentParser:
     exp.add_argument("--Me", type=float, help="design exit Mach")
     exp.add_argument("-e", "--area-ratio", type=float, help="design A_e/A*")
     exp.add_argument("--pe-pc", type=float, help="design exit/chamber pressure ratio")
-    b.add_argument("-n", "--n", type=int, default=40, help="number of characteristics")
+    b.add_argument("-n", "--n", type=int, default=80, help="number of characteristics (CFD: axis Mach rms <1 % needs n >= 80)")
     b.add_argument("--rc", type=float, default=1.5, help="throat Rc/Rt (ideal/tic)")
     b.add_argument("--truncate", type=float, default=0.8, help="TIC length fraction of ideal")
     b.add_argument("--length", type=float, default=0.8, help="Rao length fraction of 15° cone")

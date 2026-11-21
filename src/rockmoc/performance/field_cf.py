@@ -123,6 +123,7 @@ def field_integrated_cf(
     delta_cf_friction: float = 0.0,
     eta_chemical: float = 1.0,
     eta_two_phase: float = 1.0,
+    exit_displacement_area: float = 0.0,
 ) -> FieldCfResult:
     """Integrate thrust on the nozzle exit plane (axisymmetric).
 
@@ -205,10 +206,11 @@ def field_integrated_cf(
 
     Cf_field_vac = Cf_vac
     eta_mult = eta_chemical * eta_two_phase
-    if eta_mult != 1.0 or delta_cf_friction != 0.0:
+    dcf_amb_disp = pa * exit_displacement_area / (pc * At) if pc > 0 else 0.0  # p_a on BL annulus
+    if eta_mult != 1.0 or delta_cf_friction != 0.0 or dcf_amb_disp != 0.0:
         # Cf ∝ F at fixed ṁ c* (or pc At): scale forces consistently
         f_vac = (Cf_vac * eta_mult - delta_cf_friction) / Cf_vac
-        f_amb = (Cf_amb * eta_mult - delta_cf_friction) / Cf_amb
+        f_amb = (Cf_amb * eta_mult - delta_cf_friction - dcf_amb_disp) / Cf_amb
         Cf_vac, Cf_amb = Cf_vac * f_vac, Cf_amb * f_amb
         F_vac, F = F_vac * f_vac, F * f_amb
 

@@ -193,11 +193,12 @@ def design_production(
             method=bl_method,
             wall_temperature=wall_temperature,
         )
-        contour_for_perf = bl_res.corrected
-    else:
-        contour_for_perf = contour
+    # Performance of a BL-corrected nozzle = inviscid design core + exit-plane BL
+    # control volume (momentum deficit, displacement annulus at p_e and p_a).
+    contour_for_perf = contour
     losses = {
-        "delta_cf_friction": bl_res.delta_cf_friction if bl_res is not None else 0.0,
+        "delta_cf_friction": bl_res.meta["delta_cf_exit_vac"] if bl_res is not None else 0.0,
+        "exit_displacement_area": bl_res.meta["exit_displacement_area_m2"] if bl_res is not None else 0.0,
         "eta_chemical": eta_chemical,
     }
 

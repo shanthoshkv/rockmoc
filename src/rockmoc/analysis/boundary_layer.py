@@ -376,6 +376,41 @@ def correct_wall_bl(
             x_corr[i] = x_corr[i - 1] + 1e-12
     r_corr = np.maximum(r_corr, throat_radius * 0.99)
 
+    # Exit control volume of the BL-corrected nozzle (CFD v2, y+~0.5): the
+    # core expands to the design state; the layer costs its momentum deficit
+    # but its displacement annulus still carries p_e.  ΔCf = (ρu²θ − p_e δ*)·P / (p_c A_t);
+    # ∫τ_w dA overstates the loss by ~0.7 % Isp (pressure on the displaced wall).
+    perim = 2.0 * math.pi * float(r_corr[-1]) if axisymmetric else 2.0
+    d_cf_exit = perim * (rho_e[-1] * U_e[-1] ** 2 * theta[-1] - p_e[-1] * delta_star[-1]) / (pc * A_t)
+    disp_area = perim * float(delta_star[-1])
+
+    # Same control volume if the wall is NOT corrected: the core sees the
+    # effective area ratio (A_e − P_e δ*_e)/(A_t − P_t δ*_t).  Expressed as an
+    # Isp-equivalent ΔCf vs the 1-D ideal at the geometric ε (CFD v2: 275.17 vs 275.55 s).
+    def _area(rr: float) -> float:
+        return math.pi * rr * rr if axisymmetric else 2.0 * rr
+
+    def _perim(rr: float) -> float:
+        return 2.0 * math.pi * rr if axisymmetric else 2.0
+
+    re_, rt_ = float(r[-1]), float(r[i_t])
+    Ae_core = _area(re_) - _perim(re_) * float(delta_star[-1])
+    At_core = _area(rt_) - _perim(rt_) * float(delta_star[i_t])
+    cstar = float(gas.characteristic_velocity(Tc))
+    mdot_core = pc * At_core / cstar
+
+    def _cf_isp(eps_core: float, A_exit: float, mdot: float, mom_def: float) -> float:
+        M = float(gas.mach_from_area_ratio(max(eps_core, 1.0 + 1e-9), branch="supersonic"))
+        _, p_x, rho_x, a_x = (float(np.asarray(v).ravel()[0]) for v in edge_state(gas, np.array([M]), Tc, pc))
+        u_x = M * a_x
+        return (mdot * u_x - rho_x * u_x * u_x * mom_def + p_x * A_exit) / (mdot * cstar)  # ṁ = ρu A_core
+
+    eps_geo = _area(re_) / _area(rt_)
+    mdot_geo = pc * _area(rt_) / cstar
+    cf_ideal = _cf_isp(eps_geo, _area(re_), mdot_geo, 0.0)
+    cf_unc = _cf_isp(Ae_core / At_core, _area(re_), mdot_core, _perim(re_) * float(theta[-1]))
+    d_cf_uncorrected = cf_ideal - cf_unc
+
     corrected = Contour(x=x_corr, r=r_corr, theta=alpha, M=M_e)
 
     return BLCorrectionResult(
@@ -404,6 +439,9 @@ def correct_wall_bl(
             "axisymmetric": axisymmetric,
             "friction_force_N": F_tau,
             "delta_cf_friction": d_cf,
+            "delta_cf_exit_vac": float(d_cf_exit),
+            "exit_displacement_area_m2": disp_area,
+            "delta_cf_uncorrected_vac": float(d_cf_uncorrected),
             "reference": "von Kármán momentum integral, Eckert ref. T, Bartz transport; TM-X-2343 δ* rule",
         },
     )

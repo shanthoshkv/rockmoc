@@ -1,6 +1,6 @@
 # rockmoc deep multi-regime validation (10+ cited sources)
 
-**Generated (UTC):** 2026-10-26T16:36:54.512560+00:00
+**Generated (UTC):** 2026-11-21T12:23:29.457519+00:00
 
 ## Summary
 
@@ -201,7 +201,7 @@
 | ye_over_ht | 12.981567 | 12.981567 | 0 | 0.0001 | Y | - |  |
 | throat_x | 0 | 0 | 0 | — | Y | m |  |
 | throat_y | 1 | 1 | 0 | — | Y | m |  |
-| xe_over_ht | — | 38.430906 | — | — | Y | - | physical length (mesh-dependent); TM-X-1502 discusses Δν sensitivity |
+| xe_over_ht | — | 64.506612 | — | — | Y | - | physical length (mesh-dependent); TM-X-1502 discusses Δν sensitivity |
 
 ### `naca_planar_M2.0_dnu1.0` — **PASS**
 
@@ -214,7 +214,7 @@
 | theta_max_deg | 13.18988 | 13.18988 | 0 | 0.05 | Y | deg |  |
 | ye_over_ht | 1.6875 | 1.6875 | 0 | 0.01 | Y | - | planar exit half-height = A/A* |
 | area_ratio | 1.6875 | 1.6875 | 0 | 0.01 | Y | - |  |
-| L_over_ht | — | 6.208729 | — | — | Y | - | solver length |
+| L_over_ht | — | 4.878218 | — | — | Y | - | solver length |
 
 ### `naca_planar_M2.4_dnu1.0` — **PASS**
 
@@ -227,7 +227,7 @@
 | theta_max_deg | 18.373266 | 18.373266 | 0 | 0.05 | Y | deg |  |
 | ye_over_ht | 2.4031 | 2.4031 | 0 | 0.01 | Y | - | planar exit half-height = A/A* |
 | area_ratio | 2.4031 | 2.4031 | 0 | 0.01 | Y | - |  |
-| L_over_ht | — | 8.953531 | — | — | Y | - | solver length |
+| L_over_ht | — | 8.129369 | — | — | Y | - | solver length |
 
 ### `naca_planar_M3.0_dnu0.5` — **PASS**
 
@@ -240,7 +240,7 @@
 | theta_max_deg | 24.878673 | 24.878673 | 0 | 0.05 | Y | deg |  |
 | ye_over_ht | 4.234568 | 4.234568 | 0 | 0.01 | Y | - | planar exit half-height = A/A* |
 | area_ratio | 4.234568 | 4.234568 | 0 | 0.01 | Y | - |  |
-| L_over_ht | — | 14.867142 | — | — | Y | - | solver length |
+| L_over_ht | — | 16.923516 | — | — | Y | - | solver length |
 
 ### `naca_planar_M3.5_dnu0.5` — **PASS**
 
@@ -253,7 +253,7 @@
 | theta_max_deg | 29.264879 | 29.264879 | 0 | 0.05 | Y | deg |  |
 | ye_over_ht | 6.789621 | 6.789621 | 0 | 0.01 | Y | - | planar exit half-height = A/A* |
 | area_ratio | 6.789621 | 6.789621 | 0 | 0.01 | Y | - |  |
-| L_over_ht | — | 22.439111 | — | — | Y | - | solver length |
+| L_over_ht | — | 30.400489 | — | — | Y | - | solver length |
 
 ### `naca_planar_M4.0_dnu0.5` — **PASS**
 
@@ -266,7 +266,7 @@
 | theta_max_deg | 32.89241 | 32.89241 | 0 | 0.05 | Y | deg |  |
 | ye_over_ht | 10.71875 | 10.71875 | 0 | 0.01 | Y | - | planar exit half-height = A/A* |
 | area_ratio | 10.71875 | 10.71875 | 0 | 0.01 | Y | - |  |
-| L_over_ht | — | 33.277264 | — | — | Y | - | solver length |
+| L_over_ht | — | 53.078382 | — | — | Y | - | solver length |
 
 ### `axisym_mln_g1.2_M2.5` — **PASS**
 
@@ -422,8 +422,8 @@
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
 | L_over_L15cone | 0.8 | 0.8 | 0 | 5 | Y | - | Rao length fraction of 15° cone |
 | area_ratio | 5.831867 | 5.831867 | 0 | 0.5 | Y | - |  |
-| theta_n_deg | — | 25.81435 | — | — | Y | deg |  |
-| theta_e_deg | — | 11.425525 | — | — | Y | deg |  |
+| theta_n_deg | — | 26.408343 | — | — | Y | deg |  |
+| theta_e_deg | — | 10.825993 | — | — | Y | deg |  |
 | theta_n_gt_theta_e | 1 | 1 | 0 | — | Y |  | Rao attachment angle > exit angle |
 
 ### `rao_top_g1.4_M3.5_lf0.8` — **PASS**
@@ -436,8 +436,8 @@
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
 | L_over_L15cone | 0.8 | 0.8 | 0 | 5 | Y | - | Rao length fraction of 15° cone |
 | area_ratio | 6.789621 | 6.789621 | 0 | 0.5 | Y | - |  |
-| theta_n_deg | — | 26.182857 | — | — | Y | deg |  |
-| theta_e_deg | — | 11.154254 | — | — | Y | deg |  |
+| theta_n_deg | — | 26.788488 | — | — | Y | deg |  |
+| theta_e_deg | — | 10.552289 | — | — | Y | deg |  |
 | theta_n_gt_theta_e | 1 | 1 | 0 | — | Y |  | Rao attachment angle > exit angle |
 
 ### `rao_top_g1.25_M4.0_lf0.7` — **PASS**
@@ -450,8 +450,8 @@
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
 | L_over_L15cone | 0.7 | 0.7 | 0 | 5 | Y | - | Rao length fraction of 15° cone |
 | area_ratio | 20.644259 | 20.644259 | 1.72092e-14 | 0.5 | Y | - |  |
-| theta_n_deg | — | 30.110415 | — | — | Y | deg |  |
-| theta_e_deg | — | 8.544183 | — | — | Y | deg |  |
+| theta_n_deg | — | 32.318593 | — | — | Y | deg |  |
+| theta_e_deg | — | 10.988113 | — | — | Y | deg |  |
 | theta_n_gt_theta_e | 1 | 1 | 0 | — | Y |  | Rao attachment angle > exit angle |
 
 ### `aerospike_lee_0` — **PASS**
@@ -575,8 +575,8 @@
 | Metric | Reference | Solver | Error % | Tol % | Pass | Unit | Note |
 |--------|----------:|-------:|--------:|------:|:----:|------|------|
 | L_mln_m | — | 0.487727 | — | — | Y | m |  |
-| L_tic_m | — | 0.420299 | — | — | Y | m |  |
-| L_ideal_m | — | 0.525374 | — | — | Y | m |  |
+| L_tic_m | — | 0.419199 | — | — | Y | m |  |
+| L_ideal_m | — | 0.523999 | — | — | Y | m |  |
 | L_rao_m | — | 0.211223 | — | — | Y | m |  |
 | ideal_gt_mln | 1 | 1 | 0 | — | Y |  | ideal longer than MLN |
 | tic_lt_ideal | 1 | 1 | 0 | — | Y |  | TIC shorter than ideal |

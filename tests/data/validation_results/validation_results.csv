@@ -41,27 +41,27 @@ nasa_tm_x_1502_sample,planar_mln_nasa,nasa_tm_x_1502,area_ratio_1d,12.9815665028
 nasa_tm_x_1502_sample,planar_mln_nasa,nasa_tm_x_1502,ye_over_ht,12.981566502841387,12.981566502841387,0.0,0.0,0.0001,True,-,,True
 nasa_tm_x_1502_sample,planar_mln_nasa,nasa_tm_x_1502,throat_x,0.0,0.0,0.0,0.0,,True,m,,True
 nasa_tm_x_1502_sample,planar_mln_nasa,nasa_tm_x_1502,throat_y,1.0,1.0,0.0,0.0,,True,m,,True
-nasa_tm_x_1502_sample,planar_mln_nasa,nasa_tm_x_1502,xe_over_ht,,38.4309057150184,,,,True,-,physical length (mesh-dependent); TM-X-1502 discusses Δν sensitivity,True
+nasa_tm_x_1502_sample,planar_mln_nasa,nasa_tm_x_1502,xe_over_ht,,64.5066120038036,,,,True,-,physical length (mesh-dependent); TM-X-1502 discusses Δν sensitivity,True
 naca_planar_M2.0_dnu1.0,planar_mln_naca,naca_rm_e8j12,theta_max_deg,13.189880406708228,13.189880406708228,0.0,0.0,0.05,True,deg,,True
 naca_planar_M2.0_dnu1.0,planar_mln_naca,naca_rm_e8j12,ye_over_ht,1.6875000000000002,1.6875000000000002,0.0,0.0,0.01,True,-,planar exit half-height = A/A*,True
 naca_planar_M2.0_dnu1.0,planar_mln_naca,naca_rm_e8j12,area_ratio,1.6875000000000002,1.6875000000000002,0.0,0.0,0.01,True,-,,True
-naca_planar_M2.0_dnu1.0,planar_mln_naca,naca_rm_e8j12,L_over_ht,,6.208728897247687,,,,True,-,solver length,True
+naca_planar_M2.0_dnu1.0,planar_mln_naca,naca_rm_e8j12,L_over_ht,,4.878218178942656,,,,True,-,solver length,True
 naca_planar_M2.4_dnu1.0,planar_mln_naca,naca_rm_e8j12,theta_max_deg,18.37326557335319,18.37326557335319,0.0,0.0,0.05,True,deg,,True
 naca_planar_M2.4_dnu1.0,planar_mln_naca,naca_rm_e8j12,ye_over_ht,2.40309987654321,2.40309987654321,0.0,0.0,0.01,True,-,planar exit half-height = A/A*,True
 naca_planar_M2.4_dnu1.0,planar_mln_naca,naca_rm_e8j12,area_ratio,2.40309987654321,2.40309987654321,0.0,0.0,0.01,True,-,,True
-naca_planar_M2.4_dnu1.0,planar_mln_naca,naca_rm_e8j12,L_over_ht,,8.95353138447697,,,,True,-,solver length,True
+naca_planar_M2.4_dnu1.0,planar_mln_naca,naca_rm_e8j12,L_over_ht,,8.129368804592007,,,,True,-,solver length,True
 naca_planar_M3.0_dnu0.5,planar_mln_naca,naca_rm_e8j12,theta_max_deg,24.878673372173036,24.878673372173036,0.0,0.0,0.05,True,deg,,True
 naca_planar_M3.0_dnu0.5,planar_mln_naca,naca_rm_e8j12,ye_over_ht,4.23456790123457,4.23456790123457,0.0,0.0,0.01,True,-,planar exit half-height = A/A*,True
 naca_planar_M3.0_dnu0.5,planar_mln_naca,naca_rm_e8j12,area_ratio,4.23456790123457,4.23456790123457,0.0,0.0,0.01,True,-,,True
-naca_planar_M3.0_dnu0.5,planar_mln_naca,naca_rm_e8j12,L_over_ht,,14.867142240919478,,,,True,-,solver length,True
+naca_planar_M3.0_dnu0.5,planar_mln_naca,naca_rm_e8j12,L_over_ht,,16.923515549482325,,,,True,-,solver length,True
 naca_planar_M3.5_dnu0.5,planar_mln_naca,naca_rm_e8j12,theta_max_deg,29.26487948137777,29.26487948137777,0.0,0.0,0.05,True,deg,,True
 naca_planar_M3.5_dnu0.5,planar_mln_naca,naca_rm_e8j12,ye_over_ht,6.789620535714286,6.789620535714286,0.0,0.0,0.01,True,-,planar exit half-height = A/A*,True
 naca_planar_M3.5_dnu0.5,planar_mln_naca,naca_rm_e8j12,area_ratio,6.789620535714286,6.789620535714286,0.0,0.0,0.01,True,-,,True
-naca_planar_M3.5_dnu0.5,planar_mln_naca,naca_rm_e8j12,L_over_ht,,22.4391107034864,,,,True,-,solver length,True
+naca_planar_M3.5_dnu0.5,planar_mln_naca,naca_rm_e8j12,L_over_ht,,30.40048903216819,,,,True,-,solver length,True
 naca_planar_M4.0_dnu0.5,planar_mln_naca,naca_rm_e8j12,theta_max_deg,32.89240989887426,32.89240989887426,0.0,0.0,0.05,True,deg,,True
 naca_planar_M4.0_dnu0.5,planar_mln_naca,naca_rm_e8j12,ye_over_ht,10.718750000000002,10.718750000000002,0.0,0.0,0.01,True,-,planar exit half-height = A/A*,True
 naca_planar_M4.0_dnu0.5,planar_mln_naca,naca_rm_e8j12,area_ratio,10.718750000000002,10.718750000000002,0.0,0.0,0.01,True,-,,True
-naca_planar_M4.0_dnu0.5,planar_mln_naca,naca_rm_e8j12,L_over_ht,,33.2772638751704,,,,True,-,solver length,True
+naca_planar_M4.0_dnu0.5,planar_mln_naca,naca_rm_e8j12,L_over_ht,,53.078382171790594,,,,True,-,solver length,True
 axisym_mln_g1.2_M2.5,axisym_mln,zucrow_hoffman,area_ratio,3.420532586514756,3.420532586514757,2.596608560905735e-14,8.881784197001252e-16,0.05,True,-,ε_geom vs A/A*(Me),True
 axisym_mln_g1.2_M2.5,axisym_mln,zucrow_hoffman,theta_max_below_half_nu_e_deg,,15.041199940321336,0.0,,,True,deg,axisym sources ⇒ θ_max < ν_e/2 = 24.23° (planar limit),True
 axisym_mln_g1.2_M2.5,axisym_mln,zucrow_hoffman,theta_exit_deg,0.0,0.0,0.0,0.0,,True,deg,axial exit design,True
@@ -118,18 +118,18 @@ conical_g1.2_M4.0_th12.0,conical_huzel,huzel_huang,area_ratio,28.355261324888836
 conical_g1.2_M4.0_th12.0,conical_huzel,huzel_huang,eta_div,0.9890738003669028,0.9890738003669028,0.0,0.0,0.01,True,-,η_div=(1+cos θ_e)/2,True
 rao_top_g1.25_M3.0_lf0.8,rao_top,rao_1958,L_over_L15cone,0.8,0.8,0.0,0.0,5.0,True,-,Rao length fraction of 15° cone,True
 rao_top_g1.25_M3.0_lf0.8,rao_top,rao_1958,area_ratio,5.831866838679954,5.831866838679954,0.0,0.0,0.5,True,-,,True
-rao_top_g1.25_M3.0_lf0.8,rao_top,rao_1958,theta_n_deg,,25.814349964178767,,,,True,deg,,True
-rao_top_g1.25_M3.0_lf0.8,rao_top,rao_1958,theta_e_deg,,11.42552473066339,,,,True,deg,,True
+rao_top_g1.25_M3.0_lf0.8,rao_top,rao_1958,theta_n_deg,,26.408342903929682,,,,True,deg,,True
+rao_top_g1.25_M3.0_lf0.8,rao_top,rao_1958,theta_e_deg,,10.825993109170632,,,,True,deg,,True
 rao_top_g1.25_M3.0_lf0.8,rao_top,rao_1958,theta_n_gt_theta_e,1.0,1.0,0.0,0.0,,True,,Rao attachment angle > exit angle,True
 rao_top_g1.4_M3.5_lf0.8,rao_top,rao_1958,L_over_L15cone,0.8,0.8,0.0,0.0,5.0,True,-,Rao length fraction of 15° cone,True
 rao_top_g1.4_M3.5_lf0.8,rao_top,rao_1958,area_ratio,6.789620535714286,6.789620535714286,0.0,0.0,0.5,True,-,,True
-rao_top_g1.4_M3.5_lf0.8,rao_top,rao_1958,theta_n_deg,,26.182857147388425,,,,True,deg,,True
-rao_top_g1.4_M3.5_lf0.8,rao_top,rao_1958,theta_e_deg,,11.154253913571953,,,,True,deg,,True
+rao_top_g1.4_M3.5_lf0.8,rao_top,rao_1958,theta_n_deg,,26.788487635631437,,,,True,deg,,True
+rao_top_g1.4_M3.5_lf0.8,rao_top,rao_1958,theta_e_deg,,10.552288902345358,,,,True,deg,,True
 rao_top_g1.4_M3.5_lf0.8,rao_top,rao_1958,theta_n_gt_theta_e,1.0,1.0,0.0,0.0,,True,,Rao attachment angle > exit angle,True
 rao_top_g1.25_M4.0_lf0.7,rao_top,rao_1958,L_over_L15cone,0.7,0.7,0.0,0.0,5.0,True,-,Rao length fraction of 15° cone,True
 rao_top_g1.25_M4.0_lf0.7,rao_top,rao_1958,area_ratio,20.644259231357807,20.644259231357804,1.7209208811930004e-14,3.552713678800501e-15,0.5,True,-,,True
-rao_top_g1.25_M4.0_lf0.7,rao_top,rao_1958,theta_n_deg,,30.11041503168653,,,,True,deg,,True
-rao_top_g1.25_M4.0_lf0.7,rao_top,rao_1958,theta_e_deg,,8.544182889289724,,,,True,deg,,True
+rao_top_g1.25_M4.0_lf0.7,rao_top,rao_1958,theta_n_deg,,32.3185931935822,,,,True,deg,,True
+rao_top_g1.25_M4.0_lf0.7,rao_top,rao_1958,theta_e_deg,,10.98811290062082,,,,True,deg,,True
 rao_top_g1.25_M4.0_lf0.7,rao_top,rao_1958,theta_n_gt_theta_e,1.0,1.0,0.0,0.0,,True,,Rao attachment angle > exit angle,True
 aerospike_lee_0,aerospike,lee_vernacchia_spike,delta_rad,0.10525274483440872,0.10525274483440872,0.0,0.0,0.01,True,rad,δ = π/2 − ν_e,True
 aerospike_lee_0,aerospike,lee_vernacchia_spike,exit_mach,4.153775624532614,4.153775624532664,1.2187988591368278e-12,5.062616992290714e-14,1.0,True,-,Me from ε (Majdalani / area–Mach),True
@@ -159,12 +159,12 @@ cf_1d_g1.2_M4.0_pa0.0,performance_1d,sutton_biblarz,Cf,1.8541503000570418,1.8541
 cf_1d_g1.2_M4.0_pa0.0,performance_1d,sutton_biblarz,pe_pc,0.0032371282973906778,0.0032371282973906778,0.0,0.0,1e-09,True,-,,True
 cf_1d_g1.2_M4.0_pa0.0,performance_1d,sutton_biblarz,area_ratio,28.355261324888836,28.355261324888836,0.0,0.0,1e-09,True,-,,True
 bl_tm_x_2343_delta_star,bl_tm_x_2343,nasa_tm_x_2343,delta_star_exit_positive,1.0,1.0,0.0,0.0,,True,-,δ*_e=2.098e-03 m,True
-bl_tm_x_2343_delta_star,bl_tm_x_2343,nasa_tm_x_2343,R_corrected_ge_inviscid,0.12074629226895493,0.12284386827552782,0.0,0.002097576006572885,,True,m,r_corr = r_inv + δ* (radial approx),True
+bl_tm_x_2343_delta_star,bl_tm_x_2343,nasa_tm_x_2343,R_corrected_ge_inviscid,0.12074629226895493,0.12284386177577744,0.0,0.002097569506822508,,True,m,r_corr = r_inv + δ* (radial approx),True
 throat_ivl_sauer,throat_ivl_sauer,sauer_kliegel,M_min_supersonic,1.01,1.02,0.0,0.010000000000000009,,True,-,IVL slightly supersonic,True
 throat_ivl_sauer,throat_ivl_sauer,sauer_kliegel,theta_axis_near_zero,0.0,0.0,0.0,0.0,,True,rad,axisymmetry on centerline,True
 family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_mln_m,,0.48772721509883277,,,,True,m,,True
-family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_tic_m,,0.4202994631277136,,,,True,m,,True
-family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_ideal_m,,0.525374328909642,,,,True,m,,True
+family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_tic_m,,0.419199072345392,,,,True,m,,True
+family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_ideal_m,,0.5239988404317399,,,,True,m,,True
 family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,L_rao_m,,0.21122300575588568,,,,True,m,,True
 family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,ideal_gt_mln,1.0,1.0,0.0,0.0,,True,,ideal longer than MLN,True
 family_ordering_mln_tic_ideal_rao,family_ordering,zucrow_hoffman,tic_lt_ideal,1.0,1.0,0.0,0.0,,True,,TIC shorter than ideal,True

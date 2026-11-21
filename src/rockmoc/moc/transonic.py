@@ -41,7 +41,10 @@ order by order). u₃, v₃ are Hall's third-order terms as transcribed by Kbab
 (Blida, 2012) and checked for irrotationality. At Rc/Rt = 0.625 it gives
 throat-plane axis/wall Mach 0.79/1.31 and Cd 0.982 against 0.8/1.4 and 0.985
 measured (Cuffel et al. 1969); Levine & Coats (NASA CR, 1970) report agreement
-down to Rc/Rt ≈ 0.4. Used for :data:`KL_MIN_RC_RT` ≤ Rc/Rt < 1.5. Planar Hall
+down to Rc/Rt ≈ 0.4. Used for :data:`KL_MIN_RC_RT` ≤ Rc/Rt < :data:`HALL_MIN_RC_RT` (= 4). OpenFOAM
+throat-plane Mach (cfd_validation, v2): Rc/Rt = 1.5 axis CFD 0.880, KL 0.882, Hall 0.934;
+Rc/Rt = 2 axis 0.919 / 0.903 / 0.929, wall 1.084 / 1.090 / 1.080. KL is as good as or better
+than Hall everywhere below 4, where the two agree. Planar Hall
 and KL are not included (Sauer used).
 """
 
@@ -49,7 +52,7 @@ from __future__ import annotations
 
 import math
 
-HALL_MIN_RC_RT = 1.5  # below this the Hall series diverges (see module docstring)
+HALL_MIN_RC_RT = 4.0  # CFD v2 (Rc/Rt 0.625-2): KL tracks the throat plane, Hall is 6 % off at 1.5
 KL_MIN_RC_RT = 0.4  # Levine & Coats 1970: KL agrees with data down to ≈ 0.4
 
 

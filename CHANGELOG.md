@@ -1,6 +1,57 @@
 # Changelog
 
-## Unreleased
+## Unreleased — fixes from the OpenFOAM validation campaign (`cfd_validation/`)
+
+### Fixed
+- **Divergence loss counted twice** (`performance.integrated`). `η_div · η_ke` modelled the
+  same exit-angle loss twice. Against CFD, cones were 1.6–3.8 % low on Isp and bells 1.4–2.7 % low.
+  The stack now applies one geometric factor `η_geom`. η_ke is still reported but no longer applied.
+- **Rao TOP angle correlation inverted** (`designers.rao`). θ_e used to fall as the bell got
+  shorter. It now rises, following the Huzel & Huang trends (60 % ≈ +5.5°, 100 % ≈ −3° vs 80 %).
+  The parabola is now a true quadratic Bézier between the θ_n and θ_e tangents. The old cubic
+  Hermite overshot θ_e by about 1°. Bells too short for a valid parabola fall back to the Hermite
+  (`meta["parabola"]`).
+- **Rao TOC stretched in x** (`designers.rao_toc`). The TOP contour was scaled axially after
+  design, which left θ unscaled (stated θ_e 10.7°, real 5.6°) and made the Rc = 1.5 Rt throat arc
+  an ellipse with Rc ≈ 5.6 Rt. The bell is now built at the target length (`design_rao_top(length_m=)`).
+- **Ideal/TIC throat arc sampled by only 4–5 MOC nodes** (`designers.axisym_hf`). This put
+  3–6° slope kinks into exported and meshed walls. The arc is now resampled with 40 exact points.
+- **Separated sea-level thrust** (`analysis.separation`, `performance.integrated`):
+  - Separation can be placed on the real wall pressure (`wall_eps`, `wall_p_pc`, `wall_M`).
+  - `integrated_performance` applies losses to the vacuum part only, via
+    `SeparationResult.Cf_vac_attached`.
+  - Default recovery is Kalt–Badal (`separation_recovery=`).
+  - CFD of Rao 80 % at p0/pa ≈ 10: v0.9 gave Cf 1.196, CFD gives 1.034.
+- **BL-corrected nozzle loss** (`design_production(apply_bl=True)`): friction was charged as
+  ∫τ_w dA (1.5 % Isp). The displaced wall still carries p_e, so the real loss is the exit
+  control volume ΔCf = P(ρu²θ − p_e δ*)/(p_c A_t), plus p_a on the displacement annulus at
+  ambient. New `BLCorrectionResult.meta["delta_cf_exit_vac"]`, `["exit_displacement_area_m2"]`;
+  `exit_displacement_area=` on `field_integrated_cf` / `integrated_performance`.
+  CFD at y+ ≈ 0.5: wall shear 1.49 % (rockmoc 1.52 %), net Isp 276.45 s; v0.9 274.31 s, now 276.09 s.
+- **Uncorrected viscous wall**: new `BLCorrectionResult.meta["delta_cf_uncorrected_vac"]`, the
+  Isp-equivalent loss when the wall is *not* BL-corrected (core sees (A_e − Pδ*_e)/(A_t − Pδ*_t),
+  plus the momentum deficit). Pass it as `delta_cf_friction`. CFD 275.55 s; this model 275.17 s;
+  ∫τ_w dA gave 274.31 s.
+- **Planar MLN (`design_planar_mln_nasa`)**: the wall was integrated with heuristic arc steps and
+  rescaled to ε, which made it 7.8 % too long at Me 2.4 (CFD exit Mach 2.45 on the axis, 2.20 at the wall).
+  The wall now comes from C+ / streamline intersections of a standard unit-process net. The unforced
+  MOC ε is within 0.02 % of 1-D, and L/h_t = 8.089 (independent MOC: 8.087). New `meta["area_ratio_moc_raw"]`.
+- **Transonic start line**: Kliegel–Levine is now used up to Rc/Rt = 4 (it was 1.5). Throat-plane Mach
+  from OpenFOAM (Rc/Rt = 0.625, 1, 1.5, 2) follows KL within 0.02 on the axis and wall. Hall's 2nd-order
+  series is 6 % high on the axis at 1.5 (0.934 vs CFD 0.880) and has a non-physical minimum near Rc/Rt = 2.
+  The ideal/TIC builders retry the series start at axis M 1.02 → 1.002 before falling back to a uniform start.
+- CLI `-n` default 40 → 80 (TOML template 60 → 80). CFD: MLN axis Mach rms error converges first
+  order in n (n = 10/20/40/80: 3.8/2.0/1.0/0.64 %); n ≥ 80 needed for < 1 %. API default stays 160.
+
+### Added
+- `performance.integrated.moc_thrust_efficiency`: inviscid thrust efficiency of any given wall,
+  from a direct MOC march (`moc.analysis.analyze_wall`) plus a start-line and wall-pressure
+  momentum balance. Results are cached.
+- `integrated_performance(geometric="auto"|"divergence"|"moc", rc_over_rt=)`. `"auto"` selects:
+  - θ_e < 0.5° → 1.
+  - Straight exit → (1+cos θ_e)/2 (exact for source flow).
+  - Otherwise the MOC wall integral, falling back to the divergence factor.
+  - CFD (v1 meshes): cones, TIC, TOC and control-surface Rao are within 0.3 % Isp.
 
 ## 0.9.0 — real-gas flow, sweeps, units and export
 
