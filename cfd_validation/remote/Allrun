@@ -1,0 +1,20 @@
+#!/bin/bash
+# usage: bash Allrun <cpu-set>
+source /usr/lib/openfoam/openfoam2412/etc/bashrc || true
+cd "$(dirname "$0")"
+[ -f DONE ] && exit 0
+rm -rf processor* [1-9]* 0.[0-9]* FAILED
+fail() { echo "$1" > FAILED; echo "$(date +%T) $(basename $PWD) FAILED $1" >> ../queue.log; exit 1; }
+echo "$(date +%T) $(basename $PWD) start" >> ../queue.log
+blockMesh > log.blockMesh 2>&1 || fail blockMesh
+checkMesh > log.checkMesh 2>&1
+postProcess -func writeCellCentres -time 0 > log.cc 2>&1 || fail cellCentres
+~/venv/bin/python ../init_fields.py . > log.init 2>&1 || fail init
+rm -f 0/C 0/Cx 0/Cy 0/Cz 0/V
+decomposePar -force > log.decompose 2>&1 || fail decompose
+mpirun --bind-to none -np 8 rhoCentralFoamAxi -parallel > log.solver 2>&1 || fail solver
+reconstructPar -latestTime > log.reconstruct 2>&1 || fail reconstruct
+~/venv/bin/python ../extract.py . > log.extract 2>&1 || fail extract
+rm -rf processor*
+touch DONE
+echo "$(date +%T) $(basename $PWD) done" >> ../queue.log
