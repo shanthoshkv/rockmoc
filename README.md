@@ -2,8 +2,6 @@
 
 Method of Characteristics rocket nozzle design in Python: MLN, Rao, TIC and aerospike contours with real-gas thermochemistry.
 
-![demo](docs/demo.gif)
-
 ```bash
 pip install rockmoc
 ```
