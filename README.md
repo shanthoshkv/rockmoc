@@ -17,7 +17,7 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 | | |
 |--|--|
 | **Website** | **[aboutkvs.vercel.app/rockmoc.html](https://aboutkvs.vercel.app/rockmoc.html)** — full portfolio showcase |
-| **Version** | 0.9.0 (`src/rockmoc/_version.py`) · [PyPI](https://pypi.org/project/rockmoc/) |
+| **Version** | 0.10.0 (`src/rockmoc/_version.py`) · [PyPI](https://pypi.org/project/rockmoc/) |
 | **Python** | ≥ 3.10 |
 | **Core deps** | NumPy, SciPy |
 | **License** | MIT |
@@ -35,6 +35,7 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 - [**How to use (full guide)**](https://github.com/shanthoshkv/rockmoc/blob/main/docs/how_to_use.md) ← start here if you are new
 - [**Project website**](https://aboutkvs.vercel.app/rockmoc.html) — interactive gallery, validation, API overview
 - [What rockmoc is](#what-rockmoc-is)
+- [What's new in v0.10.0](#whats-new-in-v0100)
 - [What's new in v0.9.0](#whats-new-in-v090)
 - [What's new in v0.8.0](#whats-new-in-v080)
 - [Nozzle types](#nozzle-types)
@@ -73,6 +74,19 @@ It is built for:
 **Coordinate system:** SI meters; geometric throat at \(x = 0\), wall radius \(r = R_t\); API angles in **radians** (summaries often print degrees).
 
 ---
+
+## What's new in v0.10.0
+
+v0.10.0 is the **OpenFOAM validation release**. 45 CFD cases (`cfd_validation/`) compared rockmoc against `rhoCentralFoamAxi`, and the disagreements turned into fixes:
+
+- One geometric exit-loss factor instead of two (the divergence loss was counted twice, 1.6–3.8 % low on Isp).
+- Rao TOP angle trend corrected, true quadratic-Bézier parabola; Rao TOC built at its target length.
+- Ideal/TIC throat arc resampled (no 3–6° kinks in exported walls).
+- Separation evaluated on the real wall pressure, Kalt–Badal recovery by default.
+- Boundary-layer loss charged as the exit control volume, not as ∫τ_w dA.
+- Kliegel–Levine throat start line up to Rc/Rt = 4; planar MLN wall rebuilt from the characteristic network; CLI default `-n` 80.
+
+Result: Isp within **0.04 %** of CFD for MLN, ideal, TIC and production nozzles, and within 0.25 % for cones and Rao bells. 291 of 333 gated checks pass. See [Against OpenFOAM](#against-openfoam-45-cfd-cases-291-of-333-gated-checks-pass) and [CHANGELOG.md](CHANGELOG.md).
 
 ## What's new in v0.9.0
 
