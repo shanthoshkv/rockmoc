@@ -375,6 +375,8 @@ print(spike.summary())
 trunc = design_spike_truncated(spike, length_fraction=0.25)
 ```
 
+Runnable version: [`examples/aerospike.py`](examples/aerospike.py).
+
 ### Production pipeline (recommended)
 
 ```python
@@ -707,7 +709,7 @@ rockmoc/
 ├── refs/                # Primary PDFs (NASA/NACA/Rao/…)
 ├── research_notes/      # Working notes
 ├── reports/
-├── examples/            # quickstart.py, notebooks/
+├── examples/            # quickstart.py, aerospike.py, notebooks/
 ├── .github/workflows/   # ci.yml (lint + tests), publish.yml (PyPI trusted publishing)
 ├── CHANGELOG.md
 ├── PUBLISH.md

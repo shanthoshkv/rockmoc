@@ -65,8 +65,15 @@ def _base() -> argparse.ArgumentParser:
     return b
 
 
+def _formats(s: str) -> str:
+    bad = [f for f in (x.strip() for x in s.split(",")) if f and f not in FORMATS]
+    if bad:
+        raise argparse.ArgumentTypeError(f"unknown formats {bad}; choose from {FORMATS}")
+    return s
+
+
 def _out_args(p: argparse.ArgumentParser, default_export: str) -> None:
-    p.add_argument("--export", default=default_export, help=f"comma list of {','.join(FORMATS)}")
+    p.add_argument("--export", type=_formats, default=default_export, help=f"comma list of {','.join(FORMATS)}")
     p.add_argument("--units", choices=UNITS, default="mm", help="output units (default mm)")
     p.add_argument("--points", type=int, help="resample exported wall to N points")
     p.add_argument("--thickness", type=float, help="outer-wall offset for 'shell' [--units]")

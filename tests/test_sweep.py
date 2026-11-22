@@ -98,3 +98,26 @@ def test_design_result_performance():
     r = design_mln(DesignSpec(PerfectGas(1.25, 350.0), exit_mach=2.5, n_characteristics=10))
     p = r.performance(pc=5e6, Tc=3200.0, pa=1.01e5)
     assert p["thrust_amb_N"] < p["thrust_vac_N"] and p["mdot_kg_s"] > 0
+
+
+def test_cli_rejects_unknown_export(tmp_path, capsys):
+    with pytest.raises(SystemExit) as e:
+        main(["design", "--Me", "2.5", "-n", "10", "--export", "csv,bogus", "-o", str(tmp_path)])
+    assert e.value.code != 0 and "bogus" in capsys.readouterr().err
+    assert not (tmp_path / "nozzle.csv").exists()
+
+
+def test_cli_compare_different_walls(tmp_path, capsys):
+    import json
+
+    walls = []
+    for me in ("2.5", "2.7"):
+        d = tmp_path / me
+        main(["design", "--Me", me, "-n", "10", "--export", "csv", "-o", str(d)])
+        walls.append(str(d / "nozzle.csv"))
+    capsys.readouterr()
+    main(["compare", *walls])
+    r = json.loads(capsys.readouterr().out)
+    assert r["max_abs_dr_m"] > 0 and r["length_diff_m"] > 0
+    main(["compare", walls[0], walls[0]])
+    assert json.loads(capsys.readouterr().out)["max_abs_dr_m"] == 0
