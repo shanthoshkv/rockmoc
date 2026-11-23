@@ -7,16 +7,16 @@
 [![PyPI](https://img.shields.io/pypi/v/rockmoc.svg)](https://pypi.org/project/rockmoc/)
 [![Python](https://img.shields.io/pypi/pyversions/rockmoc.svg)](https://pypi.org/project/rockmoc/)
 [![CI](https://github.com/shanthoshkv/rockmoc/actions/workflows/ci.yml/badge.svg)](https://github.com/shanthoshkv/rockmoc/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/shanthoshkv/rockmoc/blob/main/LICENSE)
 [![Downloads](https://img.shields.io/pypi/dm/rockmoc.svg)](https://pypi.org/project/rockmoc/)
 
 [Website](https://aboutkvs.vercel.app/rockmoc.html) ·
-[How to use](docs/how_to_use.md) ·
-[Tutorials](examples/notebooks) ·
+[How to use](https://github.com/shanthoshkv/rockmoc/blob/main/docs/how_to_use.md) ·
+[Tutorials](https://github.com/shanthoshkv/rockmoc/blob/main/examples/notebooks) ·
 [Validation](#validation) ·
-[Changelog](CHANGELOG.md)
+[Changelog](https://github.com/shanthoshkv/rockmoc/blob/main/CHANGELOG.md)
 
-![rockmoc axisymmetric MOC characteristic net, Mach-coloured](docs/images/hero_field.png)
+![rockmoc axisymmetric MOC characteristic net, Mach-coloured](https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/hero_field.png)
 
 *An axisymmetric nozzle solved by the method of characteristics: C+ / C− families, expansion fan, and the Mach field behind them.*
 
@@ -116,11 +116,11 @@ v1.0.0 is the **OpenFOAM validation release** (first stable release; 0.10.0 on P
 - Boundary-layer loss charged as the exit control volume, not as ∫τ_w dA.
 - Kliegel–Levine throat start line up to Rc/Rt = 4; planar MLN wall rebuilt from the characteristic network; CLI default `-n` 80.
 
-Result: Isp within **0.04 %** of CFD for MLN, ideal, TIC and production nozzles, and within 0.25 % for cones and Rao bells. 291 of 333 gated checks pass. See [Against OpenFOAM](#against-openfoam-45-cfd-cases-291-of-333-gated-checks-pass) and [CHANGELOG.md](CHANGELOG.md).
+Result: Isp within **0.04 %** of CFD for MLN, ideal, TIC and production nozzles, and within 0.25 % for cones and Rao bells. 291 of 333 gated checks pass. See [Against OpenFOAM](#against-openfoam-45-cfd-cases-291-of-333-gated-checks-pass) and [CHANGELOG.md](https://github.com/shanthoshkv/rockmoc/blob/main/CHANGELOG.md).
 
 **Since v1.0.0 (on `main`):** the aerospike now has its own CFD tier. Four annular-spike cases (design point, under- and overexpanded, 25 % truncated) run in OpenFOAM with the ambient air included. See [Aerospike against OpenFOAM](#aerospike-against-openfoam-t5).
 
-Older release notes (v0.8 boundary layer and throat rebuild, v0.9 sweeps and units) are in [CHANGELOG.md](CHANGELOG.md).
+Older release notes (v0.8 boundary layer and throat rebuild, v0.9 sweeps and units) are in [CHANGELOG.md](https://github.com/shanthoshkv/rockmoc/blob/main/CHANGELOG.md).
 
 ## Real-gas nozzle flow
 
@@ -142,7 +142,7 @@ How it was checked: exit Mach, Isp (within 0.1 %) and c\* (1e-5) reproduce Rocke
 
 | Boundary layer (δ\* wall offset) | Transonic data line by Rc/Rt |
 |:--:|:--:|
-| ![Boundary layer wall offset](docs/images/boundary_layer.png) | ![Sauer throat initial line](docs/images/throat_ivl.png) |
+| ![Boundary layer wall offset](https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/boundary_layer.png) | ![Sauer throat initial line](https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/throat_ivl.png) |
 | δ\* now starts from the chamber inlet instead of zero at the throat, so the wall offset already has a physical value where the flow goes sonic. | The throat initial line depends strongly on Rc/Rt. This is why one method cannot cover the whole range, and why v0.8.0 picks Hall, Kliegel–Levine or Euler by curvature. |
 
 ---
@@ -354,7 +354,7 @@ print(spike.summary())
 trunc = design_spike_truncated(spike, length_fraction=0.25)
 ```
 
-Runnable version: [`examples/aerospike.py`](examples/aerospike.py).
+Runnable version: [`examples/aerospike.py`](https://github.com/shanthoshkv/rockmoc/blob/main/examples/aerospike.py).
 
 ### Production pipeline (recommended)
 
@@ -432,7 +432,7 @@ The second layer is the one that matters for trust, so it is spelled out first.
 
 ### Against published data: 74 gated checks, all passing
 
-Every row has a reference value, a tolerance and a source. Tolerances are set from the reference's own uncertainty (chart-read error, measurement band), not tuned until things pass. Full table with every number: [docs/validation_experimental.md](docs/validation_experimental.md).
+Every row has a reference value, a tolerance and a source. Tolerances are set from the reference's own uncertainty (chart-read error, measurement band), not tuned until things pass. Full table with every number: [docs/validation_experimental.md](https://github.com/shanthoshkv/rockmoc/blob/main/docs/validation_experimental.md).
 
 | Nozzle / model | Checks | Reference | What it shows |
 |----------------|-------:|-----------|---------------|
@@ -447,7 +447,7 @@ Every row has a reference value, a tolerance and a source. Tolerances are set fr
 | **Internal shocks** | 2 | Frey et al., EUCASS 2017 | Shock detected in the TOP parabola, correctly absent in the ideal contour. |
 | **Two-phase** | 1 | Equilibrium-mixture limit | With particle diameter → 0 the lag model returns Isp ratio 1.000. |
 
-![Wall properties along the ideal nozzle](docs/images/wall_properties.png)
+![Wall properties along the ideal nozzle](https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/wall_properties.png)
 
 #### Where it does not match, and why that is in the table
 
@@ -470,14 +470,14 @@ python -m rockmoc.validate.experimental
 
 ### Against OpenFOAM: 45 CFD cases, 291 of 333 gated checks pass
 
-Each case designs a nozzle with rockmoc, meshes the wall (2.5° wedge, planar slab for 2-D) and runs `rhoCentralFoamAxi` (OpenFOAM v2412, k-ω SST + wall functions where viscous). The CFD is then reduced to the same quantities rockmoc predicts. Driver, case builder and comparison live in [`cfd_validation/`](cfd_validation/); findings in [`validation/FINDINGS.md`](validation/FINDINGS.md); **every one of the 813 check rows** (291 PASS, 42 FAIL, 480 informational) in [docs/validation_cfd.md](docs/validation_cfd.md).
+Each case designs a nozzle with rockmoc, meshes the wall (2.5° wedge, planar slab for 2-D) and runs `rhoCentralFoamAxi` (OpenFOAM v2412, k-ω SST + wall functions where viscous). The CFD is then reduced to the same quantities rockmoc predicts. Driver, case builder and comparison live in [`cfd_validation/`](https://github.com/shanthoshkv/rockmoc/blob/main/cfd_validation/); findings in [`validation/FINDINGS.md`](https://github.com/shanthoshkv/rockmoc/blob/main/validation/FINDINGS.md); **every one of the 813 check rows** (291 PASS, 42 FAIL, 480 informational) in [docs/validation_cfd.md](https://github.com/shanthoshkv/rockmoc/blob/main/docs/validation_cfd.md).
 
-![rockmoc characteristic net vs OpenFOAM Mach field, MLN Me = 3](docs/images/cfd_t1_mln_M3.png)
+![rockmoc characteristic net vs OpenFOAM Mach field, MLN Me = 3](https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/cfd_t1_mln_M3.png)
 
-| ![Ideal nozzle](docs/images/cfd_t1_ideal_M3.png) | ![Rao 80 %](docs/images/cfd_t1_raoctl_80.png) |
+| ![Ideal nozzle](https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/cfd_t1_ideal_M3.png) | ![Rao 80 %](https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/cfd_t1_raoctl_80.png) |
 |---|---|
 
-![Isp error across cases](docs/images/cfd_isp_error.png)
+![Isp error across cases](https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/cfd_isp_error.png)
 
 Headline numbers (Isp error = CFD / rockmoc − 1, vacuum):
 
@@ -554,11 +554,11 @@ An aerospike only makes sense with the outside air in the picture, so this tier 
 
 | Design point | Overexpanded (p<sub>a</sub> = 3 p<sub>e</sub>) |
 |:--:|:--:|
-| ![Spike wall, design point](docs/images/cfd_t5_spike_design.png) | ![Spike wall, overexpanded](docs/images/cfd_t5_spike_pa3.png) |
+| ![Spike wall, design point](https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/cfd_t5_spike_design.png) | ![Spike wall, overexpanded](https://raw.githubusercontent.com/shanthoshkv/rockmoc/main/docs/images/cfd_t5_spike_pa3.png) |
 
 The overexpanded case is the interesting one. Downstream of x ≈ 0.6 R<sub>e</sub> the wall pressure climbs to several times the design value because the free jet boundary collapses toward the spike. That extra pressure is thrust, and it is exactly what makes an aerospike altitude-compensating. rockmoc keeps the design wall pressure at every ambient, so it **under-predicts overexpanded thrust by 6.8 %**. The error is on the conservative side, and it is now written down rather than hidden.
 
-Limits: the mesh is coarse (8.5k cells), so wall Mach reads about 3 % low mid-spike. The truncated-spike match is partly luck. The base thrust rockmoc ignores (base area is about 21 % of the lip circle) roughly cancels that mesh lag. No open, tabulated hot-fire data for an annular plug was found, so this tier is code-to-code. Details are in [`cfd_validation/FINDINGS.md`](cfd_validation/FINDINGS.md), and the cases are built by [`cfd_validation/spike.py`](cfd_validation/spike.py).
+Limits: the mesh is coarse (8.5k cells), so wall Mach reads about 3 % low mid-spike. The truncated-spike match is partly luck. The base thrust rockmoc ignores (base area is about 21 % of the lip circle) roughly cancels that mesh lag. No open, tabulated hot-fire data for an annular plug was found, so this tier is code-to-code. Details are in [`cfd_validation/FINDINGS.md`](https://github.com/shanthoshkv/rockmoc/blob/main/cfd_validation/FINDINGS.md), and the cases are built by [`cfd_validation/spike.py`](https://github.com/shanthoshkv/rockmoc/blob/main/cfd_validation/spike.py).
 
 
 ### Identity and consistency campaign

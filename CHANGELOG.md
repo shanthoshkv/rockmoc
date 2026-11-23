@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 — aerospike CFD tier, README
+
+- New OpenFOAM tier T5 (`cfd_validation/spike.py`): Lee/Vernacchia annular spike at design, `pa = 0.3 pe`, `pa = 3 pe` and 25 % truncated. Cf within 0.7 % of CFD at design; overexpanded Cf under-predicted by 6.8 % (no altitude-compensation recompression in the fixed wall-pressure model).
+- README rewritten for PyPI and GitHub (absolute links so images render on PyPI).
+
 ## 1.0.0 — fixes from the OpenFOAM validation campaign (`cfd_validation/`)
 
 ### Fixed
