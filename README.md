@@ -1,30 +1,62 @@
+<div align="center">
+
 # rockmoc
 
-Method of Characteristics rocket nozzle design in Python: MLN, Rao, TIC and aerospike contours with real-gas thermochemistry.
+**Rocket nozzle design by the method of characteristics, checked against NASA data and 49 OpenFOAM runs.**
 
-```bash
-pip install rockmoc
-```
+[![PyPI](https://img.shields.io/pypi/v/rockmoc.svg)](https://pypi.org/project/rockmoc/)
+[![Python](https://img.shields.io/pypi/pyversions/rockmoc.svg)](https://pypi.org/project/rockmoc/)
+[![CI](https://github.com/shanthoshkv/rockmoc/actions/workflows/ci.yml/badge.svg)](https://github.com/shanthoshkv/rockmoc/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Downloads](https://img.shields.io/pypi/dm/rockmoc.svg)](https://pypi.org/project/rockmoc/)
 
-**Live demo:** [aboutkvs.vercel.app/rockmoc.html](https://aboutkvs.vercel.app/rockmoc.html)
-
-**Industry-oriented Method of Characteristics (MOC) rocket nozzle design for Python.**
-
-Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-throat MLNs**, and **annular aerospikes** from literature-faithful algorithms — with pluggable thermochemistry, boundary-layer correction, field-integrated performance, dark-themed plots, and a multi-regime validation campaign against NASA/NACA/Rao sources.
-
-| | |
-|--|--|
-| **Website** | **[aboutkvs.vercel.app/rockmoc.html](https://aboutkvs.vercel.app/rockmoc.html)** — full portfolio showcase |
-| **Version** | 1.0.0 (`src/rockmoc/_version.py`) · [PyPI](https://pypi.org/project/rockmoc/) |
-| **Python** | ≥ 3.10 |
-| **Core deps** | NumPy, SciPy |
-| **License** | MIT |
-| **Author** | [shanthoshkv](https://github.com/shanthoshkv) |
-| **Repo** | https://github.com/shanthoshkv/rockmoc |
+[Website](https://aboutkvs.vercel.app/rockmoc.html) ·
+[How to use](docs/how_to_use.md) ·
+[Tutorials](examples/notebooks) ·
+[Validation](#validation) ·
+[Changelog](CHANGELOG.md)
 
 ![rockmoc axisymmetric MOC characteristic net, Mach-coloured](docs/images/hero_field.png)
 
 *An axisymmetric nozzle solved by the method of characteristics: C+ / C− families, expansion fan, and the Mach field behind them.*
+
+</div>
+
+---
+
+## Why rockmoc
+
+Most open-source nozzle scripts stop at a planar textbook MLN, and nobody checks them against anything. rockmoc was written to be the tool I wanted as a propulsion student: one `pip install`, every contour family you meet in industry, and a public record of where it agrees with CFD and where it doesn't.
+
+- **Every common contour.** Minimum-length (planar and axisymmetric), ideal, truncated ideal (TIC), Rao TOP/TOC, conical, and annular aerospikes (full, truncated, with cowl).
+- **Real gas, not just constant γ.** Equilibrium and frozen RocketCEA tables feed the MOC directly, so exit Mach, wall length and Isp all see the same gas.
+- **The losses you actually subtract.** Compressible boundary layer, divergence, separation (Summerfield, Kalt–Badal, Schmucker), two-phase and finite-rate kinetics.
+- **Validated in the open.** 74 gated checks against published NASA/NACA data, plus 49 OpenFOAM cases. Isp is within **0.04 %** of CFD for MLN, ideal and TIC bells, and aerospike Cf is within **0.7 %** at design.
+- **Goes straight to CAD and CFD.** Exports CSV, SolidWorks curves, DXF, shell offsets and OpenFOAM `blockMeshDict`, in any unit.
+- **Light.** The core needs NumPy and SciPy only. The CLI needs nothing extra.
+
+## 30-second start
+
+```bash
+pip install "rockmoc[plot]"
+```
+
+```python
+from rockmoc import PerfectGas, DesignSpec, design_mln
+
+spec = DesignSpec(PerfectGas(gamma=1.25, R=350.0), throat_radius=0.05, exit_mach=3.0)
+result = design_mln(spec, store_net=True)
+
+print(result.summary())          # length, area ratio, wall angles, Cf, Isp
+result.export_csv("wall.csv")    # x, r, θ, M along the wall
+result.plot()                    # characteristic net + wall dashboard
+```
+
+Or from the shell, with no Python at all:
+
+```bash
+rockmoc design --type rao --Me 3 --gamma 1.25 --Rt 50 --in-units mm --export csv,dxf -o out
+```
 
 ---
 
@@ -34,8 +66,7 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 - [**Project website**](https://aboutkvs.vercel.app/rockmoc.html) — interactive gallery, validation, API overview
 - [What rockmoc is](#what-rockmoc-is)
 - [What's new in v1.0.0](#whats-new-in-v100)
-- [What's new in v0.9.0](#whats-new-in-v090)
-- [What's new in v0.8.0](#whats-new-in-v080)
+- [Real-gas nozzle flow](#real-gas-nozzle-flow)
 - [Nozzle types](#nozzle-types)
 - [Capabilities](#capabilities)
 - [Install](#install)
@@ -48,6 +79,7 @@ Design conventional bells (MLN, ideal, TIC, Rao TOP/TOC), **planar NASA sharp-th
 - [CLI](#cli)
 - [References](#references)
 - [Contributing / release checklist](#contributing--release-checklist)
+- [Citing rockmoc](#citing-rockmoc)
 - [License](#license)
 
 > **New to rockmoc?** Start here:  
@@ -86,11 +118,11 @@ v1.0.0 is the **OpenFOAM validation release** (first stable release; 0.10.0 on P
 
 Result: Isp within **0.04 %** of CFD for MLN, ideal, TIC and production nozzles, and within 0.25 % for cones and Rao bells. 291 of 333 gated checks pass. See [Against OpenFOAM](#against-openfoam-45-cfd-cases-291-of-333-gated-checks-pass) and [CHANGELOG.md](CHANGELOG.md).
 
-## What's new in v0.9.0
+**Since v1.0.0 (on `main`):** the aerospike now has its own CFD tier. Four annular-spike cases (design point, under- and overexpanded, 25 % truncated) run in OpenFOAM with the ambient air included. See [Aerospike against OpenFOAM](#aerospike-against-openfoam-t5).
 
-v0.8.0 fixed the physics around the contour. v0.9.0 makes the **gas real**, adds **batch sweeps**, and finishes the **units and export** story.
+Older release notes (v0.8 boundary layer and throat rebuild, v0.9 sweeps and units) are in [CHANGELOG.md](CHANGELOG.md).
 
-### Real-gas nozzle flow
+## Real-gas nozzle flow
 
 A constant-γ gas cannot follow a LOX/RP-1 expansion: γ goes from about 1.14 at the throat to 1.2–1.3 at the exit, and the molecular weight changes with it. `--propellants LOX/RP1 --of 2.4 --pc 7e6` now builds an expansion table straight from RocketCEA (equilibrium by default, `--gas-model frozen` for composition frozen at the throat). γ, T, ρ, a and the Prandtl–Meyer angle all come from that table, and the MOC, area ratio, Cf and Isp all see the same gas.
 
@@ -106,65 +138,12 @@ The constant-γ gas overstates equilibrium Isp by about 1 % and puts the exit Ma
 
 How it was checked: exit Mach, Isp (within 0.1 %) and c\* (1e-5) reproduce RocketCEA's own numbers, and an independent Cantera expansion of LOX/LH2 agrees on exit temperature (within 0.5 %) and exit velocity (within 0.15 %).
 
-### Batch sweeps
-
-```bash
-rockmoc sweep --propellants LOX/RP1 --of 2.4 --vary of=2:3:6 --vary pc_bar=30:100:8 \
-              --vary pe_pc=0.005,0.01 --vary gas_model=frozen,equilibrium --jobs 4 --out sweep.csv
-```
-
-Cartesian grid over exit Mach, area ratio, pe/pc, exit pressure, chamber pressure, T<sub>c</sub>, ambient pressure or altitude, O/F, gas model, γ, R, R<sub>t</sub>, characteristics, R<sub>c</sub>/R<sub>t</sub>, nozzle type and more. One CSV row per case (geometry, C<sub>F</sub>, Isp, thrust, mass flow, γ at throat and exit); a failing case is recorded in an `error` column and the rest of the grid still runs. A `[sweep]` table in a TOML spec does the same through `rockmoc run`.
-
-### Units, export, and the rest of the CLI
-
-- **Units** `m, cm, mm, in, ft` on input (`--in-units`) and output (`--units`); the solver stays SI.
-- **Export** with a chosen point count (`--points`, `export_contour(path, n=, units=)`) to `csv` / `txt`, plus `sldcrv` (SolidWorks), `shell` (inner + outer wall for jacket CAD), DXF, OpenFOAM (`blockMeshDict` in your units) and `--stdout`.
-- **Performance** from any design: `result.performance(pc, Tc, pa)` returns C<sub>F</sub>, Isp, thrust and mass flow.
-- `rockmoc validate spec.toml` checks a spec without solving; `rockmoc compare a.csv b.csv` reports the wall deviation between two files.
-
-### Fixed
-
-- **2-D Euler throat solver converges** (residual 3e-2 → 1e-7, about 2.5× faster). The old subsonic inflow condition was unstable; the Cuffel and Kliegel–Levine results still land inside the published tolerances.
-- RocketCEA returns temperatures in °R; three places used them as K (T<sub>c</sub> was 1.8× too high).
-
-### Checked and left alone
-
-The axisymmetric MLN wall peaks near 15.5° while the corner angle is about 11.7° (γ = 1.4, M<sub>e</sub> = 3). That is physics, not overshoot: it is mesh-converged and the source terms match the exact conical source flow. `theta_max_rad` is the corner angle and `max_wall_angle_rad` is the peak.
-
-Tests: 145 fast and 3 slow tests pass. See [CHANGELOG.md](CHANGELOG.md) for the full list.
-
----
-
-## What's new in v0.8.0
-
-v0.7.0 got the core MOC physics right (C− sign, a real axisymmetric MLN, MOC-built ideal and Rao contours). v0.8.0 is about the parts around the contour: the throat, the boundary layer, and the losses you subtract at the end. It also swaps "trust me" for a gated comparison against published data.
-
-![Same design, v0.7.0 vs v0.8.0](docs/images/v07_vs_v08.png)
-
-*Same Mach-3 design run through both releases. The wall contour barely moves. The boundary layer and the wall state at the throat do.*
-
-### v0.7.0 → v0.8.0 at a glance
-
-| Area | v0.7.0 | v0.8.0 |
-|------|--------|--------|
-| **Boundary layer** | Flat-plate style estimate | Compressible momentum-integral (von Kármán) solve, Bartz two-thickness energy integral, chamber-inlet start, cooled walls via `wall_temperature`. Flat-plate kept as a fallback with a warning. |
-| **BL accuracy vs TN D-5377** | Cooled-inlet θ sat 38–43 % low | Cooled-inlet θ is inside the measured band. Worst adiabatic δ\* error down from +27 % to +14 %. |
-| **Transonic throat** | Sauer only, fine for Rc/Rt ≳ 2 | Hall 3rd order (Rc/Rt ≥ 1.5), Kliegel–Levine (0.4 ≤ Rc/Rt < 1.5), and a 2-D Euler solver for tighter throats. |
-| **Tight-throat check** | None, no reference | Cuffel 1969 at Rc/Rt = 0.625: axis Mach 0.79 vs 0.8 measured, Cd 0.982 vs 0.985. |
-| **Losses** | 1-D Cf and field Cf | Adds friction loss, chemical efficiency bounds, two-phase loss, and flow separation checks (Summerfield, Kalt–Badal, Schmucker and others). |
-| **Kinetics** | Frozen γ only | Quasi-1-D finite-rate nozzle via Cantera. Zero rate lands on frozen, fast rate on shifting equilibrium. |
-| **Internal shocks** | Not detected | Wall detector flags TOP parabolas and arc-throat cones, stays quiet on ideal contours. |
-| **Variable γ** | Closed forms at local γ | Integrates the thermally perfect isentrope. |
-| **Validation** | Self-consistency and identities | **74 gated checks against published data**, 123 tests total. |
-
-### The two plots that show the change
+### Boundary layer and throat
 
 | Boundary layer (δ\* wall offset) | Transonic data line by Rc/Rt |
 |:--:|:--:|
 | ![Boundary layer wall offset](docs/images/boundary_layer.png) | ![Sauer throat initial line](docs/images/throat_ivl.png) |
 | δ\* now starts from the chamber inlet instead of zero at the throat, so the wall offset already has a physical value where the flow goes sonic. | The throat initial line depends strongly on Rc/Rt. This is why one method cannot cover the whole range, and why v0.8.0 picks Hall, Kliegel–Levine or Euler by curvature. |
-
-Full list of changes: [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -510,7 +489,7 @@ Headline numbers (Isp error = CFD / rockmoc − 1, vacuum):
 - Frozen LOX/RP-1 real gas: −0.04 %. Viscous BL-corrected production bell: +0.13 %.
 - Sea-level separation, Rao 80 % at 1 MPa: Cf +0.17 %; cone 15° at 1 MPa: ε_sep 4.00 vs 3.90.
 
-The 42 failing gates are all documented: 38 are MLN **axis** error at n ≤ 40 characteristics (first order in n; passes at n = 80, which is now the CLI default), 2 are the Rao control-surface field (Mach rms 1.4 %, probable weak internal shock), 2 are the CFD cooled-wall θ on TN D-5377 (SST under-predicts momentum thickness 30–45 %). The equilibrium-designed wall in frozen-gas CFD (−3.88 %) is a bound, not a match. Not covered: aerospike, two-phase, finite-rate chemistry in CFD.
+The 42 failing gates are all documented: 38 are MLN **axis** error at n ≤ 40 characteristics (first order in n; passes at n = 80, which is now the CLI default), 2 are the Rao control-surface field (Mach rms 1.4 %, probable weak internal shock), 2 are the CFD cooled-wall θ on TN D-5377 (SST under-predicts momentum thickness 30–45 %). The equilibrium-designed wall in frozen-gas CFD (−3.88 %) is a bound, not a match. The aerospike has its own tier below. Not covered: two-phase, finite-rate chemistry in CFD.
 
 Per case (sign: CFD / rockmoc − 1; `–` = not applicable; the three `t4_sep_*` rows report sea-level thrust Isp, which is separated and not comparable to the vacuum design Isp; the full-report PDF is generated by `cfd_validation/make_validation_report.py`):
 
@@ -561,6 +540,25 @@ Per case (sign: CFD / rockmoc − 1; `–` = not applicable; the three `t4_sep_*
 | `t4_sep_cone15_pc1` | T4 | Sea-level separation cone15_pc1 | 273.80 | 188.29 | – | – | 1.445 | – | – | 0.0942 | – | 2/0 |
 | `t4_sep_rao80_pc1` | T4 | Sea-level separation rao80_pc1 | 272.85 | 166.12 | – | – | 2.726 | – | – | 0.1176 | – | 2/0 |
 | `t4_sep_rao80_pc1.5` | T4 | Sea-level separation rao80_pc1.5 | 272.85 | 200.18 | – | – | 2.953 | – | – | 0.1175 | – | 2/0 |
+
+### Aerospike against OpenFOAM (T5)
+
+An aerospike only makes sense with the outside air in the picture, so this tier meshes the spike, the base and a block of ambient around the jet (5-block wedge, inviscid `rhoCentralFoamAxi`). The design is the Lee/Vernacchia annular spike from `design_spike`: ε = 8, γ = 1.25, p<sub>c</sub> = 5 MPa, lip radius 50 mm, design exit Mach 3.25. Thrust is integrated over the throat and the spike wall, the same way rockmoc does it.
+
+| Case | Ambient | Cf CFD | Cf rockmoc | ΔCf | Spike wall p error (median) | What it shows |
+|---|---|--:|--:|--:|--:|---|
+| Full spike, design point | p<sub>a</sub> = p<sub>e</sub> | 1.5603 | 1.5698 | **−0.61 %** | 2.4 % | Exit Mach 3.250 ± 0.067 against 3.250 designed: the contour does turn the flow axial |
+| Full spike, underexpanded | 0.3 p<sub>e</sub> | 1.6418 | 1.6530 | **−0.68 %** | 2.2 % | Wall flow is unchanged, the plume just expands further outside |
+| Full spike, overexpanded | 3 p<sub>e</sub> | 1.4224 | 1.3321 | **+6.8 %** | – | Altitude compensation: ambient pushes back onto the spike tail |
+| 25 % truncated spike | p<sub>e</sub> | 1.5464 | 1.5467 | **−0.02 %** | 1.0 % | Base pressure 1.21 p<sub>a</sub> |
+
+| Design point | Overexpanded (p<sub>a</sub> = 3 p<sub>e</sub>) |
+|:--:|:--:|
+| ![Spike wall, design point](docs/images/cfd_t5_spike_design.png) | ![Spike wall, overexpanded](docs/images/cfd_t5_spike_pa3.png) |
+
+The overexpanded case is the interesting one. Downstream of x ≈ 0.6 R<sub>e</sub> the wall pressure climbs to several times the design value because the free jet boundary collapses toward the spike. That extra pressure is thrust, and it is exactly what makes an aerospike altitude-compensating. rockmoc keeps the design wall pressure at every ambient, so it **under-predicts overexpanded thrust by 6.8 %**. The error is on the conservative side, and it is now written down rather than hidden.
+
+Limits: the mesh is coarse (8.5k cells), so wall Mach reads about 3 % low mid-spike. The truncated-spike match is partly luck. The base thrust rockmoc ignores (base area is about 21 % of the lip circle) roughly cancels that mesh lag. No open, tabulated hot-fire data for an annular plug was found, so this tier is code-to-code. Details are in [`cfd_validation/FINDINGS.md`](cfd_validation/FINDINGS.md), and the cases are built by [`cfd_validation/spike.py`](cfd_validation/spike.py).
 
 
 ### Identity and consistency campaign
@@ -660,7 +658,7 @@ Import surface is re-exported from the top-level `rockmoc` package for the main 
 | Planar NASA | 2D, inviscid, isentropic, constant γ |
 | Axisym bells | Axisymmetric MOC; inviscid isentropic; γ from PerfectGas / frozen table / CEA |
 | Canceling wall | Classic MLN (θ,ν) schedule + streamline integration + isotropic ε match (engineering hybrid, not full inverse CFD) |
-| Aerospike | Lee/Vernacchia constant-γ isentropic annular model; needs ν_e &lt; π/2 |
+| Aerospike | Lee/Vernacchia constant-γ isentropic annular model; needs ν_e &lt; π/2. Wall pressure is held at design, so overexpanded Cf is conservative (−6.8 % vs CFD at p<sub>a</sub> = 3 p<sub>e</sub>) |
 | BL module | Integral compressible estimate (not full Cohen–Reshotko ODE suite) |
 | Performance | Exit-station / 1-D edge models — validate with CFD before hardware |
 | Chemistry | Equilibrium and frozen-at-throat real-gas tables (RocketCEA); finite-rate kinetics and two-phase flow are not in the MOC path |
@@ -775,6 +773,8 @@ See `refs/README.md` and `docs/` for mapping from papers → modules.
 
 ## Contributing / release checklist
 
+Bug reports, new validation cases and pull requests are all welcome. If you have measured nozzle data (wall pressures, thrust, schlieren) that could become a gated check, please open an issue. That is the most useful contribution there is. Issues tagged [`good first issue`](https://github.com/shanthoshkv/rockmoc/labels/good%20first%20issue) are a good way in.
+
 ```bash
 # 1. Install
 pip install -e ".[plot,dev]"
@@ -796,6 +796,24 @@ python tests/generate_all_graphs.py
 Publish to PyPI: [PUBLISH.md](https://github.com/shanthoshkv/rockmoc/blob/main/PUBLISH.md).
 
 `.gitignore` excludes venvs, caches, `website/`, generated PNGs, secrets — while keeping `src/`, `tests/data/`, `docs/`, `examples/`.
+
+---
+
+## Citing rockmoc
+
+If rockmoc helps your coursework, thesis or paper, a citation is appreciated:
+
+```bibtex
+@software{rockmoc,
+  author  = {Shanthosh KV},
+  title   = {rockmoc: Method of characteristics rocket nozzle design in Python},
+  year    = {2026},
+  version = {1.0.0},
+  url     = {https://github.com/shanthoshkv/rockmoc}
+}
+```
+
+If it saved you a week of writing your own MOC solver, a ⭐ on GitHub helps other people find it.
 
 ---
 

@@ -13,6 +13,11 @@ import numpy as np
 case = Path(sys.argv[1])
 m = json.loads((case / "meta.json").read_text())
 g = m["gamma_init"]
+if m.get("spike"):  # aerospike: quiescent ambient (pa, Ta) start
+    for f, v in (("p", m["plume"].get("p_init", m["plume"]["pa"])), ("T", m["plume"]["Ta"])):
+        fp = case / "0" / f
+        fp.write_text(re.sub(r"internalField\s+uniform[^;]*;", f"internalField uniform {v};", fp.read_text(), count=1))
+    sys.exit(print(f"init: spike, ambient start p={m['plume']['pa']:.6g}"))
 
 
 def read_vectors(text, start):

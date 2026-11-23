@@ -514,7 +514,7 @@ def gci(f1, f2, f3, r21, r32):
 
 # ----------------------------------------------------------------------------- driver
 def compare_all(sel=None):
-    names = sorted(p.parent.name for p in RAW.glob("*/cfd.npz"))
+    names = sorted(p.parent.name for p in RAW.glob("*/cfd.npz") if not p.parent.name.startswith("t5_"))  # T5: spike.py
     if sel:
         names = [n for n in names if n in sel]
     figs = OUT / "figures"

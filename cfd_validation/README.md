@@ -19,7 +19,8 @@ Remote side (`remote/`): `init_fields.py` writes a 1-D isentropic initial field.
 | T2 | full nozzles with chamber + converging section: Cd and throat-plane Mach against Hall / Kliegel–Levine. Includes the Cuffel 1969 and NASA TN D-5377 experiments |
 | T3 | LOX/RP-1 frozen-at-throat real gas (RocketCEA). OpenFOAM uses a JANAF cp(T) fitted to the frozen CEA expansion |
 | T4 | k-ω SST + Spalding wall function: BL θ, δ* and Cf against rockmoc's integral BL and TN D-5377 surveys, BL-corrected production contour, sea-level separation (Schmucker) with a plume domain |
+| T5 | annular aerospike (Lee/Vernacchia spike, ε=8, γ=1.25), inviscid, quiescent ambient: spike wall p and M, Cf (CFD control volume vs rockmoc), exit-Mach uniformity, base pressure. Design, pa=3pe, pa=0.3pe, 25 % truncated. `spike.py` (5-block external-flow mesh; `py -3.12 cfd_validation/spike.py compare` -> `results/spike/`) |
 
-Not covered yet: aerospike (needs an external-flow mesher), two-phase flow, finite-rate/equilibrium chemistry in CFD.
+Not covered yet: two-phase flow, finite-rate/equilibrium chemistry in CFD.
 
 Findings: `FINDINGS.md`. Viscous cases use a 2e-4 m first wall cell (y+ ≈ 40, Spalding wall function) to stay within an overnight budget. The cell of TN D-5377 is 2e-5 m. Separation needs the wall-resolved case `t4_sep_rao80_pc1_yp4` (2e-5 m); the coarse cases stay attached.

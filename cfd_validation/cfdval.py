@@ -101,6 +101,8 @@ class Case:
     scale: float = 1.0
     n_ft: float = 4.0  # supersonic-inlet cases settle within ~2 flow-throughs (v1 history)
     breaks: list[float] = field(default_factory=list)
+    mesher: object = None  # custom mesh(case, path) -> (ncell, nr, g), e.g. spike.mesh_spike
+    inlet_angle: float = 0.0  # throat-mode inflow angle from +x [rad]
     ref: dict = field(default_factory=dict)
 
 
@@ -313,7 +315,9 @@ def build_cases() -> list[Case]:
         c.viscous, c.nr, c.n_ft = {"Tw": None, "dy_wall": 1.0e-5}, 100, 3.0  # y+ ~1-2 downstream, ~4 throat
         c.plume = {"pa": 101325.0, "Ta": 300.0}
         add(c)
-    return cs
+    from spike import spike_cases
+
+    return cs + spike_cases()
 
 
 def ref5_breaks(w, d):
@@ -540,7 +544,7 @@ def write_case(case: Case) -> dict:
     if d.exists():
         shutil.rmtree(d)
     (d / "system").mkdir(parents=True)
-    ncell, nr, g = mesh(case, d)
+    ncell, nr, g = (case.mesher or mesh)(case, d)
     gas = case.gas
     W = RU / gas.R
     pa = case.plume["pa"] if case.plume else None
@@ -583,7 +587,7 @@ def write_case(case: Case) -> dict:
         Mi, pi, Ti = case.inlet
         Ui = Mi * math.sqrt(g_ * gas.R * Ti)
         inl = {"p": f"type fixedValue; value uniform {pi:.8g};", "T": f"type fixedValue; value uniform {Ti:.8g};",
-               "U": f"type fixedValue; value uniform ({Ui:.8g} 0 0);"}
+               "U": f"type fixedValue; value uniform ({Ui * math.cos(case.inlet_angle):.8g} {Ui * math.sin(case.inlet_angle):.8g} 0);"}
     else:
         inl = {"p": f"type totalPressure; p0 uniform {case.p0:.8g}; value uniform {case.p0:.8g};",
                "T": f"type totalTemperature; gamma {g_}; T0 uniform {case.T0:.8g}; value uniform {case.T0:.8g};",
@@ -596,6 +600,8 @@ def write_case(case: Case) -> dict:
     else:
         outl = {k: "type zeroGradient;" for k in ("p", "T", "U")}
         amb = {}
+    if case.mesher is not None:  # spike: outlet (core + ambient end face) carries the supersonic jet: zeroGradient; fixed p there emptied cells
+        outl = {k: "type zeroGradient;" for k in ("p", "T", "U")}
     Tw = case.viscous.get("Tw") if vis else None
     if Tw is None:
         wT = "type zeroGradient;"
@@ -648,7 +654,7 @@ def write_case(case: Case) -> dict:
     wr(d / "system/controlDict", hdr("dictionary", "controlDict") +
        f"application rhoCentralFoamAxi;\nstartFrom latestTime;\nstartTime 0;\nstopAt endTime;\nendTime {end:.6g};\ndeltaT 1e-10;\n"
        f"writeControl adjustable;\nwriteInterval {end / 4:.6g};\npurgeWrite 2;\nwriteFormat ascii;\nwritePrecision 8;\n"
-       f"timeFormat general;\ntimePrecision 8;\nrunTimeModifiable true;\nadjustTimeStep yes;\nmaxCo 0.4;\nmaxDeltaT 1;\nTmin 20;\n"
+       f"timeFormat general;\ntimePrecision 8;\nrunTimeModifiable true;\nadjustTimeStep yes;\nmaxCo {0.2 if case.mesher is not None else 0.4};\nmaxDeltaT 1;\nTmin 20;\n"
        f"functions\n{{\n{fo}}}\n")
     turb_div = "div(phi,k) Gauss limitedLinear 1; div(phi,omega) Gauss limitedLinear 1;" if vis else ""
     wr(d / "system/fvSchemes", hdr("dictionary", "fvSchemes") +
@@ -664,7 +670,7 @@ def write_case(case: Case) -> dict:
             "Rt": case.Rt, "gamma_init": g_, "R_init": gas.R, "p0": case.p0, "T0": case.T0, "plume": case.plume,
             "inlet_M": case.inlet[0] if case.inlet else None, "inlet_p": case.inlet[1] if case.inlet else None,
             "inlet_T": case.inlet[2] if case.inlet else None, "Tw_profile": Tw if (vis and isinstance(Tw, (list, tuple))) else None,
-            "ncell": ncell, "endTime": end}
+            "ncell": ncell, "endTime": end, "spike": case.mesher is not None}
     wr(d / "meta.json", json.dumps(meta))
     ref = {**case.ref, "title": case.title, "tier": case.tier, "Rt": case.Rt, "p0": case.p0, "T0": case.T0, "gamma": gas.gamma,
            "R": gas.R, "table": gas.table, "planar": case.planar, "mode": case.mode, "viscous": vis, "plume": case.plume,

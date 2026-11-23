@@ -97,3 +97,14 @@ Mesh independence (coarse / medium / fine, √2 per direction):
 - Aerospike (needs an external-flow mesher).
 - Two-phase flow.
 - Finite-rate or equilibrium chemistry inside CFD.
+
+## T5 aerospike (Lee/Vernacchia spike vs OpenFOAM, 2026-11-22)
+
+ε=8, γ=1.25, Pc 5 MPa, Re 50 mm, inviscid 2.5° wedge, 8.5k cells, maxCo 0.2. Table: `results/spike/REPORT.md`.
+
+- Design NPR (pa = pe): Cf −0.61 %, spike wall p median error 2.4 %, exit M 3.250 ± 0.067 vs design 3.250. The Lee contour gives the uniform axial exit it claims.
+- Underexpanded (pa = 0.3 pe): Cf −0.68 %. The wall sees no ambient influence, as the model assumes.
+- 25 % truncated (pa = pe): Cf −0.02 %. Base pressure is 1.21 pa in CFD, while rockmoc's truncation assumes p_base = pa. The base is ~21 % of the lip-circle area, so the base thrust rockmoc omits is not negligible. The −0.02 % match is likely that gain cancelling the coarse-mesh wall-Mach lag (~2 %); a finer mesh is needed to separate the two.
+- Overexpanded (pa = 3 pe): **CFD Cf is 6.8 % above rockmoc**. The ambient compression wave reaches the spike tail and lifts the wall pressure (up to ~10× the design value). This is aerospike altitude compensation. rockmoc integrates (P_design − pa) over a fixed wall-pressure distribution, so it under-predicts overexpanded aerospike thrust, which is conservative. To fix, model wall pressure recovery past the point where the outer jet boundary hits the spike.
+- Mesh/BC lessons: (1) A fixed-p (`totalPressure`) face crossed by the supersonic jet edge empties cells (p < 0), so the downstream face must be a zeroGradient outlet. (2) `waveTransmissive` on the supersonic core outlet piled p up at the axis corner. (3) Start the ambient at min(pa, pe): starting at pa = 3 pe, or at 1e5 Pa when pa = 22 kPa, crashed in the first 20 µs.
+- Experimental data: no open, tabulated annular-plug dataset was found. The NTRS hits are scanned (CR-179554 is a film-cooled jet plug, not a Lee spike). The reference is ideal theory checked by CFD, as in T1.
